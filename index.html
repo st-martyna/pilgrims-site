@@ -595,20 +595,6 @@
   }
   .reveal.visible { opacity: 1; transform: translateY(0); }
 
-  /* Hero illustration - decorative background image */
-  .hero-illustration {
-    position: absolute;
-    right: -5%;
-    bottom: 0;
-    height: 80%;
-    width: auto;
-    opacity: 0.08;
-    pointer-events: none;
-    z-index: 1;
-    animation: fadeIn 1.5s ease 0.8s forwards;
-    opacity: 0;
-  }
-
   @media (max-width: 768px) {
     section, .how-section, .log-strip, .cta-section,
     .stats-strip, .one-liner, .model-section, .use-cases { padding-left: 1.5rem; padding-right: 1.5rem; background: var(--bg-alt);}
@@ -632,9 +618,7 @@
     .hero { min-height: auto; padding-top: 6rem; padding-bottom: 3rem; }
     .hero h1 { font-size: 2rem; }
     .hero-sub { font-size: 1rem; }
-    .hero-illustration { height: 50%; right: -15%; opacity: 0; animation: fadeInMobile 1.5s ease 0.8s forwards; }
-    .hero-robot { height: 50%; right: -15%; opacity: 0; animation: fadeInMobile 1.5s ease 0.8s forwards; }
-    @keyframes fadeInMobile { to { opacity: 0.05; } }
+    .hero-robot { display: none; }
     .hero-cta { flex-direction: column; align-items: stretch; }
     .hero-cta .btn-primary, .hero-cta .btn-ghost { text-align: center; }
     .one-liner-inner p { font-size: 1.1rem; }
@@ -676,7 +660,7 @@
       <a href="#how" class="btn-ghost">Architecture</a>
     </div>
   </div>
-<img class="hero-illustration" src="beepbeepbop_Create_an_outline_of_a_robot_pilgrim_on_their_pil_a3a53304-2155-4eec-9b56-a626211884f5_2.png" alt="" aria-hidden="true">
+<img class="hero-robot" src="beepbeepbop_Create_an_outline_of_a_robot_pilgrim_on_their_pil_a3a53304-2155-4eec-9b56-a626211884f5_2.png" alt="" aria-hidden="true">
 </section>
 
 <!-- ONE-LINER -->
