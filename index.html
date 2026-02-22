@@ -912,11 +912,9 @@
   function handleSubmit() {
     const email = document.getElementById('email').value;
     if (email && email.includes('@')) {
-      const btn = document.querySelector('.waitlist-form button');
-      btn.textContent = "We'll be in touch";
-      btn.style.background = 'var(--accent)';
-      btn.disabled = true;
-      document.getElementById('email').disabled = true;
+      const subject = encodeURIComponent('PILGRIMS - Partnership Inquiry');
+      const body = encodeURIComponent('Contact email: ' + email + '\n\nMessage:\n');
+      window.location.href = 'mailto:mrtnstchczk@gmail.com?subject=' + subject + '&body=' + body;
     }
   }
   document.getElementById('email').addEventListener('keydown', e => {
