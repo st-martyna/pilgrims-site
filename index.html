@@ -595,9 +595,23 @@
   }
   .reveal.visible { opacity: 1; transform: translateY(0); }
 
+  /* Hero illustration - decorative background image */
+  .hero-illustration {
+    position: absolute;
+    right: -5%;
+    bottom: 0;
+    height: 80%;
+    width: auto;
+    opacity: 0.08;
+    pointer-events: none;
+    z-index: 1;
+    animation: fadeIn 1.5s ease 0.8s forwards;
+    opacity: 0;
+  }
+
   @media (max-width: 768px) {
     section, .how-section, .log-strip, .cta-section,
-    .stats-strip, .one-liner, .model-section, .use-cases { padding-left: 1.5rem; padding-right: 1.5rem;  background: var(--bg-alt);}
+    .stats-strip, .one-liner, .model-section, .use-cases { padding-left: 1.5rem; padding-right: 1.5rem; background: var(--bg-alt);}
     nav { padding: 1rem 1.5rem; }
     .nav-links { display: none; }
     .problem-grid { grid-template-columns: 1fr; gap: 2.5rem; }
@@ -608,15 +622,24 @@
     .pipe-step + .pipe-step { border-left: 1px solid var(--border-dark); border-top: none; }
     .pipe-arrow { display: none; }
     .log-inner { grid-template-columns: 1fr; gap: 2rem; }
-    .uc-grid { grid-template-columns: 1fr; max-width: 420px; }
-    .model-grid { grid-template-columns: 1fr; max-width: 420px; }
+    .log-visual { font-size: 0.65rem; padding: 1.25rem; }
+    .uc-grid { grid-template-columns: 1fr; max-width: 100%; }
+    .model-grid { grid-template-columns: 1fr; max-width: 100%; }
     .stats-row { grid-template-columns: 1fr; gap: 2.5rem; }
-    .team-grid { grid-template-columns: 1fr; max-width: 380px; }
+    .team-grid { grid-template-columns: 1fr; max-width: 100%; }
     .waitlist-form { flex-direction: column; }
-    .hero { min-height: 85vh; }
-    .hero-robot { height: 60%; right: -10%; opacity: 0; animation: fadeIn 1.5s ease 0.8s forwards; }
-    @keyframes fadeIn { to { opacity: 0.06; } }
-    .hero-cta { flex-direction: column; align-items: flex-start; }
+    .waitlist-form input, .waitlist-form button { width: 100%; }
+    .hero { min-height: auto; padding-top: 6rem; padding-bottom: 3rem; }
+    .hero h1 { font-size: 2rem; }
+    .hero-sub { font-size: 1rem; }
+    .hero-illustration { height: 50%; right: -15%; opacity: 0; animation: fadeInMobile 1.5s ease 0.8s forwards; }
+    .hero-robot { height: 50%; right: -15%; opacity: 0; animation: fadeInMobile 1.5s ease 0.8s forwards; }
+    @keyframes fadeInMobile { to { opacity: 0.05; } }
+    .hero-cta { flex-direction: column; align-items: stretch; }
+    .hero-cta .btn-primary, .hero-cta .btn-ghost { text-align: center; }
+    .one-liner-inner p { font-size: 1.1rem; }
+    .section-header h2 { font-size: 1.5rem; }
+    .cta-inner h2 { font-size: 1.5rem; }
     footer { padding: 2rem 1.5rem; }
     .footer-inner { flex-direction: column; gap: 1rem; text-align: center; }
     .footer-right a { margin: 0 0.75rem; }
