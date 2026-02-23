@@ -534,7 +534,18 @@
   }
   .cta-inner p {
     font-weight: 300; color: var(--text-secondary);
-    margin-bottom: 2.5rem; font-size: 1.05rem; line-height: 1.7;
+    margin-bottom: 1.5rem; font-size: 1.05rem; line-height: 1.7;
+  }
+
+  .cta-bullets {
+    list-style: none; text-align: left; max-width: 460px; margin: 0 auto 1.5rem;
+  }
+  .cta-bullets li {
+    font-size: 1rem; font-weight: 400; color: var(--text);
+    padding: 0.4rem 0 0.4rem 1.5rem; position: relative; line-height: 1.6;
+  }
+  .cta-bullets li::before {
+    content: '→'; position: absolute; left: 0; color: var(--accent); font-weight: 500;
   }
 
   .waitlist-form {
@@ -871,8 +882,14 @@
   <div class="container">
     <div class="cta-inner reveal">
       <span class="label">CO-DEVELOPMENT</span>
-      <h2>We're actively looking for the right partners.</h2>
-      <p>If you run a robotics operation where failures are expensive and recovery is manual, we'd like to build with you. Not a pilot. A real integration, with a team that cares about getting this right.</p>
+      <h2>We're looking for founding partners.</h2>
+      <p>If you run a robotics operation where failures are expensive and recovery is manual, we want to build with you. You give us access to your hardware and failure data. We give you:</p>
+      <ul class="cta-bullets">
+        <li>PILGRIMS Standard at founding partner pricing — locked in permanently</li>
+        <li>Custom integration built around your stack</li>
+        <li>First access to the Learning Engine when it ships</li>
+      </ul>
+      <p><strong>We're selecting partners by mid-March 2026.</strong></p>
       <div class="waitlist-form">
         <input type="email" id="email" placeholder="you@company.com" aria-label="Email address">
         <button class="btn-primary" onclick="handleSubmit()">Get in touch</button>
