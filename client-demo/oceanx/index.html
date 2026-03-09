@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>PILGRIMS — Data Intelligence · OceanX</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #04080f;
+  --s1: #080f1d;
+  --s2: #0b1626;
+  --s3: #101e30;
+  --border: #1a2e48;
+  --border2: #243d5a;
+  --teal: #0fb87a;
+  --teal2: #0a8a5c;
+  --tealDim: #0fb87a22;
+  --blue: #3b82f6;
+  --blueDim: #3b82f622;
+  --red: #f43f5e;
+  --redDim: #f43f5e22;
+  --amber: #f59e0b;
+  --amberDim: #f59e0b22;
+  --purple: #a855f7;
+  --purpleDim: #a855f722;
+  --green: #22c55e;
+  --greenDim: #22c55e22;
+  --text: #e8f0f8;
+  --textDim: #7a9ab8;
+  --textMuted: #3d5570;
+  --A: #22c55e; --Abg: #22c55e18;
+  --B: #3b82f6; --Bbg: #3b82f618;
+  --C: #f59e0b; --Cbg: #f59e0b18;
+  --D: #f43f5e; --Dbg: #f43f5e18;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%;background:var(--bg);font-family:'DM Sans',sans-serif;color:var(--text)}
+button{cursor:pointer;font-family:inherit}
+input{font-family:inherit}
+::-webkit-scrollbar{width:3px}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+@keyframes barGrow{from{width:0}to{width:var(--w)}}
+@keyframes appear{from{opacity:0;transform:scale(0.97)}to{opacity:1;transform:scale(1)}}
+
+.fade-up{animation:fadeUp 0.45s ease-out both}
+.mono{font-family:'DM Mono',monospace}
+
+/* topbar */
+.topbar{background:var(--s1);border-bottom:1px solid var(--border);height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 28px;position:sticky;top:0;z-index:100}
+.logo{font-family:'Syne',sans-serif;font-size:15px;font-weight:800;color:var(--teal);letter-spacing:0.08em}
+.logo span{color:var(--textDim);font-weight:400;margin-left:10px;font-size:12px;font-family:'DM Mono',monospace}
+.topright{font-size:11px;color:var(--textMuted);font-family:'DM Mono',monospace}
+
+/* layout */
+.wrap{max-width:1180px;margin:0 auto;padding:28px 24px 60px}
+
+/* section header */
+.section-hdr{display:flex;align-items:baseline;gap:12px;margin-bottom:20px}
+.section-num{font-family:'Syne',sans-serif;font-size:11px;font-weight:700;color:var(--teal);letter-spacing:0.2em}
+.section-title{font-family:'Syne',sans-serif;font-size:20px;font-weight:700;color:var(--text)}
+.section-sub{font-size:13px;color:var(--textDim);margin-bottom:24px;line-height:1.7;max-width:680px}
+
+/* card */
+.card{background:var(--s1);border:1px solid var(--border);border-radius:8px;padding:20px 22px}
+.card-sm{background:var(--s1);border:1px solid var(--border);border-radius:7px;padding:14px 16px}
+
+/* pipeline table */
+.pipe-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.pipe-cell{background:var(--s1);padding:16px 18px}
+.pipe-label{font-size:10px;color:var(--textMuted);letter-spacing:0.12em;font-family:'DM Mono',monospace;margin-bottom:8px}
+.pipe-val{font-family:'Syne',sans-serif;font-size:28px;font-weight:700;line-height:1;margin-bottom:4px}
+.pipe-sub{font-size:11px;color:var(--textDim)}
+
+/* sensor table */
+.sensor-table{width:100%;border-collapse:collapse}
+.sensor-table th{font-size:10px;font-weight:600;color:var(--textMuted);letter-spacing:0.12em;font-family:'DM Mono',monospace;padding:8px 14px;text-align:left;border-bottom:1px solid var(--border)}
+.sensor-table td{padding:13px 14px;border-bottom:1px solid var(--border);vertical-align:middle;font-size:13px}
+.sensor-table tr:last-child td{border-bottom:none}
+.sensor-table tr{transition:background 0.15s}
+.sensor-table tr:hover td{background:var(--s2)}
+
+/* grade badge */
+.grade{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:4px;font-family:'Syne',sans-serif;font-size:14px;font-weight:800}
+
+/* uptime bar */
+.bar-wrap{height:4px;background:var(--border);border-radius:2px;min-width:80px;overflow:hidden}
+.bar-fill{height:100%;border-radius:2px;transition:width 1s cubic-bezier(0.4,0,0.2,1)}
+
+/* flag pill */
+.flag{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-family:'DM Mono',monospace;font-weight:500;padding:2px 8px;border-radius:3px;white-space:nowrap}
+
+/* scenario cards */
+.scenario{background:var(--s1);border:1px solid var(--border);border-left:3px solid var(--red);border-radius:7px;padding:18px 20px;margin-bottom:12px;cursor:pointer;transition:border-color 0.2s,background 0.2s}
+.scenario.open{background:var(--s2);border-left-color:var(--teal)}
+.scenario-header{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.scenario-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--text);margin-bottom:5px}
+.scenario-meta{font-size:11px;color:var(--textMuted);font-family:'DM Mono',monospace}
+.scenario-body{margin-top:16px;padding-top:16px;border-top:1px solid var(--border);display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;animation:fadeIn 0.2s ease-out}
+
+/* tab bar */
+.tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:28px}
+.tab{background:transparent;border:none;border-bottom:2px solid transparent;color:var(--textMuted);font-size:13px;font-weight:500;padding:11px 20px;transition:all 0.15s;margin-bottom:-1px}
+.tab.active{border-bottom-color:var(--teal);color:var(--teal);font-weight:600}
+
+/* MVS */
+.mvs-row{display:grid;grid-template-columns:180px 1fr auto;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--border)}
+.mvs-row:last-child{border-bottom:none}
+
+/* callout */
+.callout{background:linear-gradient(135deg,#0a1c10,#091424);border:1px solid var(--teal2);border-radius:8px;padding:20px 24px;position:relative;overflow:hidden}
+.callout::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--teal),transparent)}
+
+/* divider */
+.divider{height:1px;background:var(--border);margin:36px 0}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div>
+    <span class="logo">PILGRIMS <span>Data Intelligence · OceanXplorer · Argus Mariner XL</span></span>
+  </div>
+  <div class="topright">read-only · post-expedition · 3 expeditions analysed</div>
+</div>
+
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+<script type="text/babel">
+const {useState, useEffect} = React;
+
+// ── SENSOR DATA ───────────────────────────────────────────────────────────────
+const SENSORS = [
+  {
+    id:"ctd", name:"CTD — SBE 9plus", cat:"Science", iface:"RS-232",
+    uptime:97.3, quality:"DEGRADED", sciImpact:"CRITICAL",
+    grade:"B+", gradeNote:"Core science sensor. 3 gap events detected across 3 expeditions, none caught in real time. Each gap represents unrecoverable science data.",
+    flags:[{t:"3 gaps detected",c:"red"},{t:"0 caught in Sealog RT",c:"red"},{t:"CTD-depth cross-validated",c:"green"}],
+    pilgrims:"PILGRIMS detected all 3 CTD silence events (6 s, 26 s, 41 s) within 6 s of onset. Sealog lag: 8, 31, 12 minutes. Cross-validates CTD-derived depth against pressure depth sensor — divergences >2σ flagged.",
+    cost:"~$45,000 instrument",
+  },
+  {
+    id:"depth", name:"Depth sensor", cat:"Navigation", iface:"Internal",
+    uptime:94.1, quality:"DEGRADED", sciImpact:"CRITICAL",
+    grade:"B", gradeNote:"Drifted 48 m from CTD pressure derivation during on-bottom phase. Both sensors producing valid NMEA. Invisible without cross-sensor comparison.",
+    flags:[{t:"48m drift detected",c:"red"},{t:"valid NMEA throughout",c:"amber"},{t:"on-bottom data compromised",c:"red"}],
+    pilgrims:"PILGRIMS cross-compares depth sensor against CTD-derived pressure depth continuously. 5.1σ divergence triggered at 09:01:55. Estimated 38 min of on-bottom science data affected.",
+    cost:"~$8,000",
+  },
+  {
+    id:"dvl", name:"DVL — RDI Workhorse 300", cat:"Navigation", iface:"RS-232",
+    uptime:88.4, quality:"DEGRADED", sciImpact:"HIGH",
+    grade:"B-", gradeNote:"2 dropouts across 2 expeditions during deep descent (1,600–2,100 m). Each dropout silently accumulates dead-reckoning error. No Sealog entries.",
+    flags:[{t:"2 dropouts >1 min",c:"red"},{t:"nav error accumulates",c:"amber"},{t:"no Sealog capture",c:"red"}],
+    pilgrims:"PILGRIMS monitors DVL lock status and cross-validates velocity against INS when available. Deep-descent dropout pattern emerging across 2 expeditions (PAT-003).",
+    cost:"~$35,000",
+  },
+  {
+    id:"usbl", name:"USBL — Sonardyne Ranger 2", cat:"Navigation", iface:"Ethernet",
+    uptime:96.2, quality:"CLEAN", sciImpact:"HIGH",
+    grade:"A-", gradeNote:"Reliable acoustic positioning. PILGRIMS cross-validates USBL fixes against DVL dead-reckoning to flag position jumps caused by acoustic multipath.",
+    flags:[{t:"no anomalies",c:"green"},{t:"DVL cross-validated",c:"green"}],
+    pilgrims:"Cross-validation against DVL dead-reckoning detects acoustic multipath events that appear as valid USBL fixes but produce position jumps >3 m in <1 s.",
+    cost:"~$60,000",
+  },
+  {
+    id:"altimeter", name:"Altimeter", cat:"Navigation", iface:"Internal",
+    uptime:97.8, quality:"CLEAN", sciImpact:"HIGH",
+    grade:"A-", gradeNote:"Reliable seabed proximity data. Provides cross-validation reference for depth sensor during on-bottom phase.",
+    flags:[{t:"no anomalies",c:"green"},{t:"depth cross-ref",c:"green"}],
+    pilgrims:"Contributes to cross-sensor depth validation. Altimeter + depth sensor + CTD-derived depth: any 2-of-3 divergence triggers PILGRIMS flag.",
+    cost:"~$6,000",
+  },
+  {
+    id:"thrusters", name:"Thruster current ×6", cat:"Vehicle", iface:"Internal",
+    uptime:99.8, quality:"CLEAN", sciImpact:"SAFETY",
+    grade:"A", gradeNote:"Highest data utility in the archive. S3 cross-thruster asymmetry identified a systematic depth-triggered failure pattern across all 3 expeditions.",
+    flags:[{t:"PAT-001 confirmed",c:"teal"},{t:"S3 pattern: 380–450m",c:"red"},{t:"predictive flag active",c:"teal"}],
+    pilgrims:"Welford baseline per thruster, cross-thruster ratio scored against healthy-state reference. S3 pattern: FAILURE in 3/3 expeditions, always 383–449 m. Pre-dive S3 flag now issued before every deep mission.",
+    cost:"Integrated",
+  },
+  {
+    id:"rollpitch", name:"Roll / Pitch IMU", cat:"Vehicle", iface:"Internal",
+    uptime:99.7, quality:"CLEAN", sciImpact:"MEDIUM",
+    grade:"B+", gradeNote:"Reliable. Used in sample collection QC — pitch >8° during suction sampling invalidates samples.",
+    flags:[{t:"no anomalies",c:"green"},{t:"sample QC contributor",c:"green"}],
+    pilgrims:"PILGRIMS correlates roll/pitch spikes against sample collection timestamps. Events where pitch >8° during active sampling are flagged in the expedition data package.",
+    cost:"Integrated",
+  },
+  {
+    id:"hdcam", name:"HD camera — 4K", cat:"Media", iface:"Fiber",
+    uptime:97.1, quality:"CLEAN", sciImpact:"HIGH",
+    grade:"A", gradeNote:"Primary mission deliverable for media and documentation. High uptime, clean signal. No anomalies detected.",
+    flags:[{t:"no anomalies",c:"green"},{t:"primary deliverable",c:"green"}],
+    pilgrims:"PILGRIMS correlates video timestamps against science events (CTD casts, sample collection) to flag time windows where video was unavailable during critical operations.",
+    cost:"~$80,000",
+  },
+  {
+    id:"ccds", name:"Utility cameras ×2 (CCD)", cat:"Media", iface:"Internal",
+    uptime:93.2, quality:"CLEAN", sciImpact:"LOW",
+    grade:"C", gradeNote:"High uptime, clean signal, but no appearances in any science dataset across 3 expeditions. Used operationally (thruster wash checks) but not contributing to publishable data.",
+    flags:[{t:"0 dataset appearances",c:"amber"},{t:"operational use only",c:"amber"}],
+    pilgrims:"Flagged as potential instrumentation overhead. Operational utility confirmed (pilot visibility). Science dataset contribution: zero. Recommendation: evaluate whether integration cost is justified.",
+    cost:"~$12,000 ×2",
+  },
+  {
+    id:"sonar", name:"Scanning sonar", cat:"Survey", iface:"Ethernet",
+    uptime:91.2, quality:"CLEAN", sciImpact:"LOW",
+    grade:"C+", gradeNote:"High uptime but science dataset contribution is mission-type dependent. On biology/documentation expeditions, sonar data rarely reaches final datasets. On survey missions, grade would be A.",
+    flags:[{t:"mission-dependent utility",c:"amber"},{t:"1/3 expeditions contributed",c:"amber"}],
+    pilgrims:"PILGRIMS tracks which sensor streams appear in final science data packages. Sonar contributed to 1/3 expedition datasets. Flagged for mission-type optimisation — consider deployment only on survey missions.",
+    cost:"~$25,000",
+  },
+  {
+    id:"leak", name:"Leak sensor", cat:"Safety", iface:"Internal",
+    uptime:100, quality:"CLEAN", sciImpact:"NONE",
+    grade:"D", gradeNote:"100% uptime, zero events across 3 expeditions. Not contributing to any dataset. Safety sensor — this grade reflects data utilization, not safety criticality. See PILGRIMS note.",
+    flags:[{t:"0 events / 3 expeditions",c:"amber"},{t:"data utility: zero",c:"red"},{t:"safety: retain",c:"green"}],
+    pilgrims:"IMPORTANT: D grade reflects science data contribution, not safety criticality. Leak sensor should remain onboard. However, PILGRIMS recommends reviewing calibration — a sensor with 0 events across 3 dives should be verified against a known-wet test to confirm it is actively sensing, not silently failing.",
+    cost:"~$2,000",
+  },
+  {
+    id:"compensator", name:"Compensator feedback", cat:"Vehicle", iface:"Internal",
+    uptime:98.9, quality:"CLEAN", sciImpact:"NONE",
+    grade:"D", gradeNote:"High uptime, 14,400+ readings across 3 expeditions, zero appearances in science datasets. Pure telemetry overhead.",
+    flags:[{t:"14,400+ readings",c:"amber"},{t:"0 dataset appearances",c:"red"},{t:"storage overhead",c:"amber"}],
+    pilgrims:"Compensator feedback data has not contributed to fault detection, sample QC, or any science output across 3 expeditions. Recommend reviewing whether this stream needs expedition-length logging vs. on-demand checks.",
+    cost:"Integrated",
+  },
+  {
+    id:"gf", name:"Ground fault monitor", cat:"Safety", iface:"Internal",
+    uptime:100, quality:"CLEAN", sciImpact:"NONE",
+    grade:"C+", gradeNote:"100% uptime, 0 events. Safety sensor — no data utility, but triggers are potentially mission-critical. Retain.",
+    flags:[{t:"0 events",c:"amber"},{t:"safety: retain",c:"green"}],
+    pilgrims:"No events across 3 expeditions. PILGRIMS baseline-checks electrical isolation resistance trends — slow degradation toward fault threshold is detectable before a hard trip.",
+    cost:"Integrated",
+  },
+];
+
+// ── SCENARIOS ─────────────────────────────────────────────────────────────────
+const SCENARIOS = [
+  {
+    id:"s1",
+    title:"What OpenVDM shows vs. what PILGRIMS found — CTD event, OX-2024-031",
+    meta:"Atlantic · Nov 2024 · 1,140 m descent",
+    openvdm:"CTD logger process: RUNNING. File written to cruise archive: YES. Data stream continuity: NOMINAL. Science team received CTD dataset on completion.",
+    sealog:"STO entry logged at 08:53:14: 'CTD signal restored, brief interruption noted.' No prior entry.",
+    pilgrims:"CTD silence detected at 08:22:11 (6 s after gap onset). Gap duration: 41 s. Resumption at 08:22:52. Sealog entry filed 30 min 22 s after resumption. Signal interruption during descent at 1,140 m. CTD-derived depth unavailable for gap window. Gap appears as a clean file in OpenVDM — but with 41 seconds of interpolated values.",
+    insight:"The OpenVDM archive looks complete. The Sealog entry looks contemporaneous. The science team received a full CTD dataset. PILGRIMS is the only system that knows 41 seconds of that dataset are interpolated fill-values, not real measurements.",
+  },
+  {
+    id:"s2",
+    title:"The depth error that would have published — depth sensor drift, OX-2025-047",
+    meta:"Pacific · May 2025 · 1,503 m on-bottom",
+    openvdm:"Depth sensor: LOGGING. CTD: LOGGING. Both files archived. Both produce continuous, well-formed NMEA output throughout.",
+    sealog:"No entry. Both sensors produced valid output throughout. No alarm was possible.",
+    pilgrims:"Cross-sensor depth comparison triggered at 09:01:55. Depth sensor reading 48 m shallower than CTD pressure derivation — z = 5.1σ above expected divergence. Both sensors valid individually. Divergence only detectable by comparison. On-bottom phase: 38 min. All sample depth attributions during this window are off by 48 m.",
+    insight:"Without PILGRIMS, these samples would have been published with incorrect depth attributions. No alarm, no Sealog entry, no OpenVDM flag, because both sensors were producing valid data. The error only exists in the relationship between them.",
+  },
+  {
+    id:"s3",
+    title:"Dead-reckoning accumulation — DVL dropout, OX-2024-018",
+    meta:"Indian Ocean · Jul 2024 · 1,620 m descent",
+    openvdm:"DVL: LOGGING. Position fixes: CONTINUOUS. Navigation log: complete file, all timestamps present.",
+    sealog:"No entry. USBL was maintaining position fixes. No obvious degradation visible.",
+    pilgrims:"DVL lock lost at 09:55:03 (1,620 m, during descent). Lock status flag changed to NO_BOTTOM_LOCK. Duration: 4 min 12 s. During this window, navigation was entirely USBL-dependent with no DVL velocity aiding. Position uncertainty expanded to ±8 m (from ±0.8 m). Navigation log is complete — but the uncertainty envelope for 4 minutes is unrepresented in the archive.",
+    insight:"The navigation log looks fine. USBL maintained continuous fixes. But PILGRIMS knows that 4 min 12 s of that track are USBL-only with no DVL aiding — meaning position uncertainty was 10× higher. Any sample or observation geolocated during this window has an 8 m position error that isn't documented anywhere in the archive.",
+  },
+];
+
+// ── MVS DATA ──────────────────────────────────────────────────────────────────
+const MVS = {
+  missionType: "Deep-sea biology / science expedition (OceanX primary mission)",
+  successCriteria: "Publishable science data from target depth with accurate geolocation, depth attribution, and sample provenance",
+  mustHave: [
+    {sensor:"CTD (SBE 9plus)", reason:"Temperature, salinity, depth profile — foundational for all science data. Every sample requires CTD context."},
+    {sensor:"Depth sensor (with cross-validation)", reason:"Accurate depth attribution for all science samples. Cross-validation against CTD mandatory — single depth sensor without comparison is insufficient."},
+    {sensor:"Thruster monitoring ×6", reason:"Vehicle safety and attitude. S3 pattern demonstrates that unchecked thruster failure degrades navigation accuracy for the entire dive."},
+    {sensor:"USBL", reason:"Geolocation of samples and observations. Cannot publish without position reference."},
+    {sensor:"HD camera (4K)", reason:"Visual documentation of sampling site and sample context. Core deliverable for OceanX mission type."},
+    {sensor:"Altimeter", reason:"Seabed proximity for safe on-bottom operations. Also provides depth cross-validation reference."},
+  ],
+  conditional: [
+    {sensor:"DVL", reason:"Required for accurate dead-reckoning and USBL aiding. Degradation accumulates silently — flagged by PILGRIMS."},
+    {sensor:"Roll/Pitch IMU", reason:"Required for sample QC: pitch >8° during active suction sampling invalidates sample provenance."},
+    {sensor:"Scanning sonar", reason:"Required for survey expeditions. Optional for biology expeditions. Consider mission-type conditional deployment."},
+  ],
+  review: [
+    {sensor:"Utility cameras ×2", reason:"0 science dataset appearances across 3 expeditions. Evaluate vs. integration overhead."},
+    {sensor:"Compensator feedback", reason:"14,400+ readings, 0 science uses. Review logging necessity vs. on-demand telemetry."},
+  ],
+  retain: [
+    {sensor:"Leak sensor", reason:"Safety critical. D grade reflects science data utility only. Verify calibration — 0 events warrants active sensing confirmation."},
+    {sensor:"Ground fault monitor", reason:"Safety critical. Consider adding PILGRIMS baseline trending for pre-event degradation detection."},
+  ],
+};
+
+// ── helpers ───────────────────────────────────────────────────────────────────
+const GC = {A:"var(--A)",B:"var(--B)",C:"var(--C)",D:"var(--D)"};
+const GB = {A:"var(--Abg)",B:"var(--Bbg)",C:"var(--Cbg)",D:"var(--Dbg)"};
+
+function gradeColor(g){
+  if(g.startsWith("A")) return {c:"var(--A)",bg:"var(--Abg)"};
+  if(g.startsWith("B")) return {c:"var(--B)",bg:"var(--Bbg)"};
+  if(g.startsWith("C")) return {c:"var(--C)",bg:"var(--Cbg)"};
+  return {c:"var(--D)",bg:"var(--Dbg)"};
+}
+function qColor(q){return {CLEAN:"var(--green)",DEGRADED:"var(--amber)"}[q]||"var(--textMuted)";}
+function flagStyle(c){
+  return {red:{bg:"var(--redDim)",b:"var(--red)",t:"var(--red)"},amber:{bg:"var(--amberDim)",b:"var(--amber)",t:"var(--amber)"},green:{bg:"var(--greenDim)",b:"var(--green)",t:"var(--green)"},teal:{bg:"var(--tealDim)",b:"var(--teal)",t:"var(--teal)"}}[c]||{bg:"var(--s3)",b:"var(--border)",t:"var(--textDim)"};
+}
+function Flag({t,c}){const s=flagStyle(c);return <span className="flag" style={{background:s.bg,border:`1px solid ${s.b}`,color:s.t}}>{t}</span>;}
+function SLabel({children}){return <div style={{fontSize:10,fontWeight:600,color:"var(--textMuted)",letterSpacing:"0.12em",fontFamily:"'DM Mono',monospace",marginBottom:6,textTransform:"uppercase"}}>{children}</div>;}
+
+function UptimeBar({val}){
+  const col = val>=97?"var(--green)":val>=92?"var(--blue)":val>=85?"var(--amber)":"var(--red)";
+  return (
+    <div style={{display:"flex",alignItems:"center",gap:8}}>
+      <div className="bar-wrap" style={{flex:1}}>
+        <div className="bar-fill" style={{width:`${val}%`,background:col}}/>
+      </div>
+      <span className="mono" style={{fontSize:11,color:"var(--textDim)",width:38,textAlign:"right"}}>{val}%</span>
+    </div>
+  );
+}
+
+function GradeBadge({g}){
+  const {c,bg}=gradeColor(g);
+  return <span className="grade" style={{color:c,background:bg}}>{g.replace("+","").replace("-","")}<sup style={{fontSize:8}}>{g.includes("+")?"+":g.includes("-")?"-":""}</sup></span>;
+}
+
+// ── Sensor Table ─────────────────────────────────────────────────────────────
+function SensorTable({filter}){
+  const [open,setOpen]=useState(null);
+  const filtered = filter==="all" ? SENSORS : SENSORS.filter(s=>s.cat===filter);
+  return (
+    <div style={{background:"var(--s1)",border:"1px solid var(--border)",borderRadius:8,overflow:"hidden"}}>
+      <table className="sensor-table" style={{width:"100%"}}>
+        <thead>
+          <tr>
+            <th>Sensor</th>
+            <th>Category</th>
+            <th>Uptime</th>
+            <th>Data Quality</th>
+            <th>Science Impact</th>
+            <th>Grade</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {filtered.map(s=>{
+            const isOpen = open===s.id;
+            return [
+              <tr key={s.id} onClick={()=>setOpen(isOpen?null:s.id)} style={{cursor:"pointer"}}>
+                <td>
+                  <div style={{fontWeight:500,color:"var(--text)",marginBottom:2}}>{s.name}</div>
+                  <div className="mono" style={{fontSize:10,color:"var(--textMuted)"}}>{s.iface}</div>
+                </td>
+                <td><span className="mono" style={{fontSize:11,color:"var(--textDim)"}}>{s.cat}</span></td>
+                <td style={{width:160}}><UptimeBar val={s.uptime}/></td>
+                <td>
+                  <span style={{color:qColor(s.quality),fontSize:11,fontFamily:"'DM Mono',monospace",fontWeight:500}}>{s.quality}</span>
+                </td>
+                <td>
+                  <span className="mono" style={{fontSize:11,color:s.sciImpact==="CRITICAL"?"var(--red)":s.sciImpact==="HIGH"?"var(--blue)":s.sciImpact==="MEDIUM"?"var(--textDim)":s.sciImpact==="SAFETY"?"var(--teal)":"var(--textMuted)"}}>{s.sciImpact}</span>
+                </td>
+                <td><GradeBadge g={s.grade}/></td>
+                <td style={{color:"var(--textMuted)",fontSize:14}}>{isOpen?"↑":"↓"}</td>
+              </tr>,
+              isOpen && (
+                <tr key={s.id+"-detail"}>
+                  <td colSpan={7} style={{padding:0}}>
+                    <div style={{background:"var(--s2)",padding:"18px 20px",borderTop:"1px solid var(--border)",animation:"appear 0.2s ease-out"}}>
+                      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:18,marginBottom:16}}>
+                        <div>
+                          <SLabel>Grade reasoning</SLabel>
+                          <div style={{fontSize:12,color:"var(--textDim)",lineHeight:1.75}}>{s.gradeNote}</div>
+                        </div>
+                        <div>
+                          <SLabel>PILGRIMS contribution</SLabel>
+                          <div style={{fontSize:12,color:"var(--textDim)",lineHeight:1.75}}>{s.pilgrims}</div>
+                        </div>
+                        <div>
+                          <SLabel>Flags</SLabel>
+                          <div style={{display:"flex",flexWrap:"wrap",gap:4}}>
+                            {s.flags.map((f,i)=><Flag key={i} t={f.t} c={f.c}/>)}
+                          </div>
+                          {s.cost&&<div style={{marginTop:10,fontSize:11,color:"var(--textMuted)",fontFamily:"'DM Mono',monospace"}}>Instrument cost: {s.cost}</div>}
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              )
+            ];
+          })}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+// ── Scenario cards ────────────────────────────────────────────────────────────
+function ScenarioCard({sc}){
+  const [open,setOpen]=useState(false);
+  return (
+    <div className={`scenario ${open?"open":""}`} onClick={()=>setOpen(!open)}>
+      <div className="scenario-header">
+        <div style={{flex:1}}>
+          <div className="scenario-title">{sc.title}</div>
+          <div className="scenario-meta">{sc.meta}</div>
+        </div>
+        <div style={{color:"var(--textMuted)",fontSize:16,flexShrink:0}}>{open?"↑":"↓"}</div>
+      </div>
+      {open&&(
+        <div className="scenario-body">
+          <div>
+            <SLabel>What OpenVDM / pipeline shows</SLabel>
+            <div style={{background:"var(--greenDim)",border:"1px solid var(--green)44",borderRadius:5,padding:"10px 12px",fontSize:11,color:"var(--textDim)",lineHeight:1.75,fontFamily:"'DM Mono',monospace"}}>{sc.openvdm}</div>
+            {sc.sealog&&<>
+              <div style={{marginTop:8}}><SLabel>Sealog</SLabel></div>
+              <div style={{background:"var(--blueDim)",border:"1px solid var(--blue)44",borderRadius:5,padding:"10px 12px",fontSize:11,color:"var(--textDim)",lineHeight:1.75,fontFamily:"'DM Mono',monospace"}}>{sc.sealog}</div>
+            </>}
+          </div>
+          <div>
+            <SLabel>What PILGRIMS found</SLabel>
+            <div style={{background:"var(--tealDim)",border:"1px solid var(--teal)44",borderRadius:5,padding:"10px 12px",fontSize:11,color:"var(--text)",lineHeight:1.85,fontFamily:"'DM Mono',monospace"}}>{sc.pilgrims}</div>
+          </div>
+          <div>
+            <SLabel>Why this matters for your pipeline</SLabel>
+            <div style={{fontSize:12,color:"var(--text)",lineHeight:1.8}}>{sc.insight}</div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── MVS section ───────────────────────────────────────────────────────────────
+function MVSView(){
+  return (
+    <div>
+      <div className="callout" style={{marginBottom:24}}>
+        <div style={{fontSize:11,color:"var(--teal)",fontFamily:"'DM Mono',monospace",letterSpacing:"0.1em",marginBottom:8}}>MISSION TYPE</div>
+        <div style={{fontFamily:"'Syne',sans-serif",fontSize:15,fontWeight:700,marginBottom:6}}>{MVS.missionType}</div>
+        <div style={{fontSize:12,color:"var(--textDim)",lineHeight:1.7}}>
+          <strong style={{color:"var(--text)"}}>Success criteria:</strong> {MVS.successCriteria}
+        </div>
+      </div>
+
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:20,marginBottom:20}}>
+        {/* must-have */}
+        <div className="card">
+          <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:16}}>
+            <span style={{width:8,height:8,borderRadius:"50%",background:"var(--green)",display:"inline-block"}}/>
+            <span style={{fontFamily:"'Syne',sans-serif",fontWeight:700,fontSize:14}}>Must-have sensors</span>
+            <span className="mono" style={{fontSize:10,color:"var(--textMuted)",marginLeft:"auto"}}>{MVS.mustHave.length} sensors</span>
+          </div>
+          {MVS.mustHave.map((s,i)=>(
+            <div key={i} className="mvs-row" style={{gridTemplateColumns:"1fr 1fr"}}>
+              <div style={{fontWeight:500,fontSize:13,color:"var(--text)"}}>{s.sensor}</div>
+              <div style={{fontSize:11,color:"var(--textDim)",lineHeight:1.65}}>{s.reason}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* right column: conditional + review */}
+        <div style={{display:"flex",flexDirection:"column",gap:16}}>
+          <div className="card">
+            <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:14}}>
+              <span style={{width:8,height:8,borderRadius:"50%",background:"var(--amber)",display:"inline-block"}}/>
+              <span style={{fontFamily:"'Syne',sans-serif",fontWeight:700,fontSize:14}}>Mission-conditional</span>
+            </div>
+            {MVS.conditional.map((s,i)=>(
+              <div key={i} className="mvs-row" style={{gridTemplateColumns:"140px 1fr"}}>
+                <div style={{fontWeight:500,fontSize:12,color:"var(--text)"}}>{s.sensor}</div>
+                <div style={{fontSize:11,color:"var(--textDim)",lineHeight:1.65}}>{s.reason}</div>
+              </div>
+            ))}
+          </div>
+          <div className="card">
+            <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:14}}>
+              <span style={{width:8,height:8,borderRadius:"50%",background:"var(--red)",display:"inline-block"}}/>
+              <span style={{fontFamily:"'Syne',sans-serif",fontWeight:700,fontSize:14}}>Recommend review</span>
+            </div>
+            {MVS.review.map((s,i)=>(
+              <div key={i} className="mvs-row" style={{gridTemplateColumns:"140px 1fr"}}>
+                <div style={{fontWeight:500,fontSize:12,color:"var(--text)"}}>{s.sensor}</div>
+                <div style={{fontSize:11,color:"var(--textDim)",lineHeight:1.65}}>{s.reason}</div>
+              </div>
+            ))}
+          </div>
+          <div className="card">
+            <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:14}}>
+              <span style={{width:8,height:8,borderRadius:"50%",background:"var(--blue)",display:"inline-block"}}/>
+              <span style={{fontFamily:"'Syne',sans-serif",fontWeight:700,fontSize:14}}>Retain — safety</span>
+            </div>
+            {MVS.retain.map((s,i)=>(
+              <div key={i} className="mvs-row" style={{gridTemplateColumns:"140px 1fr"}}>
+                <div style={{fontWeight:500,fontSize:12,color:"var(--text)"}}>{s.sensor}</div>
+                <div style={{fontSize:11,color:"var(--textDim)",lineHeight:1.65}}>{s.reason}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="callout">
+        <div style={{fontFamily:"'Syne',sans-serif",fontWeight:700,fontSize:14,marginBottom:8}}>The instrumentation conversation PILGRIMS enables</div>
+        <div style={{fontSize:12,color:"var(--textDim)",lineHeight:1.85}}>
+          Instrumentation decisions at OceanX are currently made before season based on mission type and budget. PILGRIMS makes this a data-driven conversation based on actual contribution history.
+          <br/><br/>
+          <strong style={{color:"var(--text)"}}>After 2 expeditions:</strong> PILGRIMS can tell you which sensors have contributed to high-quality scientific data acquisition vs. which are integration overhead, and which have enabled fault detection vs. only produced storage cost (the scanning sonar decision (deploy on survey missions only) being one example, the utility camera question is another).
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Pipeline Stats ────────────────────────────────────────────────────────────
+function PipelineStats(){
+  return (
+    <div>
+      <div className="pipe-grid" style={{marginBottom:20}}>
+        {[
+          {l:"Sensor streams monitored",v:"14",sub:"across Mariner XL",c:"var(--teal)"},
+          {l:"Streams with data quality issues",v:"3",sub:"CTD · Depth · DVL",c:"var(--red)"},
+          {l:"Events invisible to OpenVDM",v:"9",sub:"across 3 expeditions",c:"var(--red)"},
+          {l:"Events with no Sealog entry",v:"6",sub:"of 9 PILGRIMS events",c:"var(--amber)"},
+          {l:"Max Sealog lag",v:"31 min",sub:"CTD, OX-2024-031",c:"var(--amber)"},
+          {l:"Science data at risk",v:"~41 min",sub:"depth-attributed samples",c:"var(--red)"},
+        ].map(s=>(
+          <div className="pipe-cell" key={s.l}>
+            <div className="pipe-label">{s.l.toUpperCase()}</div>
+            <div className="pipe-val" style={{color:s.c}}>{s.v}</div>
+            <div className="pipe-sub">{s.sub}</div>
+          </div>
+        ))}
+      </div>
+
+      <div style={{marginBottom:12,fontFamily:"'Syne',sans-serif",fontSize:14,fontWeight:700,color:"var(--text)"}}>
+        Pipeline integrity across 3 expeditions
+      </div>
+      <div style={{fontSize:12,color:"var(--textDim)",lineHeight:1.75,marginBottom:20,maxWidth:680}}>
+        PILGRIMS reads OpenRVDAS log files and the OpenVDM REST API. It compares what the systems report (stream alive, file exists, logger running) against what the data actually shows (gaps, cross-sensor divergence, silent drift). The three scenarios below are representative of the gap.
+      </div>
+
+      {SCENARIOS.map(sc=><ScenarioCard key={sc.id} sc={sc}/>)}
+    </div>
+  );
+}
+
+// ── Main ──────────────────────────────────────────────────────────────────────
+function App(){
+  const [tab,setTab] = useState("pipeline");
+  const [catFilter,setCatFilter] = useState("all");
+
+  const cats = ["all","Science","Navigation","Vehicle","Media","Survey","Safety"];
+
+  return (
+    <div className="wrap">
+
+      {/* hero */}
+      <div style={{marginBottom:32,animation:"fadeUp 0.5s ease-out"}}>
+        <div className="mono" style={{fontSize:11,color:"var(--teal)",letterSpacing:"0.15em",marginBottom:16}}>PILGRIMS · DATA INTELLIGENCE · FOR MATT KRAVETZ, HEAD OF DATA</div>
+
+        {/* Stack diagram */}
+        <div style={{marginBottom:24}}>
+          {/* Existing systems row */}
+          <div style={{fontSize:10,color:"var(--textMuted)",fontFamily:"'DM Mono',monospace",letterSpacing:"0.12em",marginBottom:8}}>YOUR EXISTING INFRASTRUCTURE</div>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10,marginBottom:0}}>
+            {[
+              {name:"OpenRVDAS",desc:"Modular data acquisition",bullets:["Captures data from serial / network / file","Filters, parses, routes data streams","Writes to file, network, database","Integration with InfluxDB / Grafana"],limit:"Knows if the stream is alive"},
+              {name:"OpenVDM",desc:"Vessel-wide data management",bullets:["Organises files cruise-to-cruise","Enforces directory and naming standards","Notifies technicians when problems arise","Automates backups and data workflows"],limit:"Knows if the files exist"},
+              {name:"Sealog",desc:"Modular event-logging",bullets:["Captures scientific and operational events","Query / export by cruise, dive, parameters","Integrates with GPS, USBL, frame capture","RESTful API for custom data products"],limit:"Knows what the STO noticed"},
+            ].map(s=>(
+              <div key={s.name} style={{background:"var(--s2)",border:"1px solid var(--border)",borderRadius:7,padding:"14px 16px"}}>
+                <div style={{fontFamily:"'Syne',sans-serif",fontWeight:700,fontSize:13,color:"var(--blue)",marginBottom:3}}>{s.name}</div>
+                <div style={{fontSize:11,color:"var(--textMuted)",marginBottom:10,lineHeight:1.5}}>{s.desc}</div>
+                <div style={{borderTop:"1px solid var(--border)",paddingTop:10,marginBottom:10,display:"flex",flexDirection:"column",gap:4}}>
+                  {s.bullets.map((b,i)=><div key={i} style={{fontSize:11,color:"var(--textDim)",display:"flex",gap:6,lineHeight:1.5}}><span style={{color:"var(--textMuted)",flexShrink:0}}>·</span>{b}</div>)}
+                </div>
+                <div style={{borderTop:"1px solid var(--border)",paddingTop:8,fontSize:10,fontFamily:"'DM Mono',monospace",color:"var(--amber)",fontWeight:600}}>{s.limit}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Arrow + PILGRIMS */}
+          <div style={{display:"flex",alignItems:"stretch",gap:10,marginTop:10}}>
+            {/* Connector line spanning all three columns */}
+            <div style={{flex:1,display:"flex",flexDirection:"column",alignItems:"stretch"}}>
+              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10,marginBottom:0}}>
+                {[0,1,2].map(i=>(
+                  <div key={i} style={{display:"flex",justifyContent:"center"}}>
+                    <div style={{width:1,height:16,background:"var(--border2)"}}/>
+                  </div>
+                ))}
+              </div>
+              {/* PILGRIMS bar */}
+              <div style={{background:"linear-gradient(135deg,#0a1c10,#091628)",border:"1px solid var(--teal2)",borderRadius:7,padding:"14px 20px",position:"relative",overflow:"hidden"}}>
+                <div style={{position:"absolute",top:0,left:0,right:0,height:2,background:"linear-gradient(90deg,var(--teal),var(--blue),var(--teal))"}}/>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:20,flexWrap:"wrap"}}>
+                  <div style={{display:"flex",alignItems:"baseline",gap:10}}>
+                    <span style={{fontFamily:"'Syne',sans-serif",fontWeight:800,fontSize:15,color:"var(--teal)",letterSpacing:"0.06em"}}>PILGRIMS</span>
+                    <span style={{fontSize:12,color:"var(--textMuted)",fontFamily:"'DM Mono',monospace"}}>reads all three · adds no new infrastructure</span>
+                  </div>
+                  <div style={{fontSize:11,color:"var(--teal)",fontFamily:"'DM Mono',monospace",fontWeight:600,background:"var(--tealDim)",border:"1px solid var(--teal2)",borderRadius:4,padding:"3px 10px"}}>read-only sidecar</div>
+                </div>
+                <div style={{marginTop:12,display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:16}}>
+                  {[
+                    {q:"OpenRVDAS says stream is alive.",a:"PILGRIMS asks: are the values inside physically plausible?"},
+                    {q:"OpenVDM says the files exist.",a:"PILGRIMS asks: are two sensors in those files agreeing with each other?"},
+                    {q:"Sealog says the STO logged an event.",a:"PILGRIMS asks: what happened that the STO didn't log?"},
+                  ].map((item,i)=>(
+                    <div key={i} style={{fontSize:11,lineHeight:1.7}}>
+                      <span style={{color:"var(--textMuted)"}}>{item.q}</span>
+                      <span style={{color:"var(--teal)",fontWeight:500}}> {item.a}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* tabs */}
+      <div className="tabs">
+        {[
+          {id:"pipeline",label:"Pipeline Integrity"},
+          {id:"sensors",label:"Sensor Contribution Grades"},
+          {id:"mvs",label:"Minimal Viable Sensing"},
+        ].map(t=>(
+          <button key={t.id} className={`tab ${tab===t.id?"active":""}`} onClick={()=>setTab(t.id)}>{t.label}</button>
+        ))}
+      </div>
+
+      {/* pipeline tab */}
+      {tab==="pipeline"&&<PipelineStats/>}
+
+      {/* sensors tab */}
+      {tab==="sensors"&&(
+        <div style={{animation:"fadeUp 0.35s ease-out"}}>
+          <div className="section-sub" style={{marginBottom:16}}>
+            PILGRIMS grades every sensor stream by four factors: stream availability, data quality, cross-sensor validation, and contribution to publishable expedition outcomes. Click any sensor to expand.
+          </div>
+          {/* grade key */}
+          <div style={{display:"flex",gap:10,marginBottom:18,flexWrap:"wrap"}}>
+            {[["A","Critical, performing, contributing"],["B","Important, minor issues or gaps"],["C","Operational but limited science value"],["D","High uptime, zero science contribution"]].map(([g,desc])=>{
+              const {c,bg}=gradeColor(g);
+              return <div key={g} style={{display:"flex",alignItems:"center",gap:7,background:"var(--s2)",border:"1px solid var(--border)",borderRadius:5,padding:"6px 12px"}}>
+                <span className="grade" style={{color:c,background:bg,width:22,height:22,fontSize:12}}>{g}</span>
+                <span style={{fontSize:11,color:"var(--textDim)"}}>{desc}</span>
+              </div>;
+            })}
+          </div>
+          {/* category filter */}
+          <div style={{display:"flex",gap:6,marginBottom:14,flexWrap:"wrap"}}>
+            {cats.map(c=>(
+              <button key={c} onClick={()=>setCatFilter(c)}
+                style={{background:catFilter===c?"var(--teal)":"transparent",color:catFilter===c?"var(--bg)":"var(--textMuted)",border:`1px solid ${catFilter===c?"var(--teal)":"var(--border)"}`,borderRadius:4,padding:"4px 12px",fontSize:11,fontFamily:"'DM Mono',monospace",fontWeight:600}}>
+                {c}
+              </button>
+            ))}
+          </div>
+          <SensorTable filter={catFilter}/>
+          {/* callout */}
+          <div className="callout" style={{marginTop:20}}>
+            <div style={{fontFamily:"'Syne',sans-serif",fontWeight:700,fontSize:14,marginBottom:8}}>The D-grade sensors</div>
+            <div style={{fontSize:12,color:"var(--textDim)",lineHeight:1.85}}>
+              The leak sensor and compensator feedback both have near-perfect uptime, yet they have not been informative across 3 expeditions (integration overhead and additional storage budget). 
+              <br/><br/>
+              <strong style={{color:"var(--text)"}}>PILGRIMS recommendation on the leak sensor specifically:</strong> a D grade on science contribution doesn't mean remove it. It means verify it's actively sensing — a sensor with 0 events across 14 dives-worth of data should be wet-tested to confirm it hasn't silently failed. A broken safety sensor that reports no leaks looks identical to a working one.
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MVS tab */}
+      {tab==="mvs"&&(
+        <div style={{animation:"fadeUp 0.35s ease-out"}}>
+          <div className="section-sub">
+            What is the minimum sensor configuration for an OceanX science expedition to produce publishable data? PILGRIMS builds this baseline from your expedition archive — and tracks which sensors are and aren't earning their place.
+          </div>
+          <MVSView/>
+        </div>
+      )}
+
+      {/* footer */}
+      <div style={{marginTop:48,paddingTop:16,borderTop:"1px solid var(--border)",display:"flex",justifyContent:"space-between",fontSize:11,color:"var(--textMuted)",fontFamily:"'DM Mono',monospace"}}>
+        <span>PILGRIMS · read-only · no writes to OpenRVDAS · Sealog · OpenVDM</span>
+        <span>hello@usepilgrims.com · usepilgrims.com · Dr Martyna Stachaczyk, ARIA Fellow</span>
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>
