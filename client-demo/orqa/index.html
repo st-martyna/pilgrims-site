@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>PILGRIMS — Failure Intelligence · Orqa</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #04080f;
+  --s1: #080f1d;
+  --s2: #0b1626;
+  --s3: #101e30;
+  --border: #1a2e48;
+  --border2: #243d5a;
+  --teal: #0fb87a;
+  --teal2: #0a8a5c;
+  --tealDim: #0fb87a22;
+  --blue: #3b82f6;
+  --blueDim: #3b82f622;
+  --red: #f43f5e;
+  --redDim: #f43f5e22;
+  --amber: #f59e0b;
+  --amberDim: #f59e0b22;
+  --green: #22c55e;
+  --greenDim: #22c55e22;
+  --text: #e8f0f8;
+  --textDim: #7a9ab8;
+  --textMuted: #3d5570;
+  --A: #22c55e; --Abg: #22c55e18;
+  --B: #3b82f6; --Bbg: #3b82f618;
+  --C: #f59e0b; --Cbg: #f59e0b18;
+  --D: #f43f5e; --Dbg: #f43f5e18;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%;background:var(--bg);font-family:'DM Sans',sans-serif;color:var(--text)}
+button{cursor:pointer;font-family:inherit}
+::-webkit-scrollbar{width:3px}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes appear{from{opacity:0;transform:scale(0.97)}to{opacity:1;transform:scale(1)}}
+.mono{font-family:'DM Mono',monospace}
+.topbar{background:var(--s1);border-bottom:1px solid var(--border);height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 28px;position:sticky;top:0;z-index:100}
+.logo{font-family:'Syne',sans-serif;font-size:15px;font-weight:800;color:var(--teal);letter-spacing:0.08em}
+.logo span{color:var(--textDim);font-weight:400;margin-left:10px;font-size:12px;font-family:'DM Mono',monospace}
+.topright{font-size:11px;color:var(--textMuted);font-family:'DM Mono',monospace}
+.wrap{max-width:1180px;margin:0 auto;padding:28px 24px 60px}
+.section-sub{font-size:13px;color:var(--textDim);margin-bottom:24px;line-height:1.7;max-width:680px}
+.card{background:var(--s1);border:1px solid var(--border);border-radius:8px;padding:20px 22px}
+.pipe-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-bottom:20px}
+.pipe-cell{background:var(--s1);padding:16px 18px}
+.pipe-label{font-size:10px;color:var(--textMuted);letter-spacing:0.12em;font-family:'DM Mono',monospace;margin-bottom:8px}
+.pipe-val{font-family:'Syne',sans-serif;font-size:18px;font-weight:700;line-height:1.3;margin-bottom:4px}
+.pipe-sub{font-size:11px;color:var(--textDim);line-height:1.5}
+.sensor-table{width:100%;border-collapse:collapse}
+.sensor-table th{font-size:10px;font-weight:600;color:var(--textMuted);letter-spacing:0.12em;font-family:'DM Mono',monospace;padding:8px 14px;text-align:left;border-bottom:1px solid var(--border)}
+.sensor-table td{padding:13px 14px;border-bottom:1px solid var(--border);vertical-align:middle;font-size:13px}
+.sensor-table tr:last-child td{border-bottom:none}
+.sensor-table tr{transition:background 0.15s}
+.sensor-table tr:hover td{background:var(--s2)}
+.flag{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-family:'DM Mono',monospace;font-weight:500;padding:2px 8px;border-radius:3px;white-space:nowrap}
+.scenario{background:var(--s1);border:1px solid var(--border);border-left:3px solid var(--red);border-radius:7px;padding:18px 20px;margin-bottom:12px;cursor:pointer;transition:border-color 0.2s,background 0.2s}
+.scenario.open{background:var(--s2);border-left-color:var(--teal)}
+.scenario-header{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.scenario-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--text);margin-bottom:5px}
+.scenario-meta{font-size:11px;color:var(--textMuted);font-family:'DM Mono',monospace}
+.scenario-body{margin-top:16px;padding-top:16px;border-top:1px solid var(--border);display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;animation:fadeIn 0.2s ease-out}
+.tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:28px}
+.tab{background:transparent;border:none;border-bottom:2px solid transparent;color:var(--textMuted);font-size:13px;font-weight:500;padding:11px 20px;transition:all 0.15s;margin-bottom:-1px}
+.tab.active{border-bottom-color:var(--teal);color:var(--teal);font-weight:600}
+.mvs-row{display:grid;grid-template-columns:200px 1fr;gap:12px;align-items:start;padding:12px 0;border-bottom:1px solid var(--border)}
+.mvs-row:last-child{border-bottom:none}
+.callout{background:linear-gradient(135deg,#0a1c10,#091424);border:1px solid var(--teal2);border-radius:8px;padding:20px 24px;position:relative;overflow:hidden}
+.callout::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--teal),transparent)}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div>
+    <span class="logo">PILGRIMS <span>Failure Intelligence · Orqa · MRM1-5 / MRM2-10 / MRM3</span></span>
+  </div>
+  <div class="topright">read-only sidecar · stage 1 proposal · illustrative structure</div>
+</div>
+
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+<script type="text/babel">
+const {useState} = React;
+
+const SUBSYSTEMS = [
+  {
+    id:"esc", name:"4-in-1 ESC (AM32 firmware)", cat:"Propulsion", iface:"DSHOT / bidirectional telemetry",
+    opImpact:"CRITICAL",
+    gradeNote:"The ORQA 4IN1 ESC (60A on MRM1-5, 70A on MRM2-10) runs AM32 firmware, which outputs per-motor current, RPM, and temperature over bidirectional DSHOT. This is the earliest available signal for mechanical and electrical faults — current asymmetry across motors typically precedes any visible flight anomaly by tens of seconds. Both platforms confirmed on this hardware.",
+    flags:[{t:"AM32 telemetry confirmed",c:"teal"},{t:"per-motor current + RPM + temp",c:"teal"},{t:"grade: Stage 1",c:"amber"}],
+    pilgrims:"PILGRIMS builds a Welford rolling baseline per motor, normalised against throttle demand. Cross-motor ratio deviations beyond threshold trigger a pre-flight advisory before the next mission. Recurrence across batch cycles is flagged as a systemic issue rather than a one-off event.",
+  },
+  {
+    id:"imu", name:"ICM-42688 IMU", cat:"Stabilisation", iface:"SPI / internal",
+    opImpact:"CRITICAL",
+    gradeNote:"The ICM-42688 is confirmed on the ORQA H7 QuadCore flight controller (MRM2-10). High-frequency gyro and accelerometer data is the primary input for vibration signature analysis. Correlating IMU signatures against ESC current during anomalous events is the foundation for separating mechanical faults from autopilot or environmental causes in incident review.",
+    flags:[{t:"confirmed: ORQA H7 QuadCore",c:"teal"},{t:"vibration cross-ref with ESC",c:"teal"},{t:"grade: Stage 1",c:"amber"}],
+    pilgrims:"PILGRIMS correlates accelerometer RMS against ESC current signatures. High-frequency vibration bursts that do not correspond to throttle changes are flagged as propeller or frame events and timestamped for engineering review.",
+  },
+  {
+    id:"fc", name:"Flight controller logs (ArduPilot / iNav / Betaflight)", cat:"Autopilot", iface:"internal / SD card .bin",
+    opImpact:"HIGH",
+    gradeNote:"Both the ORQA F405 (MRM1-5) and ORQA H743 (MRM2-10) support ArduPilot, iNav, Betaflight, and PX4. ArduPilot writes .bin logs to SD card containing mode transitions, PID state, failsafe triggers, arming events, and motor output commands. This is a rich data source that is largely unread post-flight outside of active incident investigation. Each firmware iteration resets the behavioural baseline without any structured comparison to the prior version.",
+    flags:[{t:"confirmed: F405 + H743",c:"teal"},{t:"ArduPilot .bin logs",c:"teal"},{t:"firmware baseline: untracked",c:"red"}],
+    pilgrims:"PILGRIMS ingests ArduPilot .bin logs and establishes a behavioural baseline per firmware version. When a new firmware is deployed, deviations from the prior baseline are flagged on the first flights before any field reports could surface a regression. Failsafe trigger events are extracted and correlated with hardware telemetry.",
+  },
+  {
+    id:"mavlink", name:"MAVLINK telemetry stream", cat:"Autopilot", iface:"MAVLINK / ATAK",
+    opImpact:"HIGH",
+    gradeNote:"Both MRM platforms confirm MAVLINK support with ATAK integration. The MAVLINK stream carries real-time vehicle state, battery, GPS, and mode information in a structured protocol. This is the cleanest real-time ingestion path for PILGRIMS on confirmed Orqa hardware, requiring no custom parser development.",
+    flags:[{t:"confirmed: both MRM platforms",c:"teal"},{t:"ATAK integration",c:"teal"},{t:"clean ingestion path",c:"teal"}],
+    pilgrims:"PILGRIMS treats the MAVLINK stream as the primary real-time ingestion layer. Anomalies detected in the live stream are cross-referenced against the .bin log post-flight to confirm and structure the error record.",
+  },
+  {
+    id:"link", name:"IRONghost C2 link (sub-GHz)", cat:"RF / Link", iface:"4xx / 9xx MHz switchable",
+    opImpact:"HIGH",
+    gradeNote:"The IRONghost EW-resilient link is confirmed on both MRM platforms, operating on switchable 4xx/9xx MHz sub-GHz licensed bands. Link quality and RSSI are available as telemetry. Patterns of link degradation by location, configuration, or RF environment are only detectable if RSSI is tracked systematically across missions rather than noted in field reports after the fact.",
+    flags:[{t:"confirmed: IRONghost",c:"teal"},{t:"4xx/9xx MHz sub-GHz",c:"teal"},{t:"RSSI trending: untracked",c:"amber"}],
+    pilgrims:"PILGRIMS logs RSSI and link quality metrics per mission. Degradation patterns correlated with flight phase, location, or payload configuration are surfaced as systemic risks rather than individual events.",
+  },
+  {
+    id:"video", name:"5.8GHz analog video transmitter", cat:"Video", iface:"ISM 5.8GHz",
+    opImpact:"MEDIUM",
+    gradeNote:"Both platforms confirm a 5.8GHz analog VTx alongside the IRONghost C2 link. On current gen platforms, video signal loss events are recorded as pilot reports rather than telemetry events. The correlation between signal loss and RF environment, transmitter state, or link congestion is not currently established systematically.",
+    flags:[{t:"confirmed: 5.8GHz VTx",c:"teal"},{t:"signal loss: pilot report only",c:"amber"},{t:"RF correlation: none",c:"amber"}],
+    pilgrims:"On Gen 3 with the onboard Linux computer, structured video stream health logging becomes fully tractable as a native process. On current platforms, PILGRIMS correlates any available VTx state data against IRONghost link quality and flight phase.",
+  },
+  {
+    id:"payload", name:"3rd party payload interface", cat:"Payload", iface:"GPIO / UART / I2C",
+    opImpact:"HIGH",
+    gradeNote:"The MRM2-10 supports payloads up to 3.5kg. Each hardware builder in the Gen 2.5 ecosystem introduces a new failure mode with no prior baseline. Faults arrive as vague field reports and the diagnosis requires manual engineering support, because there is no structured record of what the payload was doing at the time of the anomaly. This is the highest-cost support category per incident.",
+    flags:[{t:"MRM2-10: up to 3.5kg",c:"teal"},{t:"no structured fault log",c:"red"},{t:"diagnosis: manual only",c:"red"}],
+    pilgrims:"PILGRIMS monitors power draw and any available interface output from the payload. When a fault occurs, the pre-fault telemetry window is automatically extracted and structured into an error-solution pair, building a payload-specific fault library that reduces the next diagnosis cycle from hours to minutes.",
+  },
+  {
+    id:"linux", name:"Onboard Linux computer (Gen 3 / MRM3)", cat:"Compute", iface:"internal",
+    opImpact:"HIGH",
+    gradeNote:"From Orqa meeting notes (not yet publicly documented): the Gen 3 platform adds an NXP ARM Cortex-A53 onboard computer with a permissive Linux userspace and a 40 TOPS co-processor. This is the architecture that makes structured sidecar monitoring fully tractable — PILGRIMS runs as a native userspace process, reading system logs, application logs, and hardware telemetry without any modification to the flight stack.",
+    flags:[{t:"NXP ARM Cortex-A53",c:"teal"},{t:"40 TOPS co-processor",c:"teal"},{t:"permissive Linux userspace",c:"teal"},{t:"meeting notes only",c:"amber"}],
+    pilgrims:"On Gen 3, PILGRIMS runs as a userspace process reading from system logs, autopilot log files, and hardware telemetry streams. The co-processor enables on-device anomaly detection without offloading. Error-solution pairs are written to persistent storage and synced when connectivity is available.",
+  },
+];
+
+const SCENARIOS = [
+  {
+    id:"s1",
+    title:"Illustrative: compounding ESC and payload fault misread as pilot error",
+    meta:"Failure type: multi-causal · platform: MRM2-10 class · status: illustrative",
+    fieldReport:"Pilot report: 'vehicle started drifting during hover, recovered manually.' Engineering response: pilot error suspected, no hardware fault found on inspection. Incident closed.",
+    pilgrims:"AM32 ESC telemetry shows motor 2 current draw elevated above baseline from early in the flight. Cross-motor ratio deviation grows past threshold approximately 60 seconds before the reported drift. A 3rd party payload activated shortly before the elevation began, drawing above the expected current delta for its configuration. The combination of payload current draw and motor asymmetry created a torque imbalance the autopilot was compensating for silently until it could no longer do so.",
+    insight:"The field report closed the incident as pilot error. The ESC telemetry contained a compounding fault that began well before the pilot noticed anything. Without structured log ingestion, this failure mode has no entry in Orqa's institutional memory, and the same payload configuration will produce the same outcome in the next deployment batch.",
+  },
+  {
+    id:"s2",
+    title:"Illustrative: firmware regression invisible until field reports accumulate",
+    meta:"Failure type: firmware baseline shift · platform: MRM1-5 / MRM2-10 · status: illustrative",
+    fieldReport:"Multiple reports across several weeks: 'altitude hold feels different', 'seems to overcorrect in wind'. Engineering investigation: PID parameters checked, no change found. Issue attributed to environmental variation across operators.",
+    pilgrims:"PILGRIMS baseline comparison between consecutive firmware versions: a change in baro-IMU fusion weighting is detectable as a shift in altitude oscillation behaviour under light wind conditions. The change is present from the first flight on the new firmware and consistent across all incident reports. With structured baseline comparison, this regression is flagged on flight 1 of the new firmware, before any field reports are filed.",
+    insight:"Several weeks of engineering time to identify a regression that was measurable from the first deployment of the new firmware. The cost is not only engineering hours, it is the erosion of operator confidence across a batch cycle. Structured firmware baseline comparison is the missing layer between each Orqa release.",
+  },
+  {
+    id:"s3",
+    title:"Illustrative: RF interference pattern requiring cross-log correlation",
+    meta:"Failure type: payload RF interference · platform: MRM2-10 with payload · status: illustrative",
+    fieldReport:"Four reports over six weeks: 'brief position jump during mission', 'GPS glitch', 'had to take manual control momentarily'. Each closed independently. No pattern identified.",
+    pilgrims:"All four events occur within a consistent window of the payload's active cycle. A payload component is generating RF interference in the GPS L1 band. HDOP degrades measurably during each event. The payload activation timestamp, GPS quality metric, and position anomaly are all in separate log sources with no automated correlation. Individually, each event looks like a GPS glitch. Together, they are a systematic RF compatibility fault that is fully detectable after incident one.",
+    insight:"Four incidents closed as GPS glitches because the correlation between payload activation and signal degradation required looking across three separate log sources simultaneously. The pattern was detectable after the first event. Without structured cross-log correlation, the fifth incident in this configuration is a mission failure.",
+  },
+];
+
+const MVS = {
+  context:"Multi-role tactical FPV, MRM1-5 and MRM2-10, with 3rd party payload ecosystem (Gen 2.5) and Gen 3 Linux compute platform in development (MRM3)",
+  successCriteria:"Failure modes captured and structured before they recur across batch cycles, with engineering support cost reduced as the developer ecosystem scales",
+  mustHave:[
+    {sensor:"AM32 ESC telemetry (per-motor current, RPM, temp)",reason:"Earliest available fault signal on both MRM platforms. Cross-motor ratio scoring against a throttle-normalised baseline is the foundation of any predictive fault detection layer."},
+    {sensor:"ArduPilot / iNav .bin flight logs",reason:"Full autopilot state history across F405 and H743 platforms. Essential for firmware regression detection and for establishing a per-version behavioural baseline."},
+    {sensor:"MAVLINK telemetry stream",reason:"Cleanest real-time ingestion path on confirmed Orqa hardware. Carries vehicle state, battery, GPS, and mode data in a structured protocol requiring no custom parser."},
+    {sensor:"ICM-42688 IMU data",reason:"Required for vibration signature analysis and cross-correlation with ESC current. Also the ground truth for separating mechanical events from autopilot or pilot-input causes in incident review."},
+  ],
+  conditional:[
+    {sensor:"IRONghost RSSI / link quality",reason:"Diagnostic value only when correlated with flight phase and environmental context. Standalone RSSI logging without this correlation has limited fault detection value."},
+    {sensor:"5.8GHz VTx state (Gen 3 / MRM3)",reason:"Structured video stream health logging is only fully tractable on Gen 3 via the Linux userspace. On current platforms, video faults remain pilot-reported and uncorrelated."},
+  ],
+  review:[
+    {sensor:"3rd party payload interface output",reason:"Most payloads on Gen 2.5 produce unstructured or proprietary output. Without a parsing layer, this data is storage overhead. PILGRIMS adds the parsing layer as part of Stage 1 ingestion setup."},
+  ],
+  retain:[
+    {sensor:"Barometer (ArduPilot log)",reason:"Required for altitude hold baseline and firmware regression detection. Not a primary fault signal in isolation, essential for cross-validation with GPS altitude and IMU vertical acceleration."},
+    {sensor:"GPS quality metrics (HDOP, satellite count)",reason:"A systemic fault indicator only when correlated with payload state and flight phase, as in the RF interference scenario. Standalone GPS logging without this context has limited diagnostic value."},
+  ],
+};
+
+function flagStyle(c){
+  return {red:{bg:"var(--redDim)",b:"var(--red)",t:"var(--red)"},amber:{bg:"var(--amberDim)",b:"var(--amber)",t:"var(--amber)"},green:{bg:"var(--greenDim)",b:"var(--green)",t:"var(--green)"},teal:{bg:"var(--tealDim)",b:"var(--teal)",t:"var(--teal)"}}[c]||{bg:"var(--s3)",b:"var(--border)",t:"var(--textDim)"};
+}
+function Flag({t,c}){const s=flagStyle(c);return <span className="flag" style={{background:s.bg,border:`1px solid ${s.b}`,color:s.t}}>{t}</span>;}
+function SLabel({children}){return <div style={{fontSize:10,fontWeight:600,color:"var(--textMuted)",letterSpacing:"0.12em",fontFamily:"'DM Mono',monospace",marginBottom:6,textTransform:"uppercase"}}>{children}</div>;}
+
+function SubsystemTable({filter}){
+  const [open,setOpen]=useState(null);
+  const filtered=filter==="all"?SUBSYSTEMS:SUBSYSTEMS.filter(s=>s.cat===filter);
+  return(
+    <div style={{background:"var(--s1)",border:"1px solid var(--border)",borderRadius:8,overflow:"hidden"}}>
+      <table className="sensor-table" style={{width:"100%"}}>
+        <thead>
+          <tr>
+            <th>Subsystem</th>
+            <th>Category</th>
+            <th>Operational Impact</th>
+            <th>Grade</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {filtered.map(s=>{
+            const isOpen=open===s.id;
+            return[
+              <tr key={s.id} onClick={()=>setOpen(isOpen?null:s.id)} style={{cursor:"pointer"}}>
+                <td>
+                  <div style={{fontWeight:500,color:"var(--text)",marginBottom:2}}>{s.name}</div>
+                  <div className="mono" style={{fontSize:10,color:"var(--textMuted)"}}>{s.iface}</div>
+                </td>
+                <td><span className="mono" style={{fontSize:11,color:"var(--textDim)"}}>{s.cat}</span></td>
+                <td><span className="mono" style={{fontSize:11,color:s.opImpact==="CRITICAL"?"var(--red)":s.opImpact==="HIGH"?"var(--blue)":"var(--textDim)"}}>{s.opImpact}</span></td>
+                <td>
+                  <span style={{display:"inline-flex",alignItems:"center",justifyContent:"center",width:32,height:28,borderRadius:4,background:"var(--amberDim)",border:"1px solid var(--amber)44",fontSize:10,fontFamily:"'DM Mono',monospace",color:"var(--amber)",fontWeight:600}}>S1</span>
+                </td>
+                <td style={{color:"var(--textMuted)",fontSize:14}}>{isOpen?"↑":"↓"}</td>
+              </tr>,
+              isOpen&&(
+                <tr key={s.id+"-detail"}>
+                  <td colSpan={5} style={{padding:0}}>
+                    <div style={{background:"var(--s2)",padding:"18px 20px",borderTop:"1px solid var(--border)",animation:"appear 0.2s ease-out"}}>
+                      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:18}}>
+                        <div>
+                          <SLabel>Subsystem context</SLabel>
+                          <div style={{fontSize:12,color:"var(--textDim)",lineHeight:1.75}}>{s.gradeNote}</div>
+                        </div>
+                        <div>
+                          <SLabel>PILGRIMS contribution</SLabel>
+                          <div style={{fontSize:12,color:"var(--textDim)",lineHeight:1.75}}>{s.pilgrims}</div>
+                        </div>
+                        <div>
+                          <SLabel>Flags</SLabel>
+                          <div style={{display:"flex",flexWrap:"wrap",gap:4}}>{s.flags.map((f,i)=><Flag key={i} t={f.t} c={f.c}/>)}</div>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              )
+            ];
+          })}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function ScenarioCard({sc}){
+  const [open,setOpen]=useState(false);
+  return(
+    <div className={`scenario ${open?"open":""}`} onClick={()=>setOpen(!open)}>
+      <div className="scenario-header">
+        <div style={{flex:1}}>
+          <div className="scenario-title">{sc.title}</div>
+          <div className="scenario-meta">{sc.meta}</div>
+        </div>
+        <div style={{color:"var(--textMuted)",fontSize:16,flexShrink:0}}>{open?"↑":"↓"}</div>
+      </div>
+      {open&&(
+        <div className="scenario-body">
+          <div>
+            <SLabel>What the field report recorded</SLabel>
+            <div style={{background:"var(--greenDim)",border:"1px solid var(--green)44",borderRadius:5,padding:"10px 12px",fontSize:11,color:"var(--textDim)",lineHeight:1.75,fontFamily:"'DM Mono',monospace"}}>{sc.fieldReport}</div>
+          </div>
+          <div>
+            <SLabel>What PILGRIMS finds in the logs</SLabel>
+            <div style={{background:"var(--tealDim)",border:"1px solid var(--teal)44",borderRadius:5,padding:"10px 12px",fontSize:11,color:"var(--text)",lineHeight:1.85,fontFamily:"'DM Mono',monospace"}}>{sc.pilgrims}</div>
+          </div>
+          <div>
+            <SLabel>Why this matters across batch cycles</SLabel>
+            <div style={{fontSize:12,color:"var(--text)",lineHeight:1.8}}>{sc.insight}</div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function MVSView(){
+  return(
+    <div>
+      <div className="callout" style={{marginBottom:24}}>
+        <div style={{fontSize:11,color:"var(--teal)",fontFamily:"'DM Mono',monospace",letterSpacing:"0.1em",marginBottom:8}}>DEPLOYMENT CONTEXT</div>
+        <div style={{fontFamily:"'Syne',sans-serif",fontSize:15,fontWeight:700,marginBottom:6}}>{MVS.context}</div>
+        <div style={{fontSize:12,color:"var(--textDim)",lineHeight:1.7}}><strong style={{color:"var(--text)"}}>Success criteria:</strong> {MVS.successCriteria}</div>
+      </div>
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:20,marginBottom:20}}>
+        <div className="card">
+          <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:16}}>
+            <span style={{width:8,height:8,borderRadius:"50%",background:"var(--green)",display:"inline-block"}}/>
+            <span style={{fontFamily:"'Syne',sans-serif",fontWeight:700,fontSize:14}}>Must-have telemetry</span>
+            <span className="mono" style={{fontSize:10,color:"var(--textMuted)",marginLeft:"auto"}}>{MVS.mustHave.length} streams</span>
+          </div>
+          {MVS.mustHave.map((s,i)=>(
+            <div key={i} className="mvs-row">
+              <div style={{fontWeight:500,fontSize:12,color:"var(--text)"}}>{s.sensor}</div>
+              <div style={{fontSize:11,color:"var(--textDim)",lineHeight:1.65}}>{s.reason}</div>
+            </div>
+          ))}
+        </div>
+        <div style={{display:"flex",flexDirection:"column",gap:16}}>
+          <div className="card">
+            <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:14}}>
+              <span style={{width:8,height:8,borderRadius:"50%",background:"var(--amber)",display:"inline-block"}}/>
+              <span style={{fontFamily:"'Syne',sans-serif",fontWeight:700,fontSize:14}}>Context-dependent</span>
+            </div>
+            {MVS.conditional.map((s,i)=>(
+              <div key={i} className="mvs-row">
+                <div style={{fontWeight:500,fontSize:12,color:"var(--text)"}}>{s.sensor}</div>
+                <div style={{fontSize:11,color:"var(--textDim)",lineHeight:1.65}}>{s.reason}</div>
+              </div>
+            ))}
+          </div>
+          <div className="card">
+            <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:14}}>
+              <span style={{width:8,height:8,borderRadius:"50%",background:"var(--red)",display:"inline-block"}}/>
+              <span style={{fontFamily:"'Syne',sans-serif",fontWeight:700,fontSize:14}}>Requires parsing layer</span>
+            </div>
+            {MVS.review.map((s,i)=>(
+              <div key={i} className="mvs-row">
+                <div style={{fontWeight:500,fontSize:12,color:"var(--text)"}}>{s.sensor}</div>
+                <div style={{fontSize:11,color:"var(--textDim)",lineHeight:1.65}}>{s.reason}</div>
+              </div>
+            ))}
+          </div>
+          <div className="card">
+            <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:14}}>
+              <span style={{width:8,height:8,borderRadius:"50%",background:"var(--blue)",display:"inline-block"}}/>
+              <span style={{fontFamily:"'Syne',sans-serif",fontWeight:700,fontSize:14}}>Retain, expand monitoring</span>
+            </div>
+            {MVS.retain.map((s,i)=>(
+              <div key={i} className="mvs-row">
+                <div style={{fontWeight:500,fontSize:12,color:"var(--text)"}}>{s.sensor}</div>
+                <div style={{fontSize:11,color:"var(--textDim)",lineHeight:1.65}}>{s.reason}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+      <div className="callout">
+        <div style={{fontFamily:"'Syne',sans-serif",fontWeight:700,fontSize:14,marginBottom:8}}>The developer platform problem this addresses</div>
+        <div style={{fontSize:12,color:"var(--textDim)",lineHeight:1.85}}>
+          As the platform opens to external hardware builders, the failure space grows with each new payload configuration. The current model absorbs that growth as engineering support cost, because there is no structured record of what was connected, what it was doing, and what the vehicle state was at the time of a fault.
+          <br/><br/>
+          <strong style={{color:"var(--text)"}}>PILGRIMS converts each engineering support session into a graded fault entry.</strong> The second time a payload of the same type fails, the diagnosis time collapses from days to minutes. By the time Gen 3 opens that same payload category to a broader developer pool, the most common failure modes are already structured and searchable, and the support burden is a fraction of what it would otherwise be.
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function FailureVisibility(){
+  return(
+    <div>
+      <div className="pipe-grid">
+        {[
+          {l:"Confirmed ingestion paths",v:"MAVLINK · .bin · AM32",sub:"no new infrastructure required on either MRM platform",c:"var(--teal)"},
+          {l:"Failure modes currently structured",v:"0",sub:"field reports are unstructured and unlinked to telemetry",c:"var(--red)"},
+          {l:"Failure modes after Stage 1",v:"to be established",sub:"from first batch of log ingestion",c:"var(--amber)"},
+          {l:"Cross-batch recurrence detection",v:"not possible today",sub:"no persistent error memory exists",c:"var(--red)"},
+          {l:"Payload fault diagnosis method",v:"manual",sub:"engineering handholding per incident",c:"var(--amber)"},
+          {l:"Firmware regression detection",v:"field reports only",sub:"lag of days to weeks per regression event",c:"var(--red)"},
+        ].map(s=>(
+          <div className="pipe-cell" key={s.l}>
+            <div className="pipe-label">{s.l.toUpperCase()}</div>
+            <div className="pipe-val" style={{color:s.c}}>{s.v}</div>
+            <div className="pipe-sub">{s.sub}</div>
+          </div>
+        ))}
+      </div>
+      <div style={{marginBottom:12,fontFamily:"'Syne',sans-serif",fontSize:14,fontWeight:700,color:"var(--text)"}}>
+        Illustrative failure scenarios — representative types, not real Orqa incidents
+      </div>
+      <div style={{fontSize:12,color:"var(--textDim)",lineHeight:1.75,marginBottom:20,maxWidth:680}}>
+        The three scenarios below are illustrative of failure types structurally present in Orqa's operational context, based on the meeting discussion. They are not drawn from real Orqa data. They show what PILGRIMS would surface once log ingestion begins in Stage 1.
+      </div>
+      {SCENARIOS.map(sc=><ScenarioCard key={sc.id} sc={sc}/>)}
+    </div>
+  );
+}
+
+function App(){
+  const [tab,setTab]=useState("failures");
+  const [catFilter,setCatFilter]=useState("all");
+  const cats=["all","Propulsion","Stabilisation","Autopilot","RF / Link","Video","Payload","Compute"];
+
+  return(
+    <div className="wrap">
+      <div style={{marginBottom:32,animation:"fadeUp 0.5s ease-out"}}>
+        <div className="mono" style={{fontSize:11,color:"var(--teal)",letterSpacing:"0.15em",marginBottom:16}}>PILGRIMS · FAILURE INTELLIGENCE · ORQA FPV · STAGE 1 PROPOSAL</div>
+
+        <div style={{background:"var(--amberDim)",border:"1px solid var(--amber)44",borderRadius:6,padding:"10px 16px",marginBottom:20,fontSize:11,fontFamily:"'DM Mono',monospace",color:"var(--amber)",lineHeight:1.7}}>
+          This document is a structural proposal. Component names are confirmed from Orqa public specifications (MRM1-5, MRM2-10). All grades and performance figures are placeholders — marked S1 — to be established during Stage 1 log ingestion. Failure scenarios are illustrative, not real Orqa incidents.
+        </div>
+
+        <div style={{marginBottom:24}}>
+          <div style={{fontSize:10,color:"var(--textMuted)",fontFamily:"'DM Mono',monospace",letterSpacing:"0.12em",marginBottom:8}}>ORQA'S EXISTING STACK — confirmed from MRM1-5 and MRM2-10 public specifications</div>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10}}>
+            {[
+              {name:"Flight controller logs",desc:"ORQA F405 (MRM1-5) · ORQA H743 / ICM-42688 (MRM2-10)",bullets:["ArduPilot / iNav / Betaflight / PX4 support","MAVLINK + ATAK integration confirmed",".bin logs to SD: mode, PID, failsafe, arming","GPS included on F405 platform"],limit:"Knows what the autopilot commanded"},
+              {name:"AM32 ESC telemetry",desc:"ORQA 60A 4-in-1 (MRM1-5) · ORQA 70A 4-in-1 (MRM2-10)",bullets:["Per-motor current, RPM, temperature","Bidirectional DSHOT — both platforms confirmed","Pre-flashed AM32 firmware on both","4-in-1 form factor on both platforms"],limit:"Knows what the motors reported"},
+              {name:"Field reports",desc:"Operator and engineering notes",bullets:["Incident descriptions after the fact","Secondhand from pilots or clients in peacetime","No structured format or cross-batch taxonomy","No automated link to concurrent telemetry"],limit:"Knows what someone noticed and remembered"},
+            ].map(s=>(
+              <div key={s.name} style={{background:"var(--s2)",border:"1px solid var(--border)",borderRadius:7,padding:"14px 16px"}}>
+                <div style={{fontFamily:"'Syne',sans-serif",fontWeight:700,fontSize:13,color:"var(--blue)",marginBottom:3}}>{s.name}</div>
+                <div style={{fontSize:11,color:"var(--textMuted)",marginBottom:10,lineHeight:1.5}}>{s.desc}</div>
+                <div style={{borderTop:"1px solid var(--border)",paddingTop:10,marginBottom:10,display:"flex",flexDirection:"column",gap:4}}>
+                  {s.bullets.map((b,i)=><div key={i} style={{fontSize:11,color:"var(--textDim)",display:"flex",gap:6,lineHeight:1.5}}><span style={{color:"var(--textMuted)",flexShrink:0}}>·</span>{b}</div>)}
+                </div>
+                <div style={{borderTop:"1px solid var(--border)",paddingTop:8,fontSize:10,fontFamily:"'DM Mono',monospace",color:"var(--amber)",fontWeight:600}}>{s.limit}</div>
+              </div>
+            ))}
+          </div>
+          <div style={{marginTop:10}}>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10}}>
+              {[0,1,2].map(i=>(
+                <div key={i} style={{display:"flex",justifyContent:"center"}}>
+                  <div style={{width:1,height:16,background:"var(--border2)"}}/>
+                </div>
+              ))}
+            </div>
+            <div style={{background:"linear-gradient(135deg,#0a1c10,#091628)",border:"1px solid var(--teal2)",borderRadius:7,padding:"14px 20px",position:"relative",overflow:"hidden"}}>
+              <div style={{position:"absolute",top:0,left:0,right:0,height:2,background:"linear-gradient(90deg,var(--teal),var(--blue),var(--teal))"}}/> 
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:20,flexWrap:"wrap",marginBottom:12}}>
+                <div style={{display:"flex",alignItems:"baseline",gap:10}}>
+                  <span style={{fontFamily:"'Syne',sans-serif",fontWeight:800,fontSize:15,color:"var(--teal)",letterSpacing:"0.06em"}}>PILGRIMS</span>
+                  <span style={{fontSize:12,color:"var(--textMuted)",fontFamily:"'DM Mono',monospace"}}>reads all three · no stack modification · no new infrastructure</span>
+                </div>
+                <div style={{fontSize:11,color:"var(--teal)",fontFamily:"'DM Mono',monospace",fontWeight:600,background:"var(--tealDim)",border:"1px solid var(--teal2)",borderRadius:4,padding:"3px 10px"}}>read-only sidecar</div>
+              </div>
+              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:16}}>
+                {[
+                  {q:"The flight controller logged a motor command.",a:"PILGRIMS asks: does the AM32 ESC telemetry confirm the motor executed it, and is this motor's current signature within its healthy-state baseline?"},
+                  {q:"The AM32 ESC shows motor current data.",a:"PILGRIMS asks: is the cross-motor ratio within expected bounds for this throttle level, and has this deviation pattern appeared in a previous batch?"},
+                  {q:"The field report says the pilot noticed a problem.",a:"PILGRIMS asks: what was in the logs in the 60 seconds before that, and does this match any structured error record from a prior deployment?"},
+                ].map((item,i)=>(
+                  <div key={i} style={{fontSize:11,lineHeight:1.7}}>
+                    <span style={{color:"var(--textMuted)"}}>{item.q}</span>
+                    <span style={{color:"var(--teal)",fontWeight:500}}> {item.a}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="tabs">
+        {[
+          {id:"failures",label:"Failure Visibility"},
+          {id:"subsystems",label:"Subsystem Overview"},
+          {id:"mvi",label:"Minimal Viable Instrumentation"},
+        ].map(t=>(
+          <button key={t.id} className={`tab ${tab===t.id?"active":""}`} onClick={()=>setTab(t.id)}>{t.label}</button>
+        ))}
+      </div>
+
+      {tab==="failures"&&<FailureVisibility/>}
+
+      {tab==="subsystems"&&(
+        <div style={{animation:"fadeUp 0.35s ease-out"}}>
+          <div className="section-sub" style={{marginBottom:16}}>
+            Component names are confirmed from Orqa's public specifications. All grades are marked S1 (Stage 1) — to be established once log ingestion begins. Click any row to expand the subsystem context and PILGRIMS contribution.
+          </div>
+          <div style={{display:"flex",gap:6,marginBottom:14,flexWrap:"wrap"}}>
+            {cats.map(c=>(
+              <button key={c} onClick={()=>setCatFilter(c)}
+                style={{background:catFilter===c?"var(--teal)":"transparent",color:catFilter===c?"var(--bg)":"var(--textMuted)",border:`1px solid ${catFilter===c?"var(--teal)":"var(--border)"}`,borderRadius:4,padding:"4px 12px",fontSize:11,fontFamily:"'DM Mono',monospace",fontWeight:600}}>
+                {c}
+              </button>
+            ))}
+          </div>
+          <SubsystemTable filter={catFilter}/>
+          <div className="callout" style={{marginTop:20}}>
+            <div style={{fontFamily:"'Syne',sans-serif",fontWeight:700,fontSize:14,marginBottom:8}}>Why grades are empty until Stage 1</div>
+            <div style={{fontSize:12,color:"var(--textDim)",lineHeight:1.85}}>
+              Grading a subsystem requires a baseline, and a baseline requires data. The component names here are confirmed from Orqa's public specifications — but how AM32 telemetry actually surfaces across MRM1-5 and MRM2-10 deployments, which fault patterns recur across batches, and which log sources are being read versus ignored in practice, are all questions that Stage 1 log ingestion answers. The structure of this demo is what PILGRIMS produces. The numbers come from your stack.
+            </div>
+          </div>
+        </div>
+      )}
+
+      {tab==="mvi"&&(
+        <div style={{animation:"fadeUp 0.35s ease-out"}}>
+          <div className="section-sub">
+            What is the minimum telemetry configuration for PILGRIMS to produce meaningful fault detection on the MRM1-5 and MRM2-10? This baseline also defines the monitoring requirements for the Gen 3 developer programme as the payload ecosystem scales toward MRM3.
+          </div>
+          <MVSView/>
+        </div>
+      )}
+
+      <div style={{marginTop:48,paddingTop:16,borderTop:"1px solid var(--border)",display:"flex",justifyContent:"space-between",fontSize:11,color:"var(--textMuted)",fontFamily:"'DM Mono',monospace"}}>
+        <span>PILGRIMS · read-only · no writes to flight controller · no stack modification</span>
+        <span>hello@usepilgrims.com · usepilgrims.com · Dr Martyna Stachaczyk, ARIA Fellow</span>
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>
