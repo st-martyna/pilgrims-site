@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>PILGRIMS: Data Intelligence · Orpheus Ocean</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #04080f;
+  --s1: #080f1d;
+  --s2: #0b1626;
+  --s3: #101e30;
+  --border: #1a2e48;
+  --border2: #243d5a;
+  --teal: #0fb87a;
+  --teal2: #0a8a5c;
+  --tealDim: #0fb87a22;
+  --blue: #3b82f6;
+  --blueDim: #3b82f622;
+  --red: #f43f5e;
+  --redDim: #f43f5e22;
+  --amber: #f59e0b;
+  --amberDim: #f59e0b22;
+  --purple: #a855f7;
+  --purpleDim: #a855f722;
+  --green: #22c55e;
+  --greenDim: #22c55e18;
+  --text: #e8f0f8;
+  --textDim: #7a9ab8;
+  --textMuted: #3d5570;
+  --A: #22c55e; --Abg: #22c55e18;
+  --B: #3b82f6; --Bbg: #3b82f618;
+  --C: #f59e0b; --Cbg: #f59e0b18;
+  --D: #f43f5e; --Dbg: #f43f5e18;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%;background:var(--bg);font-family:'DM Sans',sans-serif;color:var(--text)}
+button{cursor:pointer;font-family:inherit}
+input{font-family:inherit}
+::-webkit-scrollbar{width:3px}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes appear{from{opacity:0;transform:scale(0.97)}to{opacity:1;transform:scale(1)}}
+
+.fade-up{animation:fadeUp 0.45s ease-out both}
+.mono{font-family:'DM Mono',monospace}
+
+.topbar{background:var(--s1);border-bottom:1px solid var(--border);height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 28px;position:sticky;top:0;z-index:100}
+.logo{font-family:'Syne',sans-serif;font-size:15px;font-weight:800;color:var(--teal);letter-spacing:0.08em}
+.logo span{color:var(--textDim);font-weight:400;margin-left:10px;font-size:12px;font-family:'DM Mono',monospace}
+.topright{font-size:11px;color:var(--textMuted);font-family:'DM Mono',monospace}
+
+.wrap{max-width:1180px;margin:0 auto;padding:28px 24px 60px}
+
+.section-sub{font-size:13px;color:var(--textDim);margin-bottom:24px;line-height:1.7;max-width:680px}
+
+.card{background:var(--s1);border:1px solid var(--border);border-radius:8px;padding:20px 22px}
+
+.pipe-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.pipe-cell{background:var(--s1);padding:16px 18px}
+.pipe-label{font-size:10px;color:var(--textMuted);letter-spacing:0.12em;font-family:'DM Mono',monospace;margin-bottom:8px}
+.pipe-val{font-family:'Syne',sans-serif;font-size:28px;font-weight:700;line-height:1;margin-bottom:4px}
+.pipe-sub{font-size:11px;color:var(--textDim)}
+
+.sensor-table{width:100%;border-collapse:collapse}
+.sensor-table th{font-size:10px;font-weight:600;color:var(--textMuted);letter-spacing:0.12em;font-family:'DM Mono',monospace;padding:8px 14px;text-align:left;border-bottom:1px solid var(--border)}
+.sensor-table td{padding:13px 14px;border-bottom:1px solid var(--border);vertical-align:middle;font-size:13px}
+.sensor-table tr:last-child td{border-bottom:none}
+.sensor-table tr{transition:background 0.15s}
+.sensor-table tr:hover td{background:var(--s2)}
+
+.grade{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:4px;font-family:'Syne',sans-serif;font-size:14px;font-weight:800}
+
+.bar-wrap{height:4px;background:var(--border);border-radius:2px;min-width:80px;overflow:hidden}
+.bar-fill{height:100%;border-radius:2px}
+
+.flag{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-family:'DM Mono',monospace;font-weight:500;padding:2px 8px;border-radius:3px;white-space:nowrap}
+
+.scenario{background:var(--s1);border:1px solid var(--border);border-left:3px solid var(--red);border-radius:7px;padding:18px 20px;margin-bottom:12px;cursor:pointer;transition:border-color 0.2s,background 0.2s}
+.scenario.open{background:var(--s2);border-left-color:var(--teal)}
+.scenario-header{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.scenario-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--text);margin-bottom:5px}
+.scenario-meta{font-size:11px;color:var(--textMuted);font-family:'DM Mono',monospace}
+.scenario-body{margin-top:16px;padding-top:16px;border-top:1px solid var(--border);display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;animation:fadeIn 0.2s ease-out}
+
+.tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:28px}
+.tab{background:transparent;border:none;border-bottom:2px solid transparent;color:var(--textMuted);font-size:13px;font-weight:500;padding:11px 20px;transition:all 0.15s;margin-bottom:-1px}
+.tab.active{border-bottom-color:var(--teal);color:var(--teal);font-weight:600}
+
+.mvs-row{display:grid;grid-template-columns:180px 1fr;gap:12px;align-items:flex-start;padding:12px 0;border-bottom:1px solid var(--border)}
+.mvs-row:last-child{border-bottom:none}
+
+.callout{background:linear-gradient(135deg,#0a1c10,#091424);border:1px solid var(--teal2);border-radius:8px;padding:20px 24px;position:relative;overflow:hidden}
+.callout::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--teal),transparent)}
+
+.divider{height:1px;background:var(--border);margin:36px 0}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div>
+    <span class="logo">PILGRIMS <span>Data Intelligence · Orpheus Ocean · Orpheus AUV</span></span>
+  </div>
+  <div class="topright">read-only · post-expedition · 3 missions analysed</div>
+</div>
+
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+<script type="text/babel">
+const {useState} = React;
+
+// ── SENSOR DATA ───────────────────────────────────────────────────────────────
+const SENSORS = [
+  {
+    id:"camera", name:"SmartSight MV100 (FLIR Blackfly S)", cat:"Science",
+    iface:"GigE Vision",
+    uptime:94.8, quality:"DEGRADED", sciImpact:"CRITICAL",
+    grade:"B+",
+    gradeNote:"Primary mission deliverable: 4K terrain maps and biological imagery are the core science output. Two feature-tracking failures detected: sudden feature-count collapse to <12 features (from baseline ~280) correlated with sediment plume events at the seafloor. Individually each camera event looked valid; the failure was in navigation, not in the file.",
+    flags:[{t:"2 feature-count collapses",c:"red"},{t:"correlated with xVIO drift",c:"red"},{t:"both unlogged in mission debrief",c:"amber"}],
+    pilgrims:"PILGRIMS monitors FLIR frame rate, xVIO feature count per frame, and LED power draw jointly. Feature-count collapse (<20 features) triggers a navigation uncertainty flag independently of xVIO's own convergence status, because xVIO can report 'converged' while silently propagating stale features.",
+    cost:"~$14,000 (housing + camera)",
+  },
+  {
+    id:"dvl", name:"DVL (Doppler Velocity Log)", cat:"Navigation",
+    iface:"RS-232 / Ethernet",
+    uptime:87.2, quality:"DEGRADED", sciImpact:"CRITICAL",
+    grade:"B-",
+    gradeNote:"Three bottom-lock loss events across 3 missions, each during steep terrain transit or sediment-rich descent. Loss durations: 6 min 44 s (OR-2025-031), 2 min 18 s (OR-2025-014), 4 min 51 s (OR-2024-062). During each loss, position uncertainty expanded 8–12× and all terrain-relative navigation relied solely on xVIO visual odometry. None were captured in the mission debrief log.",
+    flags:[{t:"3 bottom-lock losses",c:"red"},{t:"nav error compounds",c:"amber"},{t:"0 entries in mission debrief",c:"red"}],
+    pilgrims:"PILGRIMS cross-validates DVL velocity against xVIO velocity estimate. When DVL reports NO_BOTTOM_LOCK, PILGRIMS flags all observations geolocated during the outage window as having elevated position uncertainty. This window is not represented in the ROS bag topic metadata.",
+    cost:"~$30,000",
+  },
+  {
+    id:"imu", name:"IMU / xVIO state estimator", cat:"Navigation",
+    iface:"Internal (Jetson)",
+    uptime:99.1, quality:"DEGRADED", sciImpact:"HIGH",
+    grade:"B+",
+    gradeNote:"xVIO visual-inertial odometry is the vehicle's primary navigation brain. High uptime, but two episodes of EKF divergence detected on featureless abyssal sediment plains: xVIO reported 'converged' while feature count had collapsed. Only catchable by cross-referencing xVIO velocity output against DVL bottom-track simultaneously.",
+    flags:[{t:"2 silent EKF divergences",c:"red"},{t:"featureless terrain trigger",c:"amber"},{t:"DVL cross-validated",c:"teal"}],
+    pilgrims:"PILGRIMS correlates xVIO velocity output against DVL velocity at 1 Hz. Divergence >0.15 m/s for >30 s without a DVL lock-loss flag triggers an EKF plausibility warning, a failure mode xVIO's own health reporting cannot distinguish from normal operation.",
+    cost:"Integrated (Jetson Orin compute)",
+  },
+  {
+    id:"depth", name:"Pressure / depth sensor", cat:"Navigation",
+    iface:"Internal",
+    uptime:96.3, quality:"DEGRADED", sciImpact:"CRITICAL",
+    grade:"B",
+    gradeNote:"Drift of 31 m detected during on-bottom phase in OR-2024-062 (Sigsbee Escarpment, 2,210 m). Sensor producing valid output throughout, and drift is only detectable by cross-comparing against DVL altitude + known deployment depth from USBL. All sample depth attributions during the 27-minute on-bottom phase are off by 31 m.",
+    flags:[{t:"31m drift detected",c:"red"},{t:"valid output throughout",c:"amber"},{t:"27min science data affected",c:"red"}],
+    pilgrims:"PILGRIMS cross-compares pressure depth against DVL-derived altitude + USBL depth continuously. 4.3σ divergence triggered at 07:44:12. Both sensors producing valid, in-range readings, and the error only exists in the comparison between them. No ROS bag topic or xVIO health metric flagged anything.",
+    cost:"~$8,000 (hadal-rated)",
+  },
+  {
+    id:"altimeter", name:"Acoustic altimeter", cat:"Navigation",
+    iface:"Internal",
+    uptime:97.6, quality:"CLEAN", sciImpact:"HIGH",
+    grade:"A-",
+    gradeNote:"Reliable seafloor-proximity data across all 3 missions. Primary cross-validation reference for depth sensor during on-bottom phase. The OR-2024-062 depth drift was first detected via altimeter mismatch.",
+    flags:[{t:"no anomalies",c:"green"},{t:"depth cross-ref active",c:"green"},{t:"key to OR-2024-062 detection",c:"teal"}],
+    pilgrims:"Altimeter + pressure depth + xVIO-derived altitude: any 2-of-3 divergence triggers a PILGRIMS depth integrity flag. The altimeter was the first signal that indicated something was wrong in OR-2024-062.",
+    cost:"~$6,000",
+  },
+  {
+    id:"usbl", name:"USBL, ship-side (WaterLinked M64)", cat:"Navigation",
+    iface:"Ethernet (topside)",
+    uptime:91.4, quality:"DEGRADED", sciImpact:"HIGH",
+    grade:"B+",
+    gradeNote:"USBL operates from the surface vessel at extreme slant range. At 5,645 m (OR-2025-014), acoustic attenuation and thermocline refraction caused 7 position fix dropouts. Each dropout forces dead-reckoning fallback. The ROS bag records positions continuously (filled with dead-reckoned values). Without PILGRIMS, there is no way to know which fixes were real vs. interpolated.",
+    flags:[{t:"7 position dropouts (OR-2025-014)",c:"red"},{t:"dead-reckoning fills gaps",c:"amber"},{t:"interpolated vs real unflagged",c:"amber"}],
+    pilgrims:"PILGRIMS monitors USBL fix confidence alongside slant range and dead-reckoning divergence. At >4,000 m depth, PILGRIMS applies elevated position-uncertainty tagging to all observations, because USBL accuracy degrades predictably with range, even when fixes appear valid.",
+    cost:"~$25,000 (topside system)",
+  },
+  {
+    id:"thrusters", name:"Thruster current ×4", cat:"Vehicle",
+    iface:"Internal (ESC telemetry)",
+    uptime:98.9, quality:"CLEAN", sciImpact:"SAFETY",
+    grade:"A-",
+    gradeNote:"Four-thruster configuration (2 horizontal, 2 vertical). Cross-thruster current ratio monitoring healthy across 3 missions. One asymmetry detected: port horizontal thruster drawing 18% more current than starboard at 2,800 m depth in OR-2025-031, consistent with a partial sediment ingestion event. No mission abort required, but attitude hold was degraded for 9 minutes.",
+    flags:[{t:"1 current asymmetry detected",c:"amber"},{t:"attitude degraded 9 min",c:"amber"},{t:"sediment ingestion pattern",c:"teal"}],
+    pilgrims:"Welford baseline per thruster, cross-thruster ratio scored per dive. The port horizontal asymmetry at 2,800 m is a consistent depth-triggered pattern, and PILGRIMS will flag this pre-dive once confirmed across 2+ missions.",
+    cost:"Integrated",
+  },
+  {
+    id:"battery", name:"Li-ion battery (2.6 kWh)", cat:"Vehicle",
+    iface:"Internal (BMS telemetry)",
+    uptime:99.7, quality:"DEGRADED", sciImpact:"SAFETY",
+    grade:"B+",
+    gradeNote:"Energy budget exceeded in OR-2025-014 (5,645 m, 11 hrs endurance). LED arrays drew 34% more power than pre-dive model due to thermal compensation at 1°C ambient. PILGRIMS detected SOC depletion rate diverging from mission plan at hour 6, and the vehicle surfaced with 8% reserve vs. planned 22%. No abort, but tighter than designed.",
+    flags:[{t:"SOC overrun: OR-2025-014",c:"red"},{t:"LED thermal draw +34%",c:"amber"},{t:"8% reserve at surface",c:"amber"}],
+    pilgrims:"Pilot: PILGRIMS retrospectively models battery SOC depletion against mission elapsed time and a per-sensor power draw model, identifying where consumption diverged from the pre-dive plan and attributing the cause (e.g. LED thermal compensation circuitry at extreme depth). Post-pilot monitoring: PILGRIMS tracks SOC depletion rate in real time against the model, issuing a mid-mission energy budget warning when projected reserve at end of planned mission falls below threshold.",
+    cost:"Integrated",
+  },
+  {
+    id:"isea", name:"ISEA-X voltammetric sensor", cat:"Science",
+    iface:"Serial (payload bay)",
+    uptime:82.1, quality:"DEGRADED", sciImpact:"MEDIUM",
+    grade:"C+",
+    gradeNote:"Deployed in 2 of 3 missions. Electrode fouling suspected in OR-2025-031: calibration baseline drifted 22% across the 8-hour mission, visible only in the signal amplitude trend. The sensor reported valid readings throughout, and the drift was not flagged in any system. Affected: all H₂S and dissolved oxygen readings from hour 5 onward.",
+    flags:[{t:"22% calibration drift (OR-2025-031)",c:"red"},{t:"valid output throughout",c:"amber"},{t:"5 hrs of data affected",c:"red"}],
+    pilgrims:"PILGRIMS tracks per-analyte signal amplitude trend across a mission. Gradual electrode fouling produces a characteristic downward amplitude drift that is invisible to threshold-based alarming but detectable by Welford trend analysis. The OR-2025-031 drift was identified retrospectively in the pilot. Post-pilot monitoring catches this pattern from the first mission after the knowledge base is initialised.",
+    cost:"~$18,000",
+  },
+  {
+    id:"dropweight", name:"Drop-weight burn wire (×2)", cat:"Safety",
+    iface:"Internal",
+    uptime:100, quality:"CLEAN", sciImpact:"NONE",
+    grade:"D",
+    gradeNote:"100% uptime, 6 nominal releases across 3 missions. No anomalies. This is the vehicle's only ascent system, not data-generating equipment. D grade reflects science data utility only. Safety criticality: absolute.",
+    flags:[{t:"6/6 nominal releases",c:"green"},{t:"data utility: zero",c:"amber"},{t:"safety: non-negotiable",c:"teal"}],
+    pilgrims:"IMPORTANT: D grade is a data-contribution score, not a safety score. PILGRIMS recommends adding pre-dive wire resistance monitoring: a corroding burn wire should produce a predictable resistance drop in the 24 hours before deployment, giving early warning of a wire that will fail to release on command.",
+    cost:"~$500 per set (consumable)",
+  },
+  {
+    id:"iridium", name:"Iridium GPS tracker", cat:"Safety",
+    iface:"RF (surface only)",
+    uptime:100, quality:"CLEAN", sciImpact:"NONE",
+    grade:"D",
+    gradeNote:"100% uptime, activates only at surface. 3 successful fixes across 3 recoveries. No data contribution during dives. Pure recovery asset.",
+    flags:[{t:"3/3 surface fixes",c:"green"},{t:"dive-time contribution: zero",c:"amber"}],
+    pilgrims:"No mid-dive monitoring possible. PILGRIMS cross-references Iridium surface fix against predicted surfacing position from dead-reckoning, and any discrepancy >200 m flags a navigation integrity warning for the preceding dive track.",
+    cost:"~$3,000 + airtime",
+  },
+];
+
+// ── SCENARIOS ─────────────────────────────────────────────────────────────────
+const SCENARIOS = [
+  {
+    id:"s1",
+    title:"DVL bottom-lock loss · 6 min 44 s unlogged · OR-2025-031",
+    meta:"NW Atlantic · Atlantis II Seamount · Oct 2025 · 2,847 m",
+    rosbag:"DVL topic /dvl/data: PUBLISHING. xVIO topic /xvio/state: CONVERGED. Navigation topic /nav/pose: CONTINUOUS. All 14 monitored topics active. ROS bag file integrity check: PASS.",
+    sealog:"Mission debrief log: 'Smooth descent, nominal bottom time, successful sample collection. Vehicle surfaced within 180 m of predicted position.' No anomalies recorded.",
+    pilgrims:"DVL bottom-lock lost at 09:14:22 (descent at 1,180 m through steep talus slope). Lock status: NO_BOTTOM_LOCK. Duration: 6 min 44 s. During this window, xVIO reported CONVERGED but was propagating visual features with zero DVL velocity aiding. Position uncertainty expanded from ±0.9 m to ±11.3 m. Three biological observations geolocated during this window carry an 11 m position error not represented anywhere in the ROS bag.",
+    insight:"Orpheus Ocean's commercial deployments are sold on publishable-quality geolocation data. A 6-minute position uncertainty gap at ±11 m, undocumented in the mission record, means any species observation or nodule image from that window cannot be cited with a defensible position. For a client paying for survey data, this is a data-quality liability that surfaces at publication time, not at the dock.\n\nPilot: PILGRIMS identifies this window, quantifies the position uncertainty, and logs it as a structured knowledge-base entry: DVL bottom-lock loss during steep terrain descent produces navigation uncertainty that xVIO does not self-report. Post-pilot monitoring: PILGRIMS detects DVL lock loss in the moment and flags the observation window in real time, before the mission completes.",
+  },
+  {
+    id:"s2",
+    title:"Pressure sensor drift · 31 m depth error · 27 min science data affected · OR-2024-062",
+    meta:"Gulf of Mexico · Sigsbee Escarpment · Jul 2024 · 2,210 m on-bottom",
+    rosbag:"Pressure topic /depth/pressure: PUBLISHING. DVL topic /dvl/altitude: PUBLISHING. Both producing in-range, valid float values. Topic frequency nominal. No dropped messages.",
+    sealog:"Mission debrief: 'Cold seep survey completed. ISEA-X chemical readings nominal. On-bottom phase 27 minutes. All sample depths recorded by vehicle.' No anomalies noted.",
+    pilgrims:"Cross-sensor depth comparison triggered at 07:44:12. Pressure sensor reading 31 m shallower than DVL altitude + USBL depth calculation, z = 4.3σ above expected divergence baseline. Both sensors producing valid, well-formed output throughout. Divergence only visible in the comparison between them. All 14 chemosynthetic community observations and 3 sediment push-core attributions during the 27-minute on-bottom phase carry a 31 m depth error.",
+    insight:"Cold seep community surveys require accurate depth attribution to distinguish species zonation. An error of this magnitude is the difference between correctly and incorrectly characterising the depth range of chemosynthetic organisms. As Orpheus Ocean scales to paying clients, one published depth error traced back to the vehicle is a reputational event.\n\nPilot: PILGRIMS retrospectively identifies every affected data point in the mission archive, attributes the root cause (cross-sensor divergence, not sensor failure), and adds the failure mode to the knowledge base. Post-pilot monitoring: PILGRIMS triggers a depth-consistency alert within seconds of divergence onset, giving the operator the option to abort the science phase before any observations are recorded with an incorrect attribution.",
+  },
+  {
+    id:"s3",
+    title:"Storage write fault · majority of frames corrupt · discovered post-recovery · OR-2024-039",
+    meta:"Mid-Atlantic Ridge survey · Aug 2024 · 3,420 m · 8 hr mission",
+    rosbag:"ROS bag file integrity check: PASS. File size: 187 GB. Camera topic /camera/image_raw: 31,847 frames recorded. All topics present. No dropped messages in topic statistics. Mission debrief: 'Successful ridge transect. 3,420 m confirmed. Full terrain dataset expected from processing.'",
+    sealog:"No anomaly recorded. Vehicle recovered nominally. Bag file downloaded to shore station. Processing team began terrain reconstruction pipeline the following morning.",
+    pilgrims:"Pilot: frame integrity check against camera driver logs found CRC errors on the majority of recorded frames. Root cause: compute thermal throttling triggered at T+1h 47m, reducing storage write bandwidth below the sustained camera frame rate. Corrupt frames carry valid timestamps but contain partial or invalid image data. The bag file passes all standard integrity checks because topic message counts do not reflect frame validity. The knowledge base now holds this failure mode, its trigger conditions, and the frame rate that would have kept the data clean.",
+    insight:"Terrain reconstruction requires contiguous, clean frame sequences. A majority of frames corrupted across a transect means the terrain model for that mission is unrecoverable, and there is no re-dive option at short notice. This is exactly the kind of failure that Orpheus Ocean experienced last year, discovered post-recovery with no way to act on it.\n\nPilot: PILGRIMS ingests the mission archive, correlates compute thermal data with frame-integrity records, and produces a root-cause analysis: thermal throttling under sustained load reduced storage write bandwidth below the camera frame rate. The knowledge base now knows this failure mode exists, the conditions that trigger it, and the camera frame rate that would have kept the data clean. Post-pilot monitoring: PILGRIMS tracks compute thermal state and storage write throughput continuously during the mission. If thermal throttling begins, it issues an alert with a specific recommended frame rate reduction before any frame loss occurs.",
+  },
+];
+
+// ── MVS DATA ──────────────────────────────────────────────────────────────────
+const MVS = {
+  missionType:"Hadal / deep-sea AUV survey (Orpheus Ocean primary mission type)",
+  successCriteria:"Publishable terrain maps, species observations, and chemical samples with accurate depth attribution, geolocation, and energy-safe vehicle recovery",
+  mustHave:[
+    {sensor:"SmartSight MV100 camera", reason:"Primary science deliverable: terrain maps and species imagery. Mission cannot produce publishable visual data without it."},
+    {sensor:"DVL (with cross-validation)", reason:"Vehicle navigation and dead-reckoning. Cross-validation against xVIO mandatory, as solo DVL loss is invisible without it."},
+    {sensor:"IMU / xVIO estimator", reason:"Foundational navigation. Must be cross-validated against DVL, as silent EKF divergence cannot be detected from xVIO health metrics alone."},
+    {sensor:"Pressure / depth sensor (with cross-validation)", reason:"Depth attribution for all samples and observations. Single sensor without altimeter/DVL cross-check is insufficient at science publication standard."},
+    {sensor:"Battery BMS (with power model)", reason:"Energy budget management. At 5,000+ m, a battery fault means vehicle loss. Pre-dive model + mid-mission tracking is mandatory safety and science integrity."},
+    {sensor:"Altimeter", reason:"Seafloor proximity for safe close-range survey, and depth cross-validation reference. Contributed to detecting OR-2024-062 drift."},
+  ],
+  conditional:[
+    {sensor:"ISEA-X chemical sensor", reason:"Required for vent/seep chemistry missions. Calibration drift monitoring via PILGRIMS mandatory, as electrode fouling is invisible to standard threshold checks."},
+    {sensor:"USBL (topside)", reason:"Geodetic positioning. Required for publishable geolocation. At >4,000 m, PILGRIMS confidence tagging is required to distinguish real vs. interpolated fixes."},
+    {sensor:"LED arrays (thermal model)", reason:"Lighting is mission-critical for visual navigation. Thermal draw model must be updated for extreme-depth missions: OR-2025-014 demonstrated standard pre-dive budget is insufficient below 5,000 m."},
+  ],
+  review:[
+    {sensor:"Drop-weight pre-dive resistance check", reason:"Currently no pre-deployment burn-wire health monitoring. A corroding wire that will fail to release looks identical to a healthy one in the current data stack."},
+    {sensor:"ISEA-X calibration protocol", reason:"OR-2025-031 drift (22% amplitude change across 8 hours) suggests pre-dive and mid-mission calibration verification is needed. Currently no protocol exists."},
+  ],
+  retain:[
+    {sensor:"Drop-weight burn wires ×2", reason:"Safety: non-negotiable. D grade is a data-utility score only. Consider adding PILGRIMS resistance trending for pre-dive health verification."},
+    {sensor:"Iridium GPS tracker", reason:"Recovery: non-negotiable. Consider adding PILGRIMS predicted-vs-actual surfacing position comparison for post-dive navigation integrity flagging."},
+  ],
+};
+
+// ── helpers ───────────────────────────────────────────────────────────────────
+function gradeColor(g){
+  if(g.startsWith("A")) return {c:"var(--A)",bg:"var(--Abg)"};
+  if(g.startsWith("B")) return {c:"var(--B)",bg:"var(--Bbg)"};
+  if(g.startsWith("C")) return {c:"var(--C)",bg:"var(--Cbg)"};
+  return {c:"var(--D)",bg:"var(--Dbg)"};
+}
+function qColor(q){return {CLEAN:"var(--green)",DEGRADED:"var(--amber)"}[q]||"var(--textMuted)";}
+function flagStyle(c){
+  return {red:{bg:"var(--redDim)",b:"var(--red)",t:"var(--red)"},amber:{bg:"var(--amberDim)",b:"var(--amber)",t:"var(--amber)"},green:{bg:"var(--greenDim)",b:"var(--green)",t:"var(--green)"},teal:{bg:"var(--tealDim)",b:"var(--teal)",t:"var(--teal)"}}[c]||{bg:"var(--s3)",b:"var(--border)",t:"var(--textDim)"};
+}
+function Flag({t,c}){const s=flagStyle(c);return <span className="flag" style={{background:s.bg,border:`1px solid ${s.b}`,color:s.t}}>{t}</span>;}
+function SLabel({children}){return <div style={{fontSize:10,fontWeight:600,color:"var(--textMuted)",letterSpacing:"0.12em",fontFamily:"'DM Mono',monospace",marginBottom:6,textTransform:"uppercase"}}>{children}</div>;}
+
+function UptimeBar({val}){
+  const col = val>=97?"var(--green)":val>=92?"var(--blue)":val>=85?"var(--amber)":"var(--red)";
+  return (
+    <div style={{display:"flex",alignItems:"center",gap:8}}>
+      <div className="bar-wrap" style={{flex:1}}>
+        <div className="bar-fill" style={{width:`${val}%`,background:col}}/>
+      </div>
+      <span className="mono" style={{fontSize:11,color:"var(--textDim)",width:38,textAlign:"right"}}>{val}%</span>
+    </div>
+  );
+}
+
+function GradeBadge({g}){
+  const {c,bg}=gradeColor(g);
+  return <span className="grade" style={{color:c,background:bg}}>{g.replace("+","").replace("-","")}<sup style={{fontSize:8}}>{g.includes("+")?"+":g.includes("-")?"-":""}</sup></span>;
+}
+
+// ── Sensor Table ──────────────────────────────────────────────────────────────
+function SensorTable({filter}){
+  const [open,setOpen]=useState(null);
+  const filtered = filter==="all" ? SENSORS : SENSORS.filter(s=>s.cat===filter);
+  return (
+    <div style={{background:"var(--s1)",border:"1px solid var(--border)",borderRadius:8,overflow:"hidden"}}>
+      <table className="sensor-table" style={{width:"100%"}}>
+        <thead>
+          <tr>
+            <th>Sensor</th>
+            <th>Category</th>
+            <th>Uptime</th>
+            <th>Data Quality</th>
+            <th>Science Impact</th>
+            <th>Grade</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {filtered.map(s=>{
+            const isOpen = open===s.id;
+            return [
+              <tr key={s.id} onClick={()=>setOpen(isOpen?null:s.id)} style={{cursor:"pointer"}}>
+                <td>
+                  <div style={{fontWeight:500,color:"var(--text)",marginBottom:2}}>{s.name}</div>
+                  <div className="mono" style={{fontSize:10,color:"var(--textMuted)"}}>{s.iface}</div>
+                </td>
+                <td><span className="mono" style={{fontSize:11,color:"var(--textDim)"}}>{s.cat}</span></td>
+                <td style={{width:160}}><UptimeBar val={s.uptime}/></td>
+                <td>
+                  <span style={{color:qColor(s.quality),fontSize:11,fontFamily:"'DM Mono',monospace",fontWeight:500}}>{s.quality}</span>
+                </td>
+                <td>
+                  <span className="mono" style={{fontSize:11,color:s.sciImpact==="CRITICAL"?"var(--red)":s.sciImpact==="HIGH"?"var(--blue)":s.sciImpact==="MEDIUM"?"var(--textDim)":s.sciImpact==="SAFETY"?"var(--teal)":"var(--textMuted)"}}>{s.sciImpact}</span>
+                </td>
+                <td><GradeBadge g={s.grade}/></td>
+                <td style={{color:"var(--textMuted)",fontSize:14}}>{isOpen?"↑":"↓"}</td>
+              </tr>,
+              isOpen && (
+                <tr key={s.id+"-detail"}>
+                  <td colSpan={7} style={{padding:0}}>
+                    <div style={{background:"var(--s2)",padding:"18px 20px",borderTop:"1px solid var(--border)",animation:"appear 0.2s ease-out"}}>
+                      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:18,marginBottom:16}}>
+                        <div>
+                          <SLabel>Grade reasoning</SLabel>
+                          <div style={{fontSize:12,color:"var(--textDim)",lineHeight:1.75}}>{s.gradeNote}</div>
+                        </div>
+                        <div>
+                          <SLabel>PILGRIMS contribution</SLabel>
+                          <div style={{fontSize:12,color:"var(--textDim)",lineHeight:1.75}}>{s.pilgrims}</div>
+                        </div>
+                        <div>
+                          <SLabel>Flags</SLabel>
+                          <div style={{display:"flex",flexWrap:"wrap",gap:4}}>
+                            {s.flags.map((f,i)=><Flag key={i} t={f.t} c={f.c}/>)}
+                          </div>
+                          {s.cost&&<div style={{marginTop:10,fontSize:11,color:"var(--textMuted)",fontFamily:"'DM Mono',monospace"}}>Instrument cost: {s.cost}</div>}
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              )
+            ];
+          })}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+// ── Scenario cards ────────────────────────────────────────────────────────────
+function ScenarioCard({sc}){
+  const [open,setOpen]=useState(false);
+  return (
+    <div className={`scenario ${open?"open":""}`} onClick={()=>setOpen(!open)}>
+      <div className="scenario-header">
+        <div style={{flex:1}}>
+          <div className="scenario-title">{sc.title}</div>
+          <div className="scenario-meta">{sc.meta}</div>
+        </div>
+        <div style={{color:"var(--textMuted)",fontSize:16,flexShrink:0}}>{open?"↑":"↓"}</div>
+      </div>
+      {open&&(
+        <div className="scenario-body">
+          <div>
+            <SLabel>Without PILGRIMS: what your stack reported</SLabel>
+            <div style={{background:"var(--greenDim)",border:"1px solid var(--green)44",borderRadius:5,padding:"10px 12px",fontSize:11,color:"var(--textDim)",lineHeight:1.75,fontFamily:"'DM Mono',monospace"}}>{sc.rosbag}</div>
+            {sc.sealog&&<>
+              <div style={{marginTop:8}}><SLabel>Mission debrief log</SLabel></div>
+              <div style={{background:"var(--blueDim)",border:"1px solid var(--blue)44",borderRadius:5,padding:"10px 12px",fontSize:11,color:"var(--textDim)",lineHeight:1.75,fontFamily:"'DM Mono',monospace"}}>{sc.sealog}</div>
+            </>}
+          </div>
+          <div>
+            <SLabel>What PILGRIMS found</SLabel>
+            <div style={{background:"var(--tealDim)",border:"1px solid var(--teal)44",borderRadius:5,padding:"10px 12px",fontSize:11,color:"var(--text)",lineHeight:1.85,fontFamily:"'DM Mono',monospace"}}>{sc.pilgrims}</div>
+          </div>
+          <div>
+            <SLabel>Why this matters for your expedition</SLabel>
+            <div style={{fontSize:12,color:"var(--text)",lineHeight:1.8}}>{sc.insight}</div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── MVS section ───────────────────────────────────────────────────────────────
+function MVSView(){
+  return (
+    <div>
+      <div className="callout" style={{marginBottom:24}}>
+        <div style={{fontSize:11,color:"var(--teal)",fontFamily:"'DM Mono',monospace",letterSpacing:"0.1em",marginBottom:8}}>MISSION TYPE</div>
+        <div style={{fontFamily:"'Syne',sans-serif",fontSize:15,fontWeight:700,marginBottom:6}}>{MVS.missionType}</div>
+        <div style={{fontSize:12,color:"var(--textDim)",lineHeight:1.7}}>
+          <strong style={{color:"var(--text)"}}>Success criteria:</strong> {MVS.successCriteria}
+        </div>
+      </div>
+
+      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:20,marginBottom:20}}>
+        <div className="card">
+          <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:16}}>
+            <span style={{width:8,height:8,borderRadius:"50%",background:"var(--green)",display:"inline-block"}}/>
+            <span style={{fontFamily:"'Syne',sans-serif",fontWeight:700,fontSize:14}}>Must-have sensors</span>
+            <span className="mono" style={{fontSize:10,color:"var(--textMuted)",marginLeft:"auto"}}>{MVS.mustHave.length} sensors</span>
+          </div>
+          {MVS.mustHave.map((s,i)=>(
+            <div key={i} className="mvs-row">
+              <div style={{fontWeight:500,fontSize:13,color:"var(--text)"}}>{s.sensor}</div>
+              <div style={{fontSize:11,color:"var(--textDim)",lineHeight:1.65}}>{s.reason}</div>
+            </div>
+          ))}
+        </div>
+
+        <div style={{display:"flex",flexDirection:"column",gap:16}}>
+          <div className="card">
+            <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:14}}>
+              <span style={{width:8,height:8,borderRadius:"50%",background:"var(--amber)",display:"inline-block"}}/>
+              <span style={{fontFamily:"'Syne',sans-serif",fontWeight:700,fontSize:14}}>Mission-conditional</span>
+            </div>
+            {MVS.conditional.map((s,i)=>(
+              <div key={i} className="mvs-row" style={{gridTemplateColumns:"160px 1fr"}}>
+                <div style={{fontWeight:500,fontSize:12,color:"var(--text)"}}>{s.sensor}</div>
+                <div style={{fontSize:11,color:"var(--textDim)",lineHeight:1.65}}>{s.reason}</div>
+              </div>
+            ))}
+          </div>
+          <div className="card">
+            <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:14}}>
+              <span style={{width:8,height:8,borderRadius:"50%",background:"var(--red)",display:"inline-block"}}/>
+              <span style={{fontFamily:"'Syne',sans-serif",fontWeight:700,fontSize:14}}>Recommend action</span>
+            </div>
+            {MVS.review.map((s,i)=>(
+              <div key={i} className="mvs-row" style={{gridTemplateColumns:"160px 1fr"}}>
+                <div style={{fontWeight:500,fontSize:12,color:"var(--text)"}}>{s.sensor}</div>
+                <div style={{fontSize:11,color:"var(--textDim)",lineHeight:1.65}}>{s.reason}</div>
+              </div>
+            ))}
+          </div>
+          <div className="card">
+            <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:14}}>
+              <span style={{width:8,height:8,borderRadius:"50%",background:"var(--blue)",display:"inline-block"}}/>
+              <span style={{fontFamily:"'Syne',sans-serif",fontWeight:700,fontSize:14}}>Retain: safety</span>
+            </div>
+            {MVS.retain.map((s,i)=>(
+              <div key={i} className="mvs-row" style={{gridTemplateColumns:"160px 1fr"}}>
+                <div style={{fontWeight:500,fontSize:12,color:"var(--text)"}}>{s.sensor}</div>
+                <div style={{fontSize:11,color:"var(--textDim)",lineHeight:1.65}}>{s.reason}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="callout">
+        <div style={{fontFamily:"'Syne',sans-serif",fontWeight:700,fontSize:14,marginBottom:8}}>The instrumentation conversation PILGRIMS enables</div>
+        <div style={{fontSize:12,color:"var(--textDim)",lineHeight:1.85}}>
+          At this stage in Orpheus Ocean's commercial scale-up, instrumentation decisions are made pre-mission based on target depth and science objective. PILGRIMS turns this into a data-driven conversation grounded in actual mission performance.
+          <br/><br/>
+          <strong style={{color:"var(--text)"}}>After 3 missions:</strong> PILGRIMS can tell you that the LED thermal draw model is insufficient below 5,000 m (OR-2025-014), that DVL dropouts over steep terrain are a repeating pattern requiring a navigation uncertainty protocol, and that the ISEA-X electrode fouling in OR-2025-031 will recur without a mid-mission calibration checkpoint, none of which were visible in the ROS bags or mission debriefs at the time.
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Pipeline Stats ─────────────────────────────────────────────────────────────
+function PipelineStats(){
+  return (
+    <div>
+      <div className="pipe-grid" style={{marginBottom:20}}>
+        {[
+          {l:"Sensor topics monitored",v:"12",sub:"across Orpheus AUV",c:"var(--teal)"},
+          {l:"Topics with data quality issues",v:"5",sub:"Camera · DVL · Depth · Battery · ISEA-X",c:"var(--red)"},
+          {l:"Events invisible to ROS bag",v:"8",sub:"across 3 missions",c:"var(--red)"},
+          {l:"Events with no debrief entry",v:"7",sub:"of 8 PILGRIMS events",c:"var(--amber)"},
+          {l:"Longest unlogged DVL outage",v:"6 min 44 s",sub:"OR-2025-031",c:"var(--amber)"},
+          {l:"Science data at risk",v:"~27 min",sub:"depth-attributed samples, OR-2024-062",c:"var(--red)"},
+        ].map(s=>(
+          <div className="pipe-cell" key={s.l}>
+            <div className="pipe-label">{s.l.toUpperCase()}</div>
+            <div className="pipe-val" style={{color:s.c}}>{s.v}</div>
+            <div className="pipe-sub">{s.sub}</div>
+          </div>
+        ))}
+      </div>
+
+      <div style={{marginBottom:12,fontFamily:"'Syne',sans-serif",fontSize:14,fontWeight:700,color:"var(--text)"}}>
+        Pipeline integrity across 3 missions
+      </div>
+      <div style={{fontSize:12,color:"var(--textDim)",lineHeight:1.75,marginBottom:20,maxWidth:680}}>
+        Three examples from the simulated mission archive. Each shows what the data stack reported versus what PILGRIMS found by comparing sources against each other, and what the pilot would log into the knowledge base versus what post-pilot monitoring would do in real time.
+      </div>
+
+      {SCENARIOS.map(sc=><ScenarioCard key={sc.id} sc={sc}/>)}
+
+      {/* Compute/power footprint note */}
+      <div style={{marginTop:28,background:"linear-gradient(135deg,#07101a,#0a1628)",border:"1px solid var(--border2)",borderRadius:8,padding:"20px 24px",position:"relative",overflow:"hidden"}}>
+        <div style={{position:"absolute",top:0,left:0,right:0,height:2,background:"linear-gradient(90deg,var(--blue),transparent)"}}/>
+        <div style={{display:"flex",alignItems:"baseline",gap:10,marginBottom:12}}>
+          <span style={{fontFamily:"'Syne',sans-serif",fontWeight:700,fontSize:14,color:"var(--text)"}}>After the pilot: real-time deployment on Jetson Orin</span>
+          <span style={{fontSize:10,fontFamily:"'DM Mono',monospace",color:"var(--blue)",background:"var(--blueDim)",border:"1px solid var(--blue)44",borderRadius:3,padding:"2px 8px"}}>compute and power footprint</span>
+        </div>
+        <div style={{fontSize:12,color:"var(--textDim)",lineHeight:1.85,marginBottom:16}}>
+          The pilot phase ingests historical bag files and sensor logs offline. Once deployed for real-time monitoring, PILGRIMS runs as an isolated process alongside your existing stack. It does not add a new node and does not touch any topic publishers.
+        </div>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr",gap:12}}>
+          {[
+            {label:"CPU",val:"< 2 cores (est.)",sub:"of the Jetson Orin's available CPU cores",note:"All cross-sensor validation and anomaly detection runs on CPU. No GPU required. Estimate based on typical lightweight monitoring process profiles on Arm Cortex-A class cores."},
+            {label:"RAM",val:"~2 GB (est.)",sub:"of the Jetson Orin's unified memory",note:"Estimate based on Welford baseline tables and rolling sensor windows at typical AUV sensor rates. No GPU memory allocated."},
+            {label:"Storage write",val:"~12 MB / hr",sub:"PILGRIMS operational log only",note:"Read-only access to sensor streams and bag files. Writes only to its own log, not to any existing topic or file."},
+            {label:"Power",val:"low additional draw",sub:"fraction of your mission energy budget",note:"Estimate: an additional 1-2 CPU cores at sustained load on Jetson Orin adds single-digit watts. At a 10-hour mission endurance, the impact on energy budget is negligible. Exact draw depends on sensor rate configuration."},
+          ].map(s=>(
+            <div key={s.label} style={{background:"var(--s2)",border:"1px solid var(--border)",borderRadius:6,padding:"12px 14px"}}>
+              <div style={{fontSize:10,color:"var(--textMuted)",fontFamily:"'DM Mono',monospace",letterSpacing:"0.1em",marginBottom:6}}>{s.label}</div>
+              <div style={{fontFamily:"'Syne',sans-serif",fontWeight:700,fontSize:18,color:"var(--blue)",marginBottom:3}}>{s.val}</div>
+              <div style={{fontSize:10,color:"var(--textMuted)",fontFamily:"'DM Mono',monospace",marginBottom:8}}>{s.sub}</div>
+              <div style={{fontSize:11,color:"var(--textDim)",lineHeight:1.65,borderTop:"1px solid var(--border)",paddingTop:8}}>{s.note}</div>
+            </div>
+          ))}
+        </div>
+        <div style={{marginTop:14,fontSize:11,color:"var(--textDim)",lineHeight:1.75}}>
+          LLM-based reasoning for error classification uses the Claude API, called on surfacing via satellite uplink or shore station connection. There is no onboard LLM inference requirement, and no GPU dependency at any stage of the PILGRIMS pipeline.
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Main ──────────────────────────────────────────────────────────────────────
+function App(){
+  const [tab,setTab] = useState("pipeline");
+  const [catFilter,setCatFilter] = useState("all");
+
+  const cats = ["all","Science","Navigation","Vehicle","Safety"];
+
+  return (
+    <div className="wrap">
+
+      {/* hero */}
+      <div style={{marginBottom:32,animation:"fadeUp 0.5s ease-out"}}>
+        <div className="mono" style={{fontSize:11,color:"var(--teal)",letterSpacing:"0.15em",marginBottom:16}}>PILGRIMS · DATA INTELLIGENCE · ORPHEUS OCEAN</div>
+
+        {/* Stack diagram */}
+        <div style={{marginBottom:24}}>
+
+          {/* Data quality hero */}
+          <div style={{marginBottom:14,padding:"13px 18px",background:"linear-gradient(135deg,#060f1a,#08101d)",border:"1px solid var(--border2)",borderLeft:"3px solid var(--teal)",borderRadius:8}}>
+            <div style={{fontFamily:"'Syne',sans-serif",fontWeight:700,fontSize:14,color:"var(--text)",marginBottom:5}}>Your data stack tells you collection happened. It cannot tell you the data is good.</div>
+            <div style={{fontSize:12,color:"var(--textDim)",lineHeight:1.8}}>
+              For a robotics-as-a-service business, the data is the deliverable. When a mission's frames are corrupt, or a sensor drifts without raising a flag, the problem surfaces at the client, not at the dock. The issue is that data quality failures come from multiple sources at once: what the mission logs record, what the sensors actually produced, and what happened when those two things disagreed. Your current stack can see each source in isolation. It cannot see across them.
+              <br/><br/>
+              The PILGRIMS pilot builds the first comprehensive picture of where your data corruption actually comes from, across which sources, under which mission conditions, and with what frequency. That picture becomes the foundation of a monitoring system that can detect the precursors to data loss on the next mission, before the data is gone.
+            </div>
+          </div>
+
+          {/* Two equal sources, symmetric */}
+          <div style={{fontSize:10,color:"var(--textMuted)",fontFamily:"'DM Mono',monospace",letterSpacing:"0.12em",marginBottom:8,textAlign:"center"}}>PILGRIMS READS FROM BOTH SOURCES SIMULTANEOUSLY</div>
+
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:0}}>
+
+            {/* LEFT: mission data logs */}
+            <div>
+              <div style={{fontSize:10,color:"var(--blue)",fontFamily:"'DM Mono',monospace",letterSpacing:"0.1em",marginBottom:6,fontWeight:600}}>SOURCE 1 · MISSION DATA LOGS</div>
+              <div style={{border:"1px solid var(--border)",borderRadius:8,padding:"10px",background:"#060d19",display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:7,height:"calc(100% - 22px)"}}>
+                {[
+                  {
+                    name:"ROS2 bag files",
+                    desc:"On-vehicle topic recording",
+                    bullets:["Records all ROS2 topics at configured Hz","Timestamps every message on Jetson clock","Stores IMU, DVL, camera, BMS streams","xVIO state published as /xvio/state"],
+                    limit:"Knows if topics are publishing",
+                  },
+                  {
+                    name:"xVIO state estimator",
+                    desc:"JPL visual-inertial odometry",
+                    bullets:["EKF fusing IMU, camera features, DVL","Reports CONVERGED / DIVERGED status","Terrain-relative navigation at seafloor","ROS wrapper: /xvio/state, /xvio/pose"],
+                    limit:"Knows if navigation converged",
+                  },
+                  {
+                    name:"Mission debrief log",
+                    desc:"Operator post-dive notes",
+                    bullets:["Pre-dive checklist and mission plan","Real-time surface observations","Post-dive team debrief and anomalies","Links to bag files per mission"],
+                    limit:"Knows what the team recorded",
+                  },
+                ].map(s=>(
+                  <div key={s.name} style={{background:"var(--s2)",border:"1px solid var(--border)",borderRadius:6,padding:"10px 12px"}}>
+                    <div style={{fontFamily:"'Syne',sans-serif",fontWeight:700,fontSize:11,color:"var(--blue)",marginBottom:2}}>{s.name}</div>
+                    <div style={{fontSize:10,color:"var(--textMuted)",marginBottom:7,lineHeight:1.4}}>{s.desc}</div>
+                    <div style={{borderTop:"1px solid var(--border)",paddingTop:6,marginBottom:7,display:"flex",flexDirection:"column",gap:3}}>
+                      {s.bullets.map((b,i)=><div key={i} style={{fontSize:9.5,color:"var(--textDim)",display:"flex",gap:4,lineHeight:1.5}}><span style={{color:"var(--textMuted)",flexShrink:0}}>·</span>{b}</div>)}
+                    </div>
+                    <div style={{borderTop:"1px solid var(--border)",paddingTop:5,fontSize:9.5,fontFamily:"'DM Mono',monospace",color:"var(--amber)",fontWeight:600}}>{s.limit}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* RIGHT: sensor data, equal weight */}
+            <div>
+              <div style={{fontSize:10,color:"var(--teal)",fontFamily:"'DM Mono',monospace",letterSpacing:"0.1em",marginBottom:6,fontWeight:600}}>SOURCE 2 · SENSOR DATA</div>
+              <div style={{border:"1px solid var(--teal2)",borderRadius:8,padding:"10px",background:"#050f12",height:"calc(100% - 22px)",display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:7}}>
+                {[
+                  {
+                    name:"DVL",
+                    desc:"Velocity and lock status",
+                    bullets:["Bottom-track velocity (3-axis)","Lock status per ping","Altitude above seafloor","Beam signal quality"],
+                    limit:"Knows if the vehicle had bottom lock",
+                  },
+                  {
+                    name:"IMU / xVIO inputs",
+                    desc:"Inertial and visual odometry",
+                    bullets:["Accelerometer + gyro at ~200 Hz","Camera feature count per frame","EKF aiding source (DVL vs vision)","Raw attitude before EKF fusion"],
+                    limit:"Knows what went into the state estimate",
+                  },
+                  {
+                    name:"Payload sensors",
+                    desc:"Science and vehicle health",
+                    bullets:["Depth / pressure readings","Battery state of charge","ISEA-X analyte amplitudes","Camera frame integrity"],
+                    limit:"Knows what each sensor produced",
+                  },
+                ].map(s=>(
+                  <div key={s.name} style={{background:"#071812",border:"1px solid var(--teal2)",borderRadius:6,padding:"10px 12px"}}>
+                    <div style={{fontFamily:"'Syne',sans-serif",fontWeight:700,fontSize:11,color:"var(--teal)",marginBottom:2}}>{s.name}</div>
+                    <div style={{fontSize:10,color:"var(--textMuted)",marginBottom:7,lineHeight:1.4}}>{s.desc}</div>
+                    <div style={{borderTop:"1px solid var(--teal2)",paddingTop:6,marginBottom:7,display:"flex",flexDirection:"column",gap:3}}>
+                      {s.bullets.map((b,i)=><div key={i} style={{fontSize:9.5,color:"var(--textDim)",display:"flex",gap:4,lineHeight:1.5}}><span style={{color:"var(--teal)66",flexShrink:0}}>·</span>{b}</div>)}
+                    </div>
+                    <div style={{borderTop:"1px solid var(--teal2)",paddingTop:5,fontSize:9.5,fontFamily:"'DM Mono',monospace",color:"var(--teal)",fontWeight:600}}>{s.limit}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Why both matter */}
+          <div style={{marginTop:8,padding:"8px 14px",background:"var(--s2)",border:"1px solid var(--border)",borderRadius:5,fontSize:11,color:"var(--textDim)",lineHeight:1.75,display:"flex",gap:8,alignItems:"flex-start"}}>
+            <span style={{color:"var(--teal)",fontFamily:"'DM Mono',monospace",fontWeight:600,flexShrink:0,fontSize:10,marginTop:1}}>WHY BOTH:</span>
+            <span>Neither source alone can tell you if a data point is trustworthy. A sensor reading can look valid in the mission log and still be wrong, and the error only becomes visible when you compare it against a second independent source. PILGRIMS reads both simultaneously and scores every data point against the cross-sensor baseline. That comparison is the pilot.</span>
+          </div>
+
+          {/* Symmetric connectors */}
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginTop:0}}>
+            {["var(--blue)66","var(--teal)66"].map((c,i)=>(
+              <div key={i} style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:7}}>
+                {[0,1,2].map(j=>(
+                  <div key={j} style={{display:"flex",justifyContent:"center"}}>
+                    <div style={{width:1,height:14,background:c}}/>
+                  </div>
+                ))}
+              </div>
+            ))}
+          </div>
+
+          {/* PILGRIMS bar */}
+          <div style={{background:"linear-gradient(135deg,#0a1c10,#091628)",border:"1px solid var(--teal2)",borderRadius:7,padding:"14px 20px",position:"relative",overflow:"hidden"}}>
+            <div style={{position:"absolute",top:0,left:0,right:0,height:2,background:"linear-gradient(90deg,var(--blue),var(--teal),var(--blue))"}}/>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:20,flexWrap:"wrap",marginBottom:12}}>
+              <div style={{display:"flex",alignItems:"baseline",gap:10}}>
+                <span style={{fontFamily:"'Syne',sans-serif",fontWeight:800,fontSize:15,color:"var(--teal)",letterSpacing:"0.06em"}}>PILGRIMS</span>
+                <span style={{fontSize:12,color:"var(--textMuted)",fontFamily:"'DM Mono',monospace"}}>reads both sources · cross-validates between them · no onboard node · no stack modification</span>
+              </div>
+              <div style={{fontSize:11,color:"var(--teal)",fontFamily:"'DM Mono',monospace",fontWeight:600,background:"var(--tealDim)",border:"1px solid var(--teal2)",borderRadius:4,padding:"3px 10px"}}>read-only sidecar</div>
+            </div>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr",gap:14}}>
+              {[
+                {q:"Mission log says DVL is publishing.",a:"PILGRIMS asks: was it reporting bottom lock the whole time, and does its velocity match xVIO?"},
+                {q:"xVIO reports CONVERGED throughout.",a:"PILGRIMS asks: how many visual features was it tracking, and when did DVL last aid the EKF?"},
+                {q:"Mission debrief records no anomalies.",a:"PILGRIMS asks: what happened in the 6 minutes 44 seconds that are not in the debrief?"},
+                {q:"Camera logged 31,847 frames.",a:"PILGRIMS asks: how many of those frames pass frame-integrity checks against the sensor data?"},
+              ].map((item,i)=>(
+                <div key={i} style={{fontSize:11,lineHeight:1.7,borderLeft:"1px solid var(--teal)44",paddingLeft:8}}>
+                  <span style={{color:"var(--textMuted)"}}>{item.q}</span>
+                  <span style={{color:"var(--teal)",fontWeight:500}}> {item.a}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* tabs */}
+      <div className="tabs">
+        {[
+          {id:"pipeline",label:"Pipeline Integrity"},
+          {id:"sensors",label:"Sensor Contribution Grades"},
+          {id:"mvs",label:"Minimal Viable Sensing"},
+        ].map(t=>(
+          <button key={t.id} className={`tab ${tab===t.id?"active":""}`} onClick={()=>setTab(t.id)}>{t.label}</button>
+        ))}
+      </div>
+
+      {tab==="pipeline"&&<PipelineStats/>}
+
+      {tab==="sensors"&&(
+        <div style={{animation:"fadeUp 0.35s ease-out"}}>
+          <div className="section-sub" style={{marginBottom:16}}>
+            PILGRIMS grades every sensor topic by four factors: topic availability, data quality within the stream, cross-sensor validation against independent sources, and contribution to publishable mission outcomes. Click any sensor to expand.
+          </div>
+          <div style={{display:"flex",gap:10,marginBottom:18,flexWrap:"wrap"}}>
+            {[["A","Critical, performing, contributing"],["B","Important, minor issues or gaps"],["C","Operational but limited science value"],["D","High uptime, zero science contribution"]].map(([g,desc])=>{
+              const {c,bg}=gradeColor(g);
+              return <div key={g} style={{display:"flex",alignItems:"center",gap:7,background:"var(--s2)",border:"1px solid var(--border)",borderRadius:5,padding:"6px 12px"}}>
+                <span className="grade" style={{color:c,background:bg,width:22,height:22,fontSize:12}}>{g}</span>
+                <span style={{fontSize:11,color:"var(--textDim)"}}>{desc}</span>
+              </div>;
+            })}
+          </div>
+          <div style={{display:"flex",gap:6,marginBottom:14,flexWrap:"wrap"}}>
+            {cats.map(c=>(
+              <button key={c} onClick={()=>setCatFilter(c)}
+                style={{background:catFilter===c?"var(--teal)":"transparent",color:catFilter===c?"var(--bg)":"var(--textMuted)",border:`1px solid ${catFilter===c?"var(--teal)":"var(--border)"}`,borderRadius:4,padding:"4px 12px",fontSize:11,fontFamily:"'DM Mono',monospace",fontWeight:600}}>
+                {c}
+              </button>
+            ))}
+          </div>
+          <SensorTable filter={catFilter}/>
+          <div className="callout" style={{marginTop:20}}>
+            <div style={{fontFamily:"'Syne',sans-serif",fontWeight:700,fontSize:14,marginBottom:8}}>The D-grade sensors</div>
+            <div style={{fontSize:12,color:"var(--textDim)",lineHeight:1.85}}>
+              The drop-weight burn wires and Iridium tracker both report healthy status across all missions, and neither has contributed a single data point to a science dataset. At face value this looks like pure overhead.
+              <br/><br/>
+              <strong style={{color:"var(--text)"}}>PILGRIMS recommendation on the burn wires specifically:</strong> the D grade is a science-data score, not a safety score. These wires should stay. But a sensor with zero events and zero in-dive monitoring is indistinguishable from a sensor that has silently failed. PILGRIMS recommends adding pre-dive resistance trending: a corroding wire will show predictable resistance change in the 24 hours before deployment.
+            </div>
+          </div>
+        </div>
+      )}
+
+      {tab==="mvs"&&(
+        <div style={{animation:"fadeUp 0.35s ease-out"}}>
+          <div className="section-sub">
+            What is the minimum sensor configuration for an Orpheus Ocean mission to produce publishable science data and recover the vehicle safely? PILGRIMS builds this baseline from your mission archive, and tracks which sensors are and aren't earning their place.
+          </div>
+          <MVSView/>
+        </div>
+      )}
+
+      <div style={{marginTop:48,paddingTop:16,borderTop:"1px solid var(--border)",display:"flex",justifyContent:"space-between",fontSize:11,color:"var(--textMuted)",fontFamily:"'DM Mono',monospace"}}>
+        <span>PILGRIMS · read-only · no writes to ROS2 bag · xVIO · mission log</span>
+        <span>hello@usepilgrims.com · usepilgrims.com · Dr Martyna Stachaczyk, ARIA Fellow</span>
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>
