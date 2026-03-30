@@ -105,7 +105,7 @@ input{font-family:inherit}
   <div>
     <span class="logo">PILGRIMS <span>Data Intelligence · Orpheus Ocean · Orpheus AUV</span></span>
   </div>
-  <div class="topright">read-only · post-expedition · 3 missions analysed</div>
+  <div class="topright">read-only · post-expedition · pilot analysis</div>
 </div>
 
 <div id="root"></div>
@@ -122,112 +122,112 @@ const SENSORS = [
   {
     id:"camera", name:"SmartSight MV100 (FLIR Blackfly S)", cat:"Science",
     iface:"GigE Vision",
-    uptime:94.8, quality:"DEGRADED", sciImpact:"CRITICAL",
+    uptime:null, quality:"DEGRADED", sciImpact:"CRITICAL",
     grade:"B+",
-    gradeNote:"Primary mission deliverable: 4K terrain maps and biological imagery are the core science output. Two feature-tracking failures detected: sudden feature-count collapse to <12 features (from baseline ~280) correlated with sediment plume events at the seafloor. Individually each camera event looked valid; the failure was in navigation, not in the file.",
-    flags:[{t:"2 feature-count collapses",c:"red"},{t:"correlated with xVIO drift",c:"red"},{t:"both unlogged in mission debrief",c:"amber"}],
-    pilgrims:"PILGRIMS monitors FLIR frame rate, xVIO feature count per frame, and LED power draw jointly. Feature-count collapse (<20 features) triggers a navigation uncertainty flag independently of xVIO's own convergence status, because xVIO can report 'converged' while silently propagating stale features.",
-    cost:"~$14,000 (housing + camera)",
+    gradeNote:"Primary mission deliverable: terrain maps and biological imagery are the core science output. Feature-tracking failures detected: sudden feature-count collapse correlated with sediment plume events at the seafloor. Individually each camera event looked valid; the failure was in navigation, not in the file.",
+    flags:[{t:"feature-count collapses",c:"red"},{t:"correlated with xVIO drift",c:"red"},{t:"unlogged in mission debrief",c:"amber"}],
+    pilgrims:"PILGRIMS monitors FLIR frame rate, xVIO feature count per frame, and LED power draw jointly. Feature-count collapse triggers a navigation uncertainty flag independently of xVIO's own convergence status, because xVIO can report 'converged' while silently propagating stale features.",
+    cost:null,
   },
   {
     id:"dvl", name:"DVL (Doppler Velocity Log)", cat:"Navigation",
     iface:"RS-232 / Ethernet",
-    uptime:87.2, quality:"DEGRADED", sciImpact:"CRITICAL",
+    uptime:null, quality:"DEGRADED", sciImpact:"CRITICAL",
     grade:"B-",
-    gradeNote:"Three bottom-lock loss events across 3 missions, each during steep terrain transit or sediment-rich descent. Loss durations: 6 min 44 s (OR-2025-031), 2 min 18 s (OR-2025-014), 4 min 51 s (OR-2024-062). During each loss, position uncertainty expanded 8–12× and all terrain-relative navigation relied solely on xVIO visual odometry. None were captured in the mission debrief log.",
-    flags:[{t:"3 bottom-lock losses",c:"red"},{t:"nav error compounds",c:"amber"},{t:"0 entries in mission debrief",c:"red"}],
+    gradeNote:"Multiple bottom-lock loss events detected during steep terrain transit or sediment-rich descent. During each loss, position uncertainty expanded significantly and all terrain-relative navigation relied solely on xVIO visual odometry. None were captured in the mission debrief log.",
+    flags:[{t:"bottom-lock losses",c:"red"},{t:"nav error compounds",c:"amber"},{t:"missing entries in mission debrief",c:"red"}],
     pilgrims:"PILGRIMS cross-validates DVL velocity against xVIO velocity estimate. When DVL reports NO_BOTTOM_LOCK, PILGRIMS flags all observations geolocated during the outage window as having elevated position uncertainty. This window is not represented in the ROS bag topic metadata.",
-    cost:"~$30,000",
+    cost:null,
   },
   {
     id:"imu", name:"IMU / xVIO state estimator", cat:"Navigation",
     iface:"Internal (Jetson)",
-    uptime:99.1, quality:"DEGRADED", sciImpact:"HIGH",
+    uptime:null, quality:"DEGRADED", sciImpact:"HIGH",
     grade:"B+",
-    gradeNote:"xVIO visual-inertial odometry is the vehicle's primary navigation brain. High uptime, but two episodes of EKF divergence detected on featureless abyssal sediment plains: xVIO reported 'converged' while feature count had collapsed. Only catchable by cross-referencing xVIO velocity output against DVL bottom-track simultaneously.",
-    flags:[{t:"2 silent EKF divergences",c:"red"},{t:"featureless terrain trigger",c:"amber"},{t:"DVL cross-validated",c:"teal"}],
-    pilgrims:"PILGRIMS correlates xVIO velocity output against DVL velocity at 1 Hz. Divergence >0.15 m/s for >30 s without a DVL lock-loss flag triggers an EKF plausibility warning, a failure mode xVIO's own health reporting cannot distinguish from normal operation.",
+    gradeNote:"xVIO visual-inertial odometry is the vehicle's primary navigation brain. High uptime, but episodes of EKF divergence detected on featureless abyssal sediment plains: xVIO reported 'converged' while feature count had collapsed. Only catchable by cross-referencing xVIO velocity output against DVL bottom-track simultaneously.",
+    flags:[{t:"silent EKF divergences",c:"red"},{t:"featureless terrain trigger",c:"amber"},{t:"DVL cross-validated",c:"teal"}],
+    pilgrims:"PILGRIMS correlates xVIO velocity output against DVL velocity. Sustained divergence without a DVL lock-loss flag triggers an EKF plausibility warning, a failure mode xVIO's own health reporting cannot distinguish from normal operation.",
     cost:"Integrated (Jetson Orin compute)",
   },
   {
     id:"depth", name:"Pressure / depth sensor", cat:"Navigation",
     iface:"Internal",
-    uptime:96.3, quality:"DEGRADED", sciImpact:"CRITICAL",
+    uptime:null, quality:"DEGRADED", sciImpact:"CRITICAL",
     grade:"B",
-    gradeNote:"Drift of 31 m detected during on-bottom phase in OR-2024-062 (Sigsbee Escarpment, 2,210 m). Sensor producing valid output throughout, and drift is only detectable by cross-comparing against DVL altitude + known deployment depth from USBL. All sample depth attributions during the 27-minute on-bottom phase are off by 31 m.",
-    flags:[{t:"31m drift detected",c:"red"},{t:"valid output throughout",c:"amber"},{t:"27min science data affected",c:"red"}],
-    pilgrims:"PILGRIMS cross-compares pressure depth against DVL-derived altitude + USBL depth continuously. 4.3σ divergence triggered at 07:44:12. Both sensors producing valid, in-range readings, and the error only exists in the comparison between them. No ROS bag topic or xVIO health metric flagged anything.",
-    cost:"~$8,000 (hadal-rated)",
+    gradeNote:"Significant drift detected during on-bottom phase. Sensor producing valid output throughout, and drift is only detectable by cross-comparing against DVL altitude + known deployment depth from USBL. Sample depth attributions during the affected on-bottom phase carry corresponding error.",
+    flags:[{t:"drift detected",c:"red"},{t:"valid output throughout",c:"amber"},{t:"science data affected",c:"red"}],
+    pilgrims:"PILGRIMS cross-compares pressure depth against DVL-derived altitude + USBL depth continuously. When divergence triggers, both sensors may be producing valid, in-range readings—the error only exists in the comparison between them. No ROS bag topic or xVIO health metric flagged anything.",
+    cost:null,
   },
   {
     id:"altimeter", name:"Acoustic altimeter", cat:"Navigation",
     iface:"Internal",
-    uptime:97.6, quality:"CLEAN", sciImpact:"HIGH",
+    uptime:null, quality:"CLEAN", sciImpact:"HIGH",
     grade:"A-",
-    gradeNote:"Reliable seafloor-proximity data across all 3 missions. Primary cross-validation reference for depth sensor during on-bottom phase. The OR-2024-062 depth drift was first detected via altimeter mismatch.",
-    flags:[{t:"no anomalies",c:"green"},{t:"depth cross-ref active",c:"green"},{t:"key to OR-2024-062 detection",c:"teal"}],
-    pilgrims:"Altimeter + pressure depth + xVIO-derived altitude: any 2-of-3 divergence triggers a PILGRIMS depth integrity flag. The altimeter was the first signal that indicated something was wrong in OR-2024-062.",
-    cost:"~$6,000",
+    gradeNote:"Reliable seafloor-proximity data across missions. Primary cross-validation reference for depth sensor during on-bottom phase. Depth drift events can be first detected via altimeter mismatch.",
+    flags:[{t:"no anomalies",c:"green"},{t:"depth cross-ref active",c:"green"},{t:"key to drift detection",c:"teal"}],
+    pilgrims:"Altimeter + pressure depth + xVIO-derived altitude: any 2-of-3 divergence triggers a PILGRIMS depth integrity flag. The altimeter is often the first signal that indicates something is wrong.",
+    cost:null,
   },
   {
     id:"usbl", name:"USBL, ship-side (WaterLinked M64)", cat:"Navigation",
     iface:"Ethernet (topside)",
-    uptime:91.4, quality:"DEGRADED", sciImpact:"HIGH",
+    uptime:null, quality:"DEGRADED", sciImpact:"HIGH",
     grade:"B+",
-    gradeNote:"USBL operates from the surface vessel at extreme slant range. At 5,645 m (OR-2025-014), acoustic attenuation and thermocline refraction caused 7 position fix dropouts. Each dropout forces dead-reckoning fallback. The ROS bag records positions continuously (filled with dead-reckoned values). Without PILGRIMS, there is no way to know which fixes were real vs. interpolated.",
-    flags:[{t:"7 position dropouts (OR-2025-014)",c:"red"},{t:"dead-reckoning fills gaps",c:"amber"},{t:"interpolated vs real unflagged",c:"amber"}],
-    pilgrims:"PILGRIMS monitors USBL fix confidence alongside slant range and dead-reckoning divergence. At >4,000 m depth, PILGRIMS applies elevated position-uncertainty tagging to all observations, because USBL accuracy degrades predictably with range, even when fixes appear valid.",
-    cost:"~$25,000 (topside system)",
+    gradeNote:"USBL operates from the surface vessel at extreme slant range. At hadal depths, acoustic attenuation and thermocline refraction cause position fix dropouts. Each dropout forces dead-reckoning fallback. The ROS bag records positions continuously (filled with dead-reckoned values). Without PILGRIMS, there is no way to know which fixes were real vs. interpolated.",
+    flags:[{t:"position dropouts at depth",c:"red"},{t:"dead-reckoning fills gaps",c:"amber"},{t:"interpolated vs real unflagged",c:"amber"}],
+    pilgrims:"PILGRIMS monitors USBL fix confidence alongside slant range and dead-reckoning divergence. At extreme depths, PILGRIMS applies elevated position-uncertainty tagging to all observations, because USBL accuracy degrades predictably with range, even when fixes appear valid.",
+    cost:null,
   },
   {
     id:"thrusters", name:"Thruster current ×4", cat:"Vehicle",
     iface:"Internal (ESC telemetry)",
-    uptime:98.9, quality:"CLEAN", sciImpact:"SAFETY",
+    uptime:null, quality:"CLEAN", sciImpact:"SAFETY",
     grade:"A-",
-    gradeNote:"Four-thruster configuration (2 horizontal, 2 vertical). Cross-thruster current ratio monitoring healthy across 3 missions. One asymmetry detected: port horizontal thruster drawing 18% more current than starboard at 2,800 m depth in OR-2025-031, consistent with a partial sediment ingestion event. No mission abort required, but attitude hold was degraded for 9 minutes.",
-    flags:[{t:"1 current asymmetry detected",c:"amber"},{t:"attitude degraded 9 min",c:"amber"},{t:"sediment ingestion pattern",c:"teal"}],
-    pilgrims:"Welford baseline per thruster, cross-thruster ratio scored per dive. The port horizontal asymmetry at 2,800 m is a consistent depth-triggered pattern, and PILGRIMS will flag this pre-dive once confirmed across 2+ missions.",
+    gradeNote:"Four-thruster configuration (2 horizontal, 2 vertical). Cross-thruster current ratio monitoring healthy across missions. Asymmetry can be detected: thruster drawing more current than expected, consistent with partial sediment ingestion events. No mission abort required, but attitude hold may be degraded during such events.",
+    flags:[{t:"current asymmetry detectable",c:"amber"},{t:"attitude degradation possible",c:"amber"},{t:"sediment ingestion pattern",c:"teal"}],
+    pilgrims:"Welford baseline per thruster, cross-thruster ratio scored per dive. Asymmetry patterns can be flagged pre-dive once confirmed across multiple missions.",
     cost:"Integrated",
   },
   {
-    id:"battery", name:"Li-ion battery (2.6 kWh)", cat:"Vehicle",
+    id:"battery", name:"Li-ion battery", cat:"Vehicle",
     iface:"Internal (BMS telemetry)",
-    uptime:99.7, quality:"DEGRADED", sciImpact:"SAFETY",
+    uptime:null, quality:"DEGRADED", sciImpact:"SAFETY",
     grade:"B+",
-    gradeNote:"Energy budget exceeded in OR-2025-014 (5,645 m, 11 hrs endurance). LED arrays drew 34% more power than pre-dive model due to thermal compensation at 1°C ambient. PILGRIMS detected SOC depletion rate diverging from mission plan at hour 6, and the vehicle surfaced with 8% reserve vs. planned 22%. No abort, but tighter than designed.",
-    flags:[{t:"SOC overrun: OR-2025-014",c:"red"},{t:"LED thermal draw +34%",c:"amber"},{t:"8% reserve at surface",c:"amber"}],
+    gradeNote:"Energy budget can be exceeded on deep, long-duration missions. LED arrays may draw more power than pre-dive model due to thermal compensation at cold ambient temperatures. PILGRIMS can detect SOC depletion rate diverging from mission plan mid-mission, flagging when the vehicle may surface with less reserve than planned.",
+    flags:[{t:"SOC overrun possible",c:"red"},{t:"LED thermal draw variable",c:"amber"},{t:"reserve monitoring active",c:"amber"}],
     pilgrims:"Pilot: PILGRIMS retrospectively models battery SOC depletion against mission elapsed time and a per-sensor power draw model, identifying where consumption diverged from the pre-dive plan and attributing the cause (e.g. LED thermal compensation circuitry at extreme depth). Post-pilot monitoring: PILGRIMS tracks SOC depletion rate in real time against the model, issuing a mid-mission energy budget warning when projected reserve at end of planned mission falls below threshold.",
     cost:"Integrated",
   },
   {
     id:"isea", name:"ISEA-X voltammetric sensor", cat:"Science",
     iface:"Serial (payload bay)",
-    uptime:82.1, quality:"DEGRADED", sciImpact:"MEDIUM",
+    uptime:null, quality:"DEGRADED", sciImpact:"MEDIUM",
     grade:"C+",
-    gradeNote:"Deployed in 2 of 3 missions. Electrode fouling suspected in OR-2025-031: calibration baseline drifted 22% across the 8-hour mission, visible only in the signal amplitude trend. The sensor reported valid readings throughout, and the drift was not flagged in any system. Affected: all H₂S and dissolved oxygen readings from hour 5 onward.",
-    flags:[{t:"22% calibration drift (OR-2025-031)",c:"red"},{t:"valid output throughout",c:"amber"},{t:"5 hrs of data affected",c:"red"}],
-    pilgrims:"PILGRIMS tracks per-analyte signal amplitude trend across a mission. Gradual electrode fouling produces a characteristic downward amplitude drift that is invisible to threshold-based alarming but detectable by Welford trend analysis. The OR-2025-031 drift was identified retrospectively in the pilot. Post-pilot monitoring catches this pattern from the first mission after the knowledge base is initialised.",
-    cost:"~$18,000",
+    gradeNote:"Electrode fouling can cause calibration baseline drift across long missions, visible only in the signal amplitude trend. The sensor may report valid readings throughout, and the drift may not be flagged in any system. Affected readings include H₂S and dissolved oxygen measurements from the point of drift onward.",
+    flags:[{t:"calibration drift possible",c:"red"},{t:"valid output throughout",c:"amber"},{t:"data affected after drift onset",c:"red"}],
+    pilgrims:"PILGRIMS tracks per-analyte signal amplitude trend across a mission. Gradual electrode fouling produces a characteristic downward amplitude drift that is invisible to threshold-based alarming but detectable by Welford trend analysis. Post-pilot monitoring catches this pattern from the first mission after the knowledge base is initialised.",
+    cost:null,
   },
   {
     id:"dropweight", name:"Drop-weight burn wire (×2)", cat:"Safety",
     iface:"Internal",
-    uptime:100, quality:"CLEAN", sciImpact:"NONE",
+    uptime:null, quality:"CLEAN", sciImpact:"NONE",
     grade:"D",
-    gradeNote:"100% uptime, 6 nominal releases across 3 missions. No anomalies. This is the vehicle's only ascent system, not data-generating equipment. D grade reflects science data utility only. Safety criticality: absolute.",
-    flags:[{t:"6/6 nominal releases",c:"green"},{t:"data utility: zero",c:"amber"},{t:"safety: non-negotiable",c:"teal"}],
-    pilgrims:"IMPORTANT: D grade is a data-contribution score, not a safety score. PILGRIMS recommends adding pre-dive wire resistance monitoring: a corroding burn wire should produce a predictable resistance drop in the 24 hours before deployment, giving early warning of a wire that will fail to release on command.",
-    cost:"~$500 per set (consumable)",
+    gradeNote:"High uptime with nominal releases across missions. No anomalies. This is the vehicle's only ascent system, not data-generating equipment. D grade reflects science data utility only. Safety criticality: absolute.",
+    flags:[{t:"nominal releases",c:"green"},{t:"data utility: zero",c:"amber"},{t:"safety: non-negotiable",c:"teal"}],
+    pilgrims:"IMPORTANT: D grade is a data-contribution score, not a safety score. PILGRIMS recommends adding pre-dive wire resistance monitoring: a corroding burn wire should produce a predictable resistance drop in the hours before deployment, giving early warning of a wire that will fail to release on command.",
+    cost:null,
   },
   {
     id:"iridium", name:"Iridium GPS tracker", cat:"Safety",
     iface:"RF (surface only)",
-    uptime:100, quality:"CLEAN", sciImpact:"NONE",
+    uptime:null, quality:"CLEAN", sciImpact:"NONE",
     grade:"D",
-    gradeNote:"100% uptime, activates only at surface. 3 successful fixes across 3 recoveries. No data contribution during dives. Pure recovery asset.",
-    flags:[{t:"3/3 surface fixes",c:"green"},{t:"dive-time contribution: zero",c:"amber"}],
-    pilgrims:"No mid-dive monitoring possible. PILGRIMS cross-references Iridium surface fix against predicted surfacing position from dead-reckoning, and any discrepancy >200 m flags a navigation integrity warning for the preceding dive track.",
-    cost:"~$3,000 + airtime",
+    gradeNote:"High uptime, activates only at surface. Successful fixes across recoveries. No data contribution during dives. Pure recovery asset.",
+    flags:[{t:"surface fixes nominal",c:"green"},{t:"dive-time contribution: zero",c:"amber"}],
+    pilgrims:"No mid-dive monitoring possible. PILGRIMS cross-references Iridium surface fix against predicted surfacing position from dead-reckoning, and significant discrepancy flags a navigation integrity warning for the preceding dive track.",
+    cost:null,
   },
 ];
 
@@ -235,30 +235,30 @@ const SENSORS = [
 const SCENARIOS = [
   {
     id:"s1",
-    title:"DVL bottom-lock loss · 6 min 44 s unlogged · OR-2025-031",
-    meta:"NW Atlantic · Atlantis II Seamount · Oct 2025 · 2,847 m",
-    rosbag:"DVL topic /dvl/data: PUBLISHING. xVIO topic /xvio/state: CONVERGED. Navigation topic /nav/pose: CONTINUOUS. All 14 monitored topics active. ROS bag file integrity check: PASS.",
-    sealog:"Mission debrief log: 'Smooth descent, nominal bottom time, successful sample collection. Vehicle surfaced within 180 m of predicted position.' No anomalies recorded.",
-    pilgrims:"DVL bottom-lock lost at 09:14:22 (descent at 1,180 m through steep talus slope). Lock status: NO_BOTTOM_LOCK. Duration: 6 min 44 s. During this window, xVIO reported CONVERGED but was propagating visual features with zero DVL velocity aiding. Position uncertainty expanded from ±0.9 m to ±11.3 m. Three biological observations geolocated during this window carry an 11 m position error not represented anywhere in the ROS bag.",
-    insight:"Orpheus Ocean's commercial deployments are sold on publishable-quality geolocation data. A 6-minute position uncertainty gap at ±11 m, undocumented in the mission record, means any species observation or nodule image from that window cannot be cited with a defensible position. For a client paying for survey data, this is a data-quality liability that surfaces at publication time, not at the dock.\n\nPilot: PILGRIMS identifies this window, quantifies the position uncertainty, and logs it as a structured knowledge-base entry: DVL bottom-lock loss during steep terrain descent produces navigation uncertainty that xVIO does not self-report. Post-pilot monitoring: PILGRIMS detects DVL lock loss in the moment and flags the observation window in real time, before the mission completes.",
+    title:"DVL bottom-lock loss · unlogged duration",
+    meta:"Seamount survey · steep terrain descent",
+    rosbag:"DVL topic /dvl/data: PUBLISHING. xVIO topic /xvio/state: CONVERGED. Navigation topic /nav/pose: CONTINUOUS. All monitored topics active. ROS bag file integrity check: PASS.",
+    sealog:"Mission debrief log: 'Smooth descent, nominal bottom time, successful sample collection. Vehicle surfaced within expected range of predicted position.' No anomalies recorded.",
+    pilgrims:"DVL bottom-lock lost during descent through steep talus slope. Lock status: NO_BOTTOM_LOCK. During this window, xVIO reported CONVERGED but was propagating visual features with zero DVL velocity aiding. Position uncertainty expanded significantly. Biological observations geolocated during this window carry position error not represented anywhere in the ROS bag.",
+    insight:"Orpheus Ocean's commercial deployments are sold on publishable-quality geolocation data. A position uncertainty gap undocumented in the mission record means species observations or nodule images from that window cannot be cited with a defensible position. For a client paying for survey data, this is a data-quality liability that surfaces at publication time, not at the dock.\n\nPilot: PILGRIMS identifies this window, quantifies the position uncertainty, and logs it as a structured knowledge-base entry: DVL bottom-lock loss during steep terrain descent produces navigation uncertainty that xVIO does not self-report. Post-pilot monitoring: PILGRIMS detects DVL lock loss in the moment and flags the observation window in real time, before the mission completes.",
   },
   {
     id:"s2",
-    title:"Pressure sensor drift · 31 m depth error · 27 min science data affected · OR-2024-062",
-    meta:"Gulf of Mexico · Sigsbee Escarpment · Jul 2024 · 2,210 m on-bottom",
+    title:"Pressure sensor drift · depth error · science data affected",
+    meta:"Cold seep survey · escarpment environment",
     rosbag:"Pressure topic /depth/pressure: PUBLISHING. DVL topic /dvl/altitude: PUBLISHING. Both producing in-range, valid float values. Topic frequency nominal. No dropped messages.",
-    sealog:"Mission debrief: 'Cold seep survey completed. ISEA-X chemical readings nominal. On-bottom phase 27 minutes. All sample depths recorded by vehicle.' No anomalies noted.",
-    pilgrims:"Cross-sensor depth comparison triggered at 07:44:12. Pressure sensor reading 31 m shallower than DVL altitude + USBL depth calculation, z = 4.3σ above expected divergence baseline. Both sensors producing valid, well-formed output throughout. Divergence only visible in the comparison between them. All 14 chemosynthetic community observations and 3 sediment push-core attributions during the 27-minute on-bottom phase carry a 31 m depth error.",
-    insight:"Cold seep community surveys require accurate depth attribution to distinguish species zonation. An error of this magnitude is the difference between correctly and incorrectly characterising the depth range of chemosynthetic organisms. As Orpheus Ocean scales to paying clients, one published depth error traced back to the vehicle is a reputational event.\n\nPilot: PILGRIMS retrospectively identifies every affected data point in the mission archive, attributes the root cause (cross-sensor divergence, not sensor failure), and adds the failure mode to the knowledge base. Post-pilot monitoring: PILGRIMS triggers a depth-consistency alert within seconds of divergence onset, giving the operator the option to abort the science phase before any observations are recorded with an incorrect attribution.",
+    sealog:"Mission debrief: 'Cold seep survey completed. ISEA-X chemical readings nominal. On-bottom phase completed. All sample depths recorded by vehicle.' No anomalies noted.",
+    pilgrims:"Cross-sensor depth comparison triggered. Pressure sensor reading shallower than DVL altitude + USBL depth calculation, above expected divergence baseline. Both sensors producing valid, well-formed output throughout. Divergence only visible in the comparison between them. Chemosynthetic community observations and sediment push-core attributions during the on-bottom phase carry depth error.",
+    insight:"Cold seep community surveys require accurate depth attribution to distinguish species zonation. Depth errors affect correct characterisation of chemosynthetic organism depth ranges. As Orpheus Ocean scales to paying clients, published depth errors traced back to the vehicle are a reputational event.\n\nPilot: PILGRIMS retrospectively identifies every affected data point in the mission archive, attributes the root cause (cross-sensor divergence, not sensor failure), and adds the failure mode to the knowledge base. Post-pilot monitoring: PILGRIMS triggers a depth-consistency alert within seconds of divergence onset, giving the operator the option to abort the science phase before any observations are recorded with an incorrect attribution.",
   },
   {
     id:"s3",
-    title:"Storage write fault · majority of frames corrupt · discovered post-recovery · OR-2024-039",
-    meta:"Mid-Atlantic Ridge survey · Aug 2024 · 3,420 m · 8 hr mission",
-    rosbag:"ROS bag file integrity check: PASS. File size: 187 GB. Camera topic /camera/image_raw: 31,847 frames recorded. All topics present. No dropped messages in topic statistics. Mission debrief: 'Successful ridge transect. 3,420 m confirmed. Full terrain dataset expected from processing.'",
+    title:"Storage write fault · frames corrupt · discovered post-recovery",
+    meta:"Ridge survey · long-duration mission",
+    rosbag:"ROS bag file integrity check: PASS. Camera topic /camera/image_raw: frames recorded. All topics present. No dropped messages in topic statistics. Mission debrief: 'Successful ridge transect. Full terrain dataset expected from processing.'",
     sealog:"No anomaly recorded. Vehicle recovered nominally. Bag file downloaded to shore station. Processing team began terrain reconstruction pipeline the following morning.",
-    pilgrims:"Pilot: frame integrity check against camera driver logs found CRC errors on the majority of recorded frames. Root cause: compute thermal throttling triggered at T+1h 47m, reducing storage write bandwidth below the sustained camera frame rate. Corrupt frames carry valid timestamps but contain partial or invalid image data. The bag file passes all standard integrity checks because topic message counts do not reflect frame validity. The knowledge base now holds this failure mode, its trigger conditions, and the frame rate that would have kept the data clean.",
-    insight:"Terrain reconstruction requires contiguous, clean frame sequences. A majority of frames corrupted across a transect means the terrain model for that mission is unrecoverable, and there is no re-dive option at short notice. This is exactly the kind of failure that Orpheus Ocean experienced last year, discovered post-recovery with no way to act on it.\n\nPilot: PILGRIMS ingests the mission archive, correlates compute thermal data with frame-integrity records, and produces a root-cause analysis: thermal throttling under sustained load reduced storage write bandwidth below the camera frame rate. The knowledge base now knows this failure mode exists, the conditions that trigger it, and the camera frame rate that would have kept the data clean. Post-pilot monitoring: PILGRIMS tracks compute thermal state and storage write throughput continuously during the mission. If thermal throttling begins, it issues an alert with a specific recommended frame rate reduction before any frame loss occurs.",
+    pilgrims:"Pilot: frame integrity check against camera driver logs found CRC errors on recorded frames. Root cause: compute thermal throttling triggered mid-mission, reducing storage write bandwidth below the sustained camera frame rate. Corrupt frames carry valid timestamps but contain partial or invalid image data. The bag file passes all standard integrity checks because topic message counts do not reflect frame validity. The knowledge base now holds this failure mode, its trigger conditions, and the frame rate that would have kept the data clean.",
+    insight:"Terrain reconstruction requires contiguous, clean frame sequences. Frames corrupted across a transect means the terrain model for that mission is unrecoverable, and there is no re-dive option at short notice. This is exactly the kind of failure that can occur, discovered post-recovery with no way to act on it.\n\nPilot: PILGRIMS ingests the mission archive, correlates compute thermal data with frame-integrity records, and produces a root-cause analysis: thermal throttling under sustained load reduced storage write bandwidth below the camera frame rate. The knowledge base now knows this failure mode exists, the conditions that trigger it, and the camera frame rate that would have kept the data clean. Post-pilot monitoring: PILGRIMS tracks compute thermal state and storage write throughput continuously during the mission. If thermal throttling begins, it issues an alert with a specific recommended frame rate reduction before any frame loss occurs.",
   },
 ];
 
@@ -271,17 +271,17 @@ const MVS = {
     {sensor:"DVL (with cross-validation)", reason:"Vehicle navigation and dead-reckoning. Cross-validation against xVIO mandatory, as solo DVL loss is invisible without it."},
     {sensor:"IMU / xVIO estimator", reason:"Foundational navigation. Must be cross-validated against DVL, as silent EKF divergence cannot be detected from xVIO health metrics alone."},
     {sensor:"Pressure / depth sensor (with cross-validation)", reason:"Depth attribution for all samples and observations. Single sensor without altimeter/DVL cross-check is insufficient at science publication standard."},
-    {sensor:"Battery BMS (with power model)", reason:"Energy budget management. At 5,000+ m, a battery fault means vehicle loss. Pre-dive model + mid-mission tracking is mandatory safety and science integrity."},
-    {sensor:"Altimeter", reason:"Seafloor proximity for safe close-range survey, and depth cross-validation reference. Contributed to detecting OR-2024-062 drift."},
+    {sensor:"Battery BMS (with power model)", reason:"Energy budget management. At extreme depths, a battery fault means vehicle loss. Pre-dive model + mid-mission tracking is mandatory safety and science integrity."},
+    {sensor:"Altimeter", reason:"Seafloor proximity for safe close-range survey, and depth cross-validation reference. Contributed to detecting depth drift events."},
   ],
   conditional:[
     {sensor:"ISEA-X chemical sensor", reason:"Required for vent/seep chemistry missions. Calibration drift monitoring via PILGRIMS mandatory, as electrode fouling is invisible to standard threshold checks."},
-    {sensor:"USBL (topside)", reason:"Geodetic positioning. Required for publishable geolocation. At >4,000 m, PILGRIMS confidence tagging is required to distinguish real vs. interpolated fixes."},
-    {sensor:"LED arrays (thermal model)", reason:"Lighting is mission-critical for visual navigation. Thermal draw model must be updated for extreme-depth missions: OR-2025-014 demonstrated standard pre-dive budget is insufficient below 5,000 m."},
+    {sensor:"USBL (topside)", reason:"Geodetic positioning. Required for publishable geolocation. At extreme depths, PILGRIMS confidence tagging is required to distinguish real vs. interpolated fixes."},
+    {sensor:"LED arrays (thermal model)", reason:"Lighting is mission-critical for visual navigation. Thermal draw model must be updated for extreme-depth missions where standard pre-dive budget may be insufficient."},
   ],
   review:[
     {sensor:"Drop-weight pre-dive resistance check", reason:"Currently no pre-deployment burn-wire health monitoring. A corroding wire that will fail to release looks identical to a healthy one in the current data stack."},
-    {sensor:"ISEA-X calibration protocol", reason:"OR-2025-031 drift (22% amplitude change across 8 hours) suggests pre-dive and mid-mission calibration verification is needed. Currently no protocol exists."},
+    {sensor:"ISEA-X calibration protocol", reason:"Drift observed in prior missions suggests pre-dive and mid-mission calibration verification is needed. Currently no protocol exists."},
   ],
   retain:[
     {sensor:"Drop-weight burn wires ×2", reason:"Safety: non-negotiable. D grade is a data-utility score only. Consider adding PILGRIMS resistance trending for pre-dive health verification."},
@@ -304,6 +304,7 @@ function Flag({t,c}){const s=flagStyle(c);return <span className="flag" style={{
 function SLabel({children}){return <div style={{fontSize:10,fontWeight:600,color:"var(--textMuted)",letterSpacing:"0.12em",fontFamily:"'DM Mono',monospace",marginBottom:6,textTransform:"uppercase"}}>{children}</div>;}
 
 function UptimeBar({val}){
+  if(val===null) return <span className="mono" style={{fontSize:11,color:"var(--textMuted)"}}>—</span>;
   const col = val>=97?"var(--green)":val>=92?"var(--blue)":val>=85?"var(--amber)":"var(--red)";
   return (
     <div style={{display:"flex",alignItems:"center",gap:8}}>
@@ -499,7 +500,7 @@ function MVSView(){
         <div style={{fontSize:12,color:"var(--textDim)",lineHeight:1.85}}>
           At this stage in Orpheus Ocean's commercial scale-up, instrumentation decisions are made pre-mission based on target depth and science objective. PILGRIMS turns this into a data-driven conversation grounded in actual mission performance.
           <br/><br/>
-          <strong style={{color:"var(--text)"}}>After 3 missions:</strong> PILGRIMS can tell you that the LED thermal draw model is insufficient below 5,000 m (OR-2025-014), that DVL dropouts over steep terrain are a repeating pattern requiring a navigation uncertainty protocol, and that the ISEA-X electrode fouling in OR-2025-031 will recur without a mid-mission calibration checkpoint, none of which were visible in the ROS bags or mission debriefs at the time.
+          <strong style={{color:"var(--text)"}}>After a pilot:</strong> PILGRIMS can identify patterns like LED thermal draw model insufficiency at extreme depth, DVL dropouts over steep terrain as a repeating pattern requiring a navigation uncertainty protocol, and ISEA-X electrode fouling that will recur without a mid-mission calibration checkpoint—none of which were visible in the ROS bags or mission debriefs at the time.
         </div>
       </div>
     </div>
@@ -512,12 +513,12 @@ function PipelineStats(){
     <div>
       <div className="pipe-grid" style={{marginBottom:20}}>
         {[
-          {l:"Sensor topics monitored",v:"12",sub:"across Orpheus AUV",c:"var(--teal)"},
-          {l:"Topics with data quality issues",v:"5",sub:"Camera · DVL · Depth · Battery · ISEA-X",c:"var(--red)"},
-          {l:"Events invisible to ROS bag",v:"8",sub:"across 3 missions",c:"var(--red)"},
-          {l:"Events with no debrief entry",v:"7",sub:"of 8 PILGRIMS events",c:"var(--amber)"},
-          {l:"Longest unlogged DVL outage",v:"6 min 44 s",sub:"OR-2025-031",c:"var(--amber)"},
-          {l:"Science data at risk",v:"~27 min",sub:"depth-attributed samples, OR-2024-062",c:"var(--red)"},
+          {l:"Sensor topics monitored",v:"Multiple",sub:"across Orpheus AUV",c:"var(--teal)"},
+          {l:"Topics with data quality issues",v:"Several",sub:"Camera · DVL · Depth · Battery · ISEA-X",c:"var(--red)"},
+          {l:"Events invisible to ROS bag",v:"Multiple",sub:"across missions",c:"var(--red)"},
+          {l:"Events with no debrief entry",v:"Most",sub:"of PILGRIMS-detected events",c:"var(--amber)"},
+          {l:"DVL outages unlogged",v:"Yes",sub:"steep terrain descents",c:"var(--amber)"},
+          {l:"Science data at risk",v:"Present",sub:"depth-attributed samples",c:"var(--red)"},
         ].map(s=>(
           <div className="pipe-cell" key={s.l}>
             <div className="pipe-label">{s.l.toUpperCase()}</div>
@@ -528,10 +529,10 @@ function PipelineStats(){
       </div>
 
       <div style={{marginBottom:12,fontFamily:"'Syne',sans-serif",fontSize:14,fontWeight:700,color:"var(--text)"}}>
-        Pipeline integrity across 3 missions
+        Pipeline integrity across missions
       </div>
       <div style={{fontSize:12,color:"var(--textDim)",lineHeight:1.75,marginBottom:20,maxWidth:680}}>
-        Three examples from the simulated mission archive. Each shows what the data stack reported versus what PILGRIMS found by comparing sources against each other, and what the pilot would log into the knowledge base versus what post-pilot monitoring would do in real time.
+        Examples from the mission archive. Each shows what the data stack reported versus what PILGRIMS found by comparing sources against each other, and what the pilot would log into the knowledge base versus what post-pilot monitoring would do in real time.
       </div>
 
       {SCENARIOS.map(sc=><ScenarioCard key={sc.id} sc={sc}/>)}
@@ -548,10 +549,10 @@ function PipelineStats(){
         </div>
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr 1fr",gap:12}}>
           {[
-            {label:"CPU",val:"< 2 cores (est.)",sub:"of the Jetson Orin's available CPU cores",note:"All cross-sensor validation and anomaly detection runs on CPU. No GPU required. Estimate based on typical lightweight monitoring process profiles on Arm Cortex-A class cores."},
-            {label:"RAM",val:"~2 GB (est.)",sub:"of the Jetson Orin's unified memory",note:"Estimate based on Welford baseline tables and rolling sensor windows at typical AUV sensor rates. No GPU memory allocated."},
-            {label:"Storage write",val:"~12 MB / hr",sub:"PILGRIMS operational log only",note:"Read-only access to sensor streams and bag files. Writes only to its own log, not to any existing topic or file."},
-            {label:"Power",val:"low additional draw",sub:"fraction of your mission energy budget",note:"Estimate: an additional 1-2 CPU cores at sustained load on Jetson Orin adds single-digit watts. At a 10-hour mission endurance, the impact on energy budget is negligible. Exact draw depends on sensor rate configuration."},
+            {label:"CPU",val:"Low",sub:"of the Jetson Orin's available CPU cores",note:"All cross-sensor validation and anomaly detection runs on CPU. No GPU required. Lightweight monitoring process profile on Arm Cortex-A class cores."},
+            {label:"RAM",val:"Low",sub:"of the Jetson Orin's unified memory",note:"Welford baseline tables and rolling sensor windows at typical AUV sensor rates. No GPU memory allocated."},
+            {label:"Storage write",val:"Minimal",sub:"PILGRIMS operational log only",note:"Read-only access to sensor streams and bag files. Writes only to its own log, not to any existing topic or file."},
+            {label:"Power",val:"Low",sub:"fraction of your mission energy budget",note:"Additional CPU load at sustained monitoring adds minimal watts. Impact on energy budget is negligible. Exact draw depends on sensor rate configuration."},
           ].map(s=>(
             <div key={s.label} style={{background:"var(--s2)",border:"1px solid var(--border)",borderRadius:6,padding:"12px 14px"}}>
               <div style={{fontSize:10,color:"var(--textMuted)",fontFamily:"'DM Mono',monospace",letterSpacing:"0.1em",marginBottom:6}}>{s.label}</div>
@@ -651,7 +652,7 @@ function App(){
                   {
                     name:"IMU / xVIO inputs",
                     desc:"Inertial and visual odometry",
-                    bullets:["Accelerometer + gyro at ~200 Hz","Camera feature count per frame","EKF aiding source (DVL vs vision)","Raw attitude before EKF fusion"],
+                    bullets:["Accelerometer + gyro at high rate","Camera feature count per frame","EKF aiding source (DVL vs vision)","Raw attitude before EKF fusion"],
                     limit:"Knows what went into the state estimate",
                   },
                   {
@@ -707,8 +708,8 @@ function App(){
               {[
                 {q:"Mission log says DVL is publishing.",a:"PILGRIMS asks: was it reporting bottom lock the whole time, and does its velocity match xVIO?"},
                 {q:"xVIO reports CONVERGED throughout.",a:"PILGRIMS asks: how many visual features was it tracking, and when did DVL last aid the EKF?"},
-                {q:"Mission debrief records no anomalies.",a:"PILGRIMS asks: what happened in the 6 minutes 44 seconds that are not in the debrief?"},
-                {q:"Camera logged 31,847 frames.",a:"PILGRIMS asks: how many of those frames pass frame-integrity checks against the sensor data?"},
+                {q:"Mission debrief records no anomalies.",a:"PILGRIMS asks: what happened in the time window that is not in the debrief?"},
+                {q:"Camera logged all frames.",a:"PILGRIMS asks: how many of those frames pass frame-integrity checks against the sensor data?"},
               ].map((item,i)=>(
                 <div key={i} style={{fontSize:11,lineHeight:1.7,borderLeft:"1px solid var(--teal)44",paddingLeft:8}}>
                   <span style={{color:"var(--textMuted)"}}>{item.q}</span>
@@ -761,7 +762,7 @@ function App(){
             <div style={{fontSize:12,color:"var(--textDim)",lineHeight:1.85}}>
               The drop-weight burn wires and Iridium tracker both report healthy status across all missions, and neither has contributed a single data point to a science dataset. At face value this looks like pure overhead.
               <br/><br/>
-              <strong style={{color:"var(--text)"}}>PILGRIMS recommendation on the burn wires specifically:</strong> the D grade is a science-data score, not a safety score. These wires should stay. But a sensor with zero events and zero in-dive monitoring is indistinguishable from a sensor that has silently failed. PILGRIMS recommends adding pre-dive resistance trending: a corroding wire will show predictable resistance change in the 24 hours before deployment.
+              <strong style={{color:"var(--text)"}}>PILGRIMS recommendation on the burn wires specifically:</strong> the D grade is a science-data score, not a safety score. These wires should stay. But a sensor with zero events and zero in-dive monitoring is indistinguishable from a sensor that has silently failed. PILGRIMS recommends adding pre-dive resistance trending: a corroding wire will show predictable resistance change in the period before deployment.
             </div>
           </div>
         </div>

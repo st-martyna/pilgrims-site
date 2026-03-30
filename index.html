@@ -96,11 +96,17 @@
     position: absolute;
     right: 0;
     bottom: 0;
-    height: 80%;
+    height: 500px; /* Fixed fallback for IE */
+    max-height: 80%; /* Modern browsers use this */
     width: auto;
     pointer-events: none;
     z-index: 10;
     opacity: 1;
+  }
+
+  /* IE11 explicit height fix */
+  .hero {
+    height: 100vh;
   }
 
   .hero-label {
@@ -771,39 +777,30 @@
     </div>
     <div class="uc-grid">
       <div class="uc-card reveal">
-        <div class="uc-card-icon"><img src="petri.png" alt="Lab automation"></div>
-        <h3>Lab automation</h3>
-        <p>PILGRIMS turns instrument errors and protocol failures into self-correcting events, keeping experiments running and data clean.</p>
+        <div class="uc-card-icon"><img src="underwater.png" alt="Underwater operations"></div>
+        <h3>Underwater operations</h3>
+        <p>AUVs operate where human intervention is impossible and communication is unreliable. PILGRIMS enables autonomous recovery when sensors fail in the deep.</p>
         <div class="uc-failures">
           <span>TYPICAL FAILURE MODES</span>
-          <p>Seal and dispense drift, plate misalignment, reader calibration shift, transport faults, thermal variation</p>
+          <p>Sensor fouling, pressure-induced drift, visibility shifts, communication blackouts, marine growth on optics, acoustic interference</p>
         </div>
       </div>
       <div class="uc-card reveal">
-        <div class="uc-card-icon"><img src="production.png" alt="Industrial manipulation"></div>
-        <h3>Industrial manipulation</h3>
-        <p>PILGRIMS detects the shift in the environmental conditions and adapts the system before production is affected.</p>
+        <div class="uc-card-icon"><img src="aerial.png" alt="Aerial operations"></div>
+        <h3>Aerial operations</h3>
+        <p>Drones face rapidly changing conditions that degrade perception in seconds. PILGRIMS detects sensor failures and adapts before they become mission-critical.</p>
         <div class="uc-failures">
           <span>TYPICAL FAILURE MODES</span>
-          <p>Perception degradation, part variation, gripper wear, sensor occlusion, environmental lighting change</p>
+          <p>GPS denial, wind gusts, sensor icing, lighting changes, obstacle detection failures, compass interference, barometer drift</p>
         </div>
       </div>
       <div class="uc-card reveal">
-        <div class="uc-card-icon"><img src="road.png" alt="Logistics"></div>
-        <h3>Logistics</h3>
-        <p>Warehouse robots navigate a world that changes with every shift and warehouse shape. PILGRIMS enables seamless recovery from these situations.</p>
+        <div class="uc-card-icon"><img src="extreme.png" alt="Extreme environments"></div>
+        <h3>Extreme environments</h3>
+        <p>From arctic tundra to desert heat to orbital vacuum — PILGRIMS handles environments where sensors degrade in ways no simulator can predict.</p>
         <div class="uc-failures">
           <span>TYPICAL FAILURE MODES</span>
-          <p>Path obstruction, map drift, localisation error, floor surface change, fleet coordination failure</p>
-        </div>
-      </div>
-      <div class="uc-card reveal">
-        <div class="uc-card-icon"><img src="kombajn.png" alt="Outdoor operations"></div>
-        <h3>Outdoor operations</h3>
-        <p>Sensors degrade differently outdoors, and unstructured environments change in ways nobody can plan for. PILGRIMS detects when your perception stops being reliable and switches to a safer operating mode.</p>
-        <div class="uc-failures">
-          <span>TYPICAL FAILURE MODES</span>
-          <p>Sensor fouling, seasonal lighting change, post-deployment model drift, calibration drift, optics contamination, false pass/fail accumulation</p>
+          <p>Thermal extremes, radiation effects, dust and sand contamination, communication delays, sensor degradation, optics damage</p>
         </div>
       </div>
     </div>
