@@ -370,12 +370,14 @@
 
   .uc-grid {
     display: grid; grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: subgrid;
+    grid-auto-rows: auto;
     gap: 2rem; max-width: 1100px; margin: 0 auto;
   }
 
   .uc-card {
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-rows: auto auto 1fr auto;
     border: 1px solid var(--border);
     border-radius: 10px; padding: 2.5rem 2.25rem;
     transition: all 0.3s ease;
@@ -386,7 +388,7 @@
     box-shadow: 0 8px 30px rgba(0,0,0,0.04);
   }
 
-  .uc-card-icon { margin-bottom: 1.25rem; text-align: center; }
+  .uc-card-icon { margin-bottom: 1.25rem; text-align: center; height: 130px; display: flex; align-items: center; justify-content: center; }
   .uc-card-icon img { width: 130px; height: 130px; object-fit: contain; }
 
   .uc-card h3 {
@@ -397,10 +399,12 @@
   .uc-card p {
     font-size: 0.9rem; font-weight: 300;
     color: var(--text-secondary); line-height: 1.7;
+    align-self: start;
   }
 
   .uc-failures {
-    margin-top: auto; padding-top: 1.25rem;
+    align-self: end;
+    padding-top: 1.25rem;
     border-top: 1px solid var(--border);
   }
 
