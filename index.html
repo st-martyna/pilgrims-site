@@ -638,16 +638,18 @@
     .team-grid { grid-template-columns: 1fr; max-width: 100%; }
     .waitlist-form { flex-direction: column; }
     .waitlist-form input, .waitlist-form button { width: 100%; }
-    .hero { min-height: auto; padding-top: 6rem; padding-bottom: 3rem; }
+    .hero { min-height: auto; padding-top: 6rem; padding-bottom: 3rem; flex-direction: column-reverse; }
     .hero h1 { font-size: 2rem; }
     .hero-sub { font-size: 1rem; }
     .hero-robot {
-      position: absolute;
-      top: 5rem;
-      right: 1rem;
-      bottom: auto;
+      position: relative;
+      display: block;
+      width: 180px;
       height: auto;
-      width: 70px;
+      margin: 0 auto 2rem auto;
+      right: auto;
+      bottom: auto;
+      top: auto;
     }
     .hero-cta { flex-direction: column; align-items: stretch; }
     .hero-cta .btn-primary, .hero-cta .btn-ghost { text-align: center; }
