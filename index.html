@@ -649,19 +649,17 @@
     .team-grid { grid-template-columns: 1fr; max-width: 100%; }
     .waitlist-form { flex-direction: column; }
     .waitlist-form input, .waitlist-form button { width: 100%; }
-    .hero { min-height: auto; padding-top: 6rem; padding-bottom: 3rem; flex-direction: column-reverse; }
-    .hero-content { padding-right: 0; }
+    .hero { min-height: auto; padding-top: 6rem; padding-bottom: 3rem; }
+    .hero-content { padding-right: 100px; }
     .hero h1 { font-size: 2rem; }
     .hero-sub { font-size: 1rem; }
     .hero-robot {
-      position: relative;
-      display: block;
-      width: 180px;
-      height: auto;
-      margin: 0 auto 2rem auto;
-      right: auto;
+      position: absolute;
+      right: 0.5rem;
+      top: 5rem;
       bottom: auto;
-      top: auto;
+      width: auto;
+      height: 150px;
     }
     .hero-cta { flex-direction: column; align-items: stretch; }
     .hero-cta .btn-primary, .hero-cta .btn-ghost { text-align: center; }
