@@ -624,35 +624,26 @@
     margin-bottom: 2.5rem;
     padding: 0 3rem;
   }
-  .supporters-marquee {
+  .supporters-scroll {
     display: flex;
     justify-content: center;
-    width: 100%;
+    padding: 0 3rem;
   }
   .supporters-track {
     display: flex;
     align-items: center;
     gap: 4rem;
-    padding: 0 2rem;
-  }
-  .supporters-track:nth-child(2) {
-    display: none;
-  }
-  @keyframes marquee {
-    0% { transform: translateX(0); }
-    100% { transform: translateX(-50%); }
   }
   @media (max-width: 1200px) {
-    .supporters-marquee {
+    .supporters-scroll {
       justify-content: flex-start;
-      width: max-content;
-      animation: marquee 25s linear infinite;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      padding: 0 2rem;
     }
-    .supporters-marquee:hover {
-      animation-play-state: paused;
-    }
-    .supporters-track:nth-child(2) {
-      display: flex;
+    .supporters-scroll::-webkit-scrollbar {
+      display: none;
     }
   }
   .supporter-logo {
@@ -1010,25 +1001,8 @@ END TEAM SECTION HIDDEN -->
 <!-- SUPPORTERS -->
 <section class="supporters-section">
   <p class="supporters-label reveal">Supported by</p>
-  <div class="supporters-marquee reveal">
+  <div class="supporters-scroll reveal">
     <div class="supporters-track">
-      <a href="https://www.aria.org.uk/" target="_blank" rel="noopener" class="supporter-logo">
-        <img src="logos/aria.svg" alt="ARIA">
-      </a>
-      <a href="https://www.gov.uk/government/organisations/department-for-science-innovation-and-technology" target="_blank" rel="noopener" class="supporter-logo">
-        <img src="logos/dsit.svg" alt="Department for Science, Innovation and Technology">
-      </a>
-      <a href="https://encode.org.uk/" target="_blank" rel="noopener" class="supporter-logo">
-        <img src="logos/encode.svg" alt="ENCODE">
-      </a>
-      <a href="https://www.cam.ac.uk/" target="_blank" rel="noopener" class="supporter-logo supporter-logo-lg">
-        <img src="logos/cambridge.png" alt="University of Cambridge">
-      </a>
-      <a href="https://www.ox.ac.uk/" target="_blank" rel="noopener" class="supporter-logo supporter-logo-lg">
-        <img src="logos/oxford.png" alt="University of Oxford">
-      </a>
-    </div>
-    <div class="supporters-track" aria-hidden="true">
       <a href="https://www.aria.org.uk/" target="_blank" rel="noopener" class="supporter-logo">
         <img src="logos/aria.svg" alt="ARIA">
       </a>
