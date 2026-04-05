@@ -607,6 +607,49 @@
   }
   .footer-right a:hover { color: var(--text); }
 
+  /* --- SUPPORTERS --- */
+  .supporters-section {
+    padding: 4rem 3rem;
+    border-top: 1px solid var(--border);
+    background: var(--bg);
+  }
+  .supporters-label {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.12em;
+    color: var(--accent);
+    text-transform: uppercase;
+    text-align: center;
+    margin-bottom: 2.5rem;
+  }
+  .supporters-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 3rem;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  .supporter-logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 50px;
+  }
+  .supporter-logo img {
+    max-height: 100%;
+    width: auto;
+    max-width: 160px;
+    opacity: 0.7;
+    transition: opacity 0.3s ease;
+    filter: grayscale(20%);
+  }
+  .supporter-logo:hover img {
+    opacity: 1;
+    filter: grayscale(0%);
+  }
+
   @keyframes fadeUp {
     from { opacity: 0; transform: translateY(16px); }
     to { opacity: 1; transform: translateY(0); }
@@ -669,6 +712,10 @@
     footer { padding: 2rem 1.5rem; }
     .footer-inner { flex-direction: column; gap: 1rem; text-align: center; }
     .footer-right a { margin: 0 0.75rem; }
+    .supporters-section { padding: 2.5rem 1.5rem; }
+    .supporters-grid { gap: 2rem; }
+    .supporter-logo { height: 40px; }
+    .supporter-logo img { max-width: 120px; }
   }
 </style>
 </head>
@@ -922,6 +969,30 @@ END TEAM SECTION HIDDEN -->
         <button class="btn-primary" onclick="handleSubmit()">Get in touch</button>
       </div>
       <p class="cta-note">Or write to us directly: <a href="mailto:hello@usepilgrims.com">hello@usepilgrims.com</a></p>
+    </div>
+  </div>
+</section>
+
+<!-- SUPPORTERS -->
+<section class="supporters-section">
+  <div class="container">
+    <p class="supporters-label reveal">Supported by</p>
+    <div class="supporters-grid reveal">
+      <a href="https://www.aria.org.uk/" target="_blank" rel="noopener" class="supporter-logo">
+        <img src="logos/aria.svg" alt="ARIA">
+      </a>
+      <a href="https://www.gov.uk/government/organisations/department-for-science-innovation-and-technology" target="_blank" rel="noopener" class="supporter-logo">
+        <img src="logos/dsit.svg" alt="Department for Science, Innovation and Technology">
+      </a>
+      <a href="https://encode.org.uk/" target="_blank" rel="noopener" class="supporter-logo">
+        <img src="logos/encode.svg" alt="ENCODE">
+      </a>
+      <a href="https://www.cam.ac.uk/" target="_blank" rel="noopener" class="supporter-logo">
+        <img src="logos/cambridge.svg" alt="University of Cambridge">
+      </a>
+      <a href="https://www.ox.ac.uk/" target="_blank" rel="noopener" class="supporter-logo">
+        <img src="logos/oxford.svg" alt="University of Oxford">
+      </a>
     </div>
   </div>
 </section>
