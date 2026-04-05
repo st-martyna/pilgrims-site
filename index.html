@@ -626,11 +626,8 @@
   }
   .supporters-marquee {
     display: flex;
-    width: max-content;
-    animation: marquee 25s linear infinite;
-  }
-  .supporters-marquee:hover {
-    animation-play-state: paused;
+    justify-content: center;
+    width: 100%;
   }
   .supporters-track {
     display: flex;
@@ -638,9 +635,25 @@
     gap: 4rem;
     padding: 0 2rem;
   }
+  .supporters-track:nth-child(2) {
+    display: none;
+  }
   @keyframes marquee {
     0% { transform: translateX(0); }
     100% { transform: translateX(-50%); }
+  }
+  @media (max-width: 1200px) {
+    .supporters-marquee {
+      justify-content: flex-start;
+      width: max-content;
+      animation: marquee 25s linear infinite;
+    }
+    .supporters-marquee:hover {
+      animation-play-state: paused;
+    }
+    .supporters-track:nth-child(2) {
+      display: flex;
+    }
   }
   .supporter-logo {
     display: flex;
