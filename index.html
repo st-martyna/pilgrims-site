@@ -609,9 +609,10 @@
 
   /* --- SUPPORTERS --- */
   .supporters-section {
-    padding: 4rem 3rem;
+    padding: 4rem 0;
     border-top: 1px solid var(--border);
     background: var(--bg);
+    overflow: hidden;
   }
   .supporters-label {
     font-family: var(--mono);
@@ -621,21 +622,32 @@
     text-transform: uppercase;
     text-align: center;
     margin-bottom: 2.5rem;
+    padding: 0 3rem;
   }
-  .supporters-grid {
+  .supporters-marquee {
     display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
+    width: max-content;
+    animation: marquee 25s linear infinite;
+  }
+  .supporters-marquee:hover {
+    animation-play-state: paused;
+  }
+  .supporters-track {
+    display: flex;
     align-items: center;
-    gap: 3rem;
-    max-width: 1100px;
-    margin: 0 auto;
+    gap: 4rem;
+    padding: 0 2rem;
+  }
+  @keyframes marquee {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
   }
   .supporter-logo {
     display: flex;
     align-items: center;
     justify-content: center;
     height: 50px;
+    flex-shrink: 0;
   }
   .supporter-logo img {
     max-height: 100%;
@@ -648,6 +660,12 @@
   .supporter-logo:hover img {
     opacity: 1;
     filter: grayscale(0%);
+  }
+  .supporter-logo-lg {
+    height: 80px;
+  }
+  .supporter-logo-lg img {
+    max-width: 256px;
   }
 
   @keyframes fadeUp {
@@ -712,10 +730,13 @@
     footer { padding: 2rem 1.5rem; }
     .footer-inner { flex-direction: column; gap: 1rem; text-align: center; }
     .footer-right a { margin: 0 0.75rem; }
-    .supporters-section { padding: 2.5rem 1.5rem; }
-    .supporters-grid { gap: 2rem; }
+    .supporters-section { padding: 2.5rem 0; }
+    .supporters-label { padding: 0 1.5rem; }
+    .supporters-track { gap: 3rem; }
     .supporter-logo { height: 40px; }
     .supporter-logo img { max-width: 120px; }
+    .supporter-logo-lg { height: 64px; }
+    .supporter-logo-lg img { max-width: 192px; }
   }
 </style>
 </head>
@@ -975,9 +996,9 @@ END TEAM SECTION HIDDEN -->
 
 <!-- SUPPORTERS -->
 <section class="supporters-section">
-  <div class="container">
-    <p class="supporters-label reveal">Supported by</p>
-    <div class="supporters-grid reveal">
+  <p class="supporters-label reveal">Supported by</p>
+  <div class="supporters-marquee reveal">
+    <div class="supporters-track">
       <a href="https://www.aria.org.uk/" target="_blank" rel="noopener" class="supporter-logo">
         <img src="logos/aria.svg" alt="ARIA">
       </a>
@@ -987,10 +1008,27 @@ END TEAM SECTION HIDDEN -->
       <a href="https://encode.org.uk/" target="_blank" rel="noopener" class="supporter-logo">
         <img src="logos/encode.svg" alt="ENCODE">
       </a>
-      <a href="https://www.cam.ac.uk/" target="_blank" rel="noopener" class="supporter-logo">
+      <a href="https://www.cam.ac.uk/" target="_blank" rel="noopener" class="supporter-logo supporter-logo-lg">
         <img src="logos/cambridge.png" alt="University of Cambridge">
       </a>
-      <a href="https://www.ox.ac.uk/" target="_blank" rel="noopener" class="supporter-logo">
+      <a href="https://www.ox.ac.uk/" target="_blank" rel="noopener" class="supporter-logo supporter-logo-lg">
+        <img src="logos/oxford.png" alt="University of Oxford">
+      </a>
+    </div>
+    <div class="supporters-track" aria-hidden="true">
+      <a href="https://www.aria.org.uk/" target="_blank" rel="noopener" class="supporter-logo">
+        <img src="logos/aria.svg" alt="ARIA">
+      </a>
+      <a href="https://www.gov.uk/government/organisations/department-for-science-innovation-and-technology" target="_blank" rel="noopener" class="supporter-logo">
+        <img src="logos/dsit.svg" alt="Department for Science, Innovation and Technology">
+      </a>
+      <a href="https://encode.org.uk/" target="_blank" rel="noopener" class="supporter-logo">
+        <img src="logos/encode.svg" alt="ENCODE">
+      </a>
+      <a href="https://www.cam.ac.uk/" target="_blank" rel="noopener" class="supporter-logo supporter-logo-lg">
+        <img src="logos/cambridge.png" alt="University of Cambridge">
+      </a>
+      <a href="https://www.ox.ac.uk/" target="_blank" rel="noopener" class="supporter-logo supporter-logo-lg">
         <img src="logos/oxford.png" alt="University of Oxford">
       </a>
     </div>
