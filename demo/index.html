@@ -663,7 +663,7 @@ function renderAlert(ds,res){
   const rp=(res.port/SIGNALS[0].sigma);
   if(actionAt!==null){
     el.className='pattern-alert recovering';
-    el.innerHTML=`<div class="pattern-header"><div class="pattern-icon">✓</div><div class="pattern-title">Recovery Active</div></div><div class="pattern-body">KB: <strong>orp-fault-003</strong> · <code>ThrusterDerate</code> · Predicted <strong>${lm}m${ls}s</strong> before projected fault · Leads host WARNING by 7m03s</div>`;
+    el.innerHTML=`<div class="pattern-header"><div class="pattern-icon">✓</div><div class="pattern-title">Recovery Active</div></div><div class="pattern-body">KB: <strong>orp-fault-003</strong> · <code>ThrusterDerate</code> · Predicted <strong>${lm}m${ls}s</strong> before projected fault · Leads host WARNING by <strong>7m03s</strong></div>`;
   }else if(ds>ALERT_TH){
     el.className='pattern-alert critical';
     el.innerHTML=`<div class="pattern-header"><div class="pattern-icon">!</div><div class="pattern-title">Failure fingerprint: orp-fault-004</div></div><div class="pattern-body">r<sub>port</sub>=${rp.toFixed(2)}σ > 2.5σ · conf=87% · <code>ThrusterDerate</code></div>`;
