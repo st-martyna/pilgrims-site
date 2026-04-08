@@ -256,7 +256,7 @@ main {
 .kb-stat-value { font-family: 'IBM Plex Mono', monospace; font-size: 21px; font-weight: 600; }
 .kb-stat-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; }
 .kb-stat.growing .kb-stat-value { color: var(--success); }
-.kb-stat.growing .kb-stat-value::after { content: '↑'; font-size: 10px; }
+.kb-stat.growing .kb-stat-value::after {  font-size: 10px; }
 
 .kb-pattern {
   background: var(--bg); border-radius: 4px; padding: 8px; margin-bottom: 6px;
@@ -419,7 +419,7 @@ footer {
       <div class="kb-pattern-action">→ <code>PowerDerate</code></div>
     </div>
     <div class="kb-pattern" id="kb-003">
-      <div class="kb-pattern-header"><span class="kb-pattern-id">orp-fault-003</span></div>
+      <div class="kb-pattern-header"><span class="kb-pattern-id">orp-fault-004</span></div>
       <div class="kb-pattern-name">Thruster thermal overload</div>
       
       <div class="kb-pattern-action">→ <code>ThrusterDerate</code></div>
@@ -556,7 +556,7 @@ function pos(t){
 }
 
 function statusLabel(sig){ return sig>2.5?'critical':sig>1.8?'warning':sig>1.2?'elevated':'nominal'; }
-function statusText(sig){ return sig>2.5?'CRIT':sig>1.8?'WARN':sig>1.2?'ELEV':'OK'; }
+function statusText(sig){ return sig>2.5?'CRIT':sig>1.8?'WARN':sig>1.2?'ELEV':'NOM'; }
 
 function renderTelemetry(v,res){
   document.getElementById('telemBody').innerHTML=SIGNALS.map(s=>{
@@ -663,10 +663,10 @@ function renderAlert(ds,res){
   const rp=(res.port/SIGNALS[0].sigma);
   if(actionAt!==null){
     el.className='pattern-alert recovering';
-    el.innerHTML=`<div class="pattern-header"><div class="pattern-icon">✓</div><div class="pattern-title">Recovery Active</div></div><div class="pattern-body">KB: <strong>orp-fault-003</strong> · <code>ThrusterDerate</code> · Predicted <strong>${lm}m${ls}s</strong> before projected fault</div>`;
+    el.innerHTML=`<div class="pattern-header"><div class="pattern-icon">✓</div><div class="pattern-title">Recovery Active</div></div><div class="pattern-body">KB: <strong>orp-fault-004</strong> · <code>ThrusterDerate</code> · Predicted <strong>${lm}m${ls}s</strong> before projected fault</div>`;
   }else if(ds>ALERT_TH){
     el.className='pattern-alert critical';
-    el.innerHTML=`<div class="pattern-header"><div class="pattern-icon">!</div><div class="pattern-title">Failure fingerprint: orp-fault-003</div></div><div class="pattern-body">r<sub>port</sub>=${rp.toFixed(2)}σ > 2.5σ · conf=87% · <code>ThrusterDerate</code></div>`;
+    el.innerHTML=`<div class="pattern-header"><div class="pattern-icon">!</div><div class="pattern-title">Failure fingerprint: orp-fault-004</div></div><div class="pattern-body">r<sub>port</sub>=${rp.toFixed(2)}σ > 2.5σ · conf=87% · <code>ThrusterDerate</code></div>`;
   }else{
     el.className='pattern-alert warning';
     el.innerHTML=`<div class="pattern-header"><div class="pattern-icon">?</div><div class="pattern-title">Searching KB</div></div><div class="pattern-body">r<sub>port</sub>=${rp.toFixed(2)}σ · matching 4 fingerprints...</div>`;
@@ -696,11 +696,11 @@ function renderStack(ds,res){
     meta.textContent='recovery';
     const prog=Math.min(100,Math.floor((tick-actionAt)/60*100));
     const duty=(0.72-Math.min(0.32,(tick-actionAt)/60*0.32)).toFixed(2);
-    el.innerHTML=`<div class="flow-node success"><div class="flow-name">PILGRIMS</div><div class="flow-data"><span class="k">P</span>: ${ds.toFixed(3)}↓<br><span class="k">pattern</span>: <span class="s">orp-fault-003</span></div></div><div class="flow-node success"><div class="flow-name">Supervisor</div><div class="flow-data"><span class="k">state</span>: <span class="s">EXECUTING</span><br><span class="k">prog</span>: ${prog}%</div></div><div class="flow-node success"><div class="flow-name">BT::ThrusterDerate</div><div class="flow-topic">→ /lowbrain/cmd</div><div class="flow-data"><span class="k">duty</span>: ${duty}→0.40</div></div><div class="flow-node success"><div class="flow-name">Lowbrain</div><div class="flow-data"><span class="k">port_pwm</span>: ↓</div></div>`;
+    el.innerHTML=`<div class="flow-node success"><div class="flow-name">PILGRIMS</div><div class="flow-data"><span class="k">P</span>: ${ds.toFixed(3)}↓<br><span class="k">pattern</span>: <span class="s">orp-fault-004</span></div></div><div class="flow-node success"><div class="flow-name">Supervisor</div><div class="flow-data"><span class="k">state</span>: <span class="s">EXECUTING</span><br><span class="k">prog</span>: ${prog}%</div></div><div class="flow-node success"><div class="flow-name">BT::ThrusterDerate</div><div class="flow-topic">→ /lowbrain/cmd</div><div class="flow-data"><span class="k">duty</span>: ${duty}→0.40</div></div><div class="flow-node success"><div class="flow-name">Lowbrain</div><div class="flow-data"><span class="k">port_pwm</span>: ↓</div></div>`;
   }else if(ds>ALERT_TH){
     meta.textContent='alert';
     const timer=ACTION_DELAY-(tick-alertAt);
-    el.innerHTML=`<div class="flow-node active"><div class="flow-name">PILGRIMS</div><div class="flow-data"><span class="k">P</span>: ${ds.toFixed(3)}<br><span class="k">pattern</span>: <span class="s">orp-fault-003</span><br><span class="k">r_port</span>: ${rp}σ<br><span class="k">ttf</span>: ${lead}s</div></div><div class="flow-node active"><div class="flow-name">Supervisor</div><div class="flow-data"><span class="k">state</span>: <span class="s">EVAL</span><br><span class="k">act_in</span>: ${timer}s</div></div><div class="flow-node"><div class="flow-name">BehaviorTree</div><div class="flow-data"><span class="k">queued</span>: ThrusterDerate</div></div><div class="flow-node"><div class="flow-name">Lowbrain</div><div class="flow-data"><span class="k">await</span>: cmd</div></div>`;
+    el.innerHTML=`<div class="flow-node active"><div class="flow-name">PILGRIMS</div><div class="flow-data"><span class="k">P</span>: ${ds.toFixed(3)}<br><span class="k">pattern</span>: <span class="s">orp-fault-004</span><br><span class="k">r_port</span>: ${rp}σ<br><span class="k">ttf</span>: ${lead}s</div></div><div class="flow-node active"><div class="flow-name">Supervisor</div><div class="flow-data"><span class="k">state</span>: <span class="s">EVAL</span><br><span class="k">act_in</span>: ${timer}s</div></div><div class="flow-node"><div class="flow-name">BehaviorTree</div><div class="flow-data"><span class="k">queued</span>: ThrusterDerate</div></div><div class="flow-node"><div class="flow-name">Lowbrain</div><div class="flow-data"><span class="k">await</span>: cmd</div></div>`;
   }else if(ds>PATTERN_TH){
     meta.textContent='searching';
     el.innerHTML=`<div class="flow-node active"><div class="flow-name">PILGRIMS</div><div class="flow-data"><span class="k">P</span>: ${ds.toFixed(3)}<br><span class="k">status</span>: <span class="s">PATTERN</span></div></div><div class="flow-node"><div class="flow-name">Supervisor</div><div class="flow-data"><span class="k">state</span>: MONITOR</div></div><div class="flow-node"><div class="flow-name">BehaviorTree</div><div class="flow-data"><span class="k">active</span>: ∅</div></div><div class="flow-node"><div class="flow-name">Lowbrain</div><div class="flow-data"><span class="k">mode</span>: nominal</div></div>`;
