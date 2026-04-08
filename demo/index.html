@@ -680,7 +680,7 @@ function renderKB(ds){
   else if(ds>PATTERN_TH)kb003.className='kb-pattern active';
   const learning=document.getElementById('kbLearning');
   if(ds>PATTERN_TH&&actionAt===null)learning.innerHTML=`<span class="kb-new-count">1</span>Signature under analysis`;
-  else if(actionAt!==null)learning.innerHTML=`<span class="kb-new-count">4</span>Fingerprint confirmed`;
+  else if(actionAt!==null)learning.innerHTML=`<span class="kb-new-count">1</span>Fingerprint confirmed`;
   else learning.innerHTML=`<span class="kb-new-count">0</span>New signatures this session`;
 }
 
