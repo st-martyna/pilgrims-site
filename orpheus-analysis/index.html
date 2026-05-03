@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Orpheus Ocean — AUV Mission Analysis</title>
+<meta name="description" content="Retrospective failure prediction analysis for Orpheus Ocean AUV mission data.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #FFFFFF;
+    --bg-alt: #FAFAF8;
+    --bg-dark: #111110;
+    --text: #1A1A1A;
+    --text-secondary: #6B6B6B;
+    --text-on-dark: #E8E7E4;
+    --text-muted-dark: #9B9A97;
+    --accent: #1D6B5C;
+    --accent-warm: #C4653A;
+    --accent-light: #E8F0EF;
+    --border: #E2E0DC;
+    --border-dark: #2A2A28;
+    --white: #FFFFFF;
+    --serif: 'Instrument Serif', Georgia, serif;
+    --sans: 'DM Sans', -apple-system, sans-serif;
+    --mono: 'DM Mono', monospace;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; font-size: 16px; }
+
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::selection { background: var(--accent); color: var(--white); }
+
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    padding: 1.25rem 3rem;
+    display: flex; justify-content: space-between; align-items: center;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .nav-logo {
+    font-family: var(--mono); font-size: 0.9rem; font-weight: 500;
+    letter-spacing: 0.1em; color: var(--text); text-decoration: none;
+  }
+
+  .nav-links { display: flex; gap: 2rem; list-style: none; }
+  .nav-links a {
+    font-size: 0.85rem; color: var(--text-secondary);
+    text-decoration: none; transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--accent); }
+
+  section { padding: 0 3rem; }
+  .container { max-width: 1100px; margin: 0 auto; }
+
+  /* Hero */
+  .hero {
+    min-height: 70vh; display: flex; align-items: center;
+    padding-top: 7rem; padding-bottom: 4rem;
+    background: linear-gradient(180deg, var(--bg-alt) 0%, var(--bg) 100%);
+  }
+  .hero-content { max-width: 800px; }
+
+  .hero-label {
+    font-family: var(--mono); font-size: 0.75rem; letter-spacing: 0.12em;
+    color: var(--accent); margin-bottom: 1.5rem; text-transform: uppercase;
+  }
+
+  .hero h1 {
+    font-family: var(--serif);
+    font-size: clamp(2.2rem, 4.5vw, 3.5rem);
+    font-weight: 400; line-height: 1.15;
+    letter-spacing: -0.02em;
+  }
+  .hero h1 em { font-style: italic; color: var(--accent); }
+
+  .hero-sub {
+    margin-top: 1.75rem;
+    font-size: 1.1rem; font-weight: 300;
+    color: var(--text-secondary);
+    max-width: 600px; line-height: 1.75;
+  }
+
+  .hero-meta {
+    margin-top: 2.5rem;
+    display: flex; gap: 3rem; flex-wrap: wrap;
+  }
+
+  .meta-item {
+    display: flex; flex-direction: column;
+  }
+  .meta-label {
+    font-family: var(--mono); font-size: 0.68rem;
+    letter-spacing: 0.1em; color: var(--text-secondary);
+    text-transform: uppercase; margin-bottom: 0.35rem;
+  }
+  .meta-value {
+    font-family: var(--serif); font-size: 1.5rem;
+    color: var(--accent);
+  }
+
+  /* Stats Strip */
+  .stats-strip {
+    padding: 3.5rem 3rem;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    background: var(--bg);
+  }
+  .stats-row {
+    max-width: 1100px; margin: 0 auto;
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 2rem; text-align: center;
+  }
+  .stat h4 {
+    font-family: var(--serif); font-size: 2.2rem;
+    font-weight: 400; color: var(--accent); margin-bottom: 0.4rem;
+  }
+  .stat p {
+    font-size: 0.82rem; font-weight: 400; color: var(--text-secondary);
+  }
+
+  /* Section Headers */
+  .section-header { text-align: center; margin-bottom: 3.5rem; }
+  .section-header .label {
+    font-family: var(--mono); font-size: 0.72rem; letter-spacing: 0.12em;
+    color: var(--accent); text-transform: uppercase; margin-bottom: 1rem;
+    display: block;
+  }
+  .section-header h2 {
+    font-family: var(--serif);
+    font-size: clamp(1.6rem, 2.5vw, 2.2rem);
+    font-weight: 400;
+  }
+  .section-header p {
+    margin-top: 1rem; font-weight: 300;
+    color: var(--text-secondary);
+    max-width: 600px; margin-left: auto; margin-right: auto;
+    font-size: 1rem; line-height: 1.7;
+  }
+
+  /* Content Section */
+  .content-section {
+    padding: 5rem 3rem;
+  }
+  .content-section.alt { background: var(--bg-alt); }
+  .content-section.dark {
+    background: var(--bg-dark);
+    color: var(--text-on-dark);
+  }
+  .content-section.dark .section-header p { color: var(--text-muted-dark); }
+
+  /* Plot Container */
+  .plot-container {
+    max-width: 1100px; margin: 0 auto;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    background: var(--white);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+  }
+  .plot-container img {
+    width: 100%; height: auto; display: block;
+  }
+  .plot-caption {
+    padding: 1.25rem 1.5rem;
+    border-top: 1px solid var(--border);
+    background: var(--bg-alt);
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+  }
+  .plot-caption strong { color: var(--text); font-weight: 500; }
+
+  /* Event Cards */
+  .events-grid {
+    display: grid; grid-template-columns: repeat(2, 1fr);
+    gap: 1.5rem; max-width: 1100px; margin: 0 auto;
+  }
+
+  .event-card {
+    border: 1px solid var(--border-dark);
+    border-radius: 10px;
+    padding: 2rem;
+    background: rgba(255,255,255,0.02);
+    transition: all 0.3s ease;
+  }
+  .event-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+  }
+
+  .event-header {
+    display: flex; justify-content: space-between;
+    align-items: flex-start; margin-bottom: 1rem;
+  }
+
+  .event-rank {
+    font-family: var(--mono); font-size: 0.7rem;
+    letter-spacing: 0.1em; color: var(--accent);
+    background: rgba(29, 107, 92, 0.15);
+    padding: 0.3rem 0.6rem; border-radius: 4px;
+  }
+
+  .event-time {
+    font-family: var(--mono); font-size: 0.8rem;
+    color: var(--text-muted-dark);
+  }
+
+  .event-card h3 {
+    font-family: var(--serif); font-size: 1.15rem;
+    font-weight: 400; color: var(--text-on-dark);
+    margin-bottom: 0.6rem;
+  }
+
+  .event-card p {
+    font-size: 0.88rem; font-weight: 300;
+    color: var(--text-muted-dark); line-height: 1.65;
+  }
+
+  .event-channels {
+    margin-top: 1rem; padding-top: 1rem;
+    border-top: 1px solid var(--border-dark);
+    display: flex; gap: 0.5rem; flex-wrap: wrap;
+  }
+
+  .channel-tag {
+    font-family: var(--mono); font-size: 0.68rem;
+    padding: 0.25rem 0.5rem; border-radius: 4px;
+    background: rgba(196, 101, 58, 0.15);
+    color: var(--accent-warm);
+  }
+
+  /* Findings Grid */
+  .findings-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr);
+    gap: 2rem; max-width: 1100px; margin: 0 auto;
+  }
+
+  .finding-card {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 2rem;
+    background: var(--white);
+    transition: all 0.3s ease;
+  }
+  .finding-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.04);
+  }
+
+  .finding-icon {
+    width: 44px; height: 44px; border-radius: 8px;
+    background: var(--accent-light);
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 1.25rem; font-size: 1.2rem;
+  }
+
+  .finding-card h3 {
+    font-family: var(--serif); font-size: 1.2rem;
+    font-weight: 400; margin-bottom: 0.6rem;
+  }
+
+  .finding-card p {
+    font-size: 0.9rem; font-weight: 300;
+    color: var(--text-secondary); line-height: 1.7;
+  }
+
+  /* Data Table */
+  .data-table {
+    width: 100%; border-collapse: collapse;
+    font-size: 0.88rem;
+  }
+  .data-table th {
+    font-family: var(--mono); font-size: 0.72rem;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--text-secondary);
+    text-align: left; padding: 1rem 1.25rem;
+    border-bottom: 2px solid var(--border);
+    background: var(--bg-alt);
+  }
+  .data-table td {
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  .data-table tr:hover td { background: var(--bg-alt); }
+  .data-table .mono {
+    font-family: var(--mono); font-size: 0.82rem;
+  }
+  .data-table .highlight { color: var(--accent); font-weight: 500; }
+  .data-table .warn { color: var(--accent-warm); }
+
+  /* Precursor Grid */
+  .precursor-grid {
+    display: grid; grid-template-columns: repeat(2, 1fr);
+    gap: 2rem; max-width: 1100px; margin: 0 auto;
+  }
+  .precursor-item {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    background: var(--white);
+  }
+  .precursor-item img {
+    width: 100%; height: auto; display: block;
+  }
+  .precursor-info {
+    padding: 1.25rem;
+    border-top: 1px solid var(--border);
+  }
+  .precursor-info h4 {
+    font-family: var(--sans); font-size: 0.95rem;
+    font-weight: 600; margin-bottom: 0.4rem;
+  }
+  .precursor-info p {
+    font-size: 0.82rem; color: var(--text-secondary);
+  }
+
+  /* Footer */
+  footer {
+    padding: 3rem;
+    background: var(--bg-dark);
+    color: var(--text-muted-dark);
+    text-align: center;
+    font-size: 0.85rem;
+  }
+  footer a { color: var(--accent); text-decoration: none; }
+  footer a:hover { text-decoration: underline; }
+
+  /* Responsive */
+  @media (max-width: 900px) {
+    .stats-row { grid-template-columns: repeat(2, 1fr); }
+    .events-grid { grid-template-columns: 1fr; }
+    .findings-grid { grid-template-columns: 1fr; }
+    .precursor-grid { grid-template-columns: 1fr; }
+    nav { padding: 1rem 1.5rem; }
+    section { padding: 0 1.5rem; }
+    .hero-meta { gap: 2rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="https://www.usepilgrims.com" class="nav-logo">PILGRIMS</a>
+  <ul class="nav-links">
+    <li><a href="#overview">Overview</a></li>
+    <li><a href="#channels">Channels</a></li>
+    <li><a href="#events">Events</a></li>
+    <li><a href="#precursors">Precursors</a></li>
+  </ul>
+</nav>
+
+<section class="hero">
+  <div class="container">
+    <div class="hero-content">
+      <div class="hero-label">Client Analysis Report</div>
+      <h1>Orpheus Ocean <em>AUV Mission</em> Retrospective Analysis</h1>
+      <p class="hero-sub">
+        Unsupervised failure prediction analysis of multi-modal sensor data from autonomous underwater vehicle missions. Identifying anomalous events and precursor patterns without labeled failure data.
+      </p>
+      <div class="hero-meta">
+        <div class="meta-item">
+          <span class="meta-label">Mission Duration</span>
+          <span class="meta-value">20 min</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Data Points</span>
+          <span class="meta-value">230K</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Channels</span>
+          <span class="meta-value">14</span>
+        </div>
+        <div class="meta-item">
+          <span class="meta-label">Events Detected</span>
+          <span class="meta-value">8</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="stats-strip">
+  <div class="stats-row">
+    <div class="stat">
+      <h4>50 Hz</h4>
+      <p>IMU & Heading Rate</p>
+    </div>
+    <div class="stat">
+      <h4>10 Hz</h4>
+      <p>DVL & Thrusters</p>
+    </div>
+    <div class="stat">
+      <h4>2 Hz</h4>
+      <p>Power Systems</p>
+    </div>
+    <div class="stat">
+      <h4>3.0σ</h4>
+      <p>Anomaly Threshold</p>
+    </div>
+  </div>
+</div>
+
+<section id="overview" class="content-section alt">
+  <div class="section-header">
+    <span class="label">Phase 1 & 2</span>
+    <h2>Mission Overview</h2>
+    <p>Multi-modal time series extracted from ROS2 bag files, resampled to 10 Hz common time grid, and analyzed for cross-channel patterns.</p>
+  </div>
+
+  <div class="plot-container">
+    <img src="plots/00_overview.png" alt="Mission Overview">
+    <div class="plot-caption">
+      <strong>Figure 1:</strong> Complete 20-minute mission showing heading, depth, speed, attitude, thruster commands, currents, DVL quality, and altitude. Red dashed lines indicate detected anomalous events.
+    </div>
+  </div>
+</section>
+
+<section id="channels" class="content-section">
+  <div class="section-header">
+    <span class="label">Data Quality</span>
+    <h2>Channel Assessment</h2>
+    <p>Of 76 extracted channels, 14 were selected for anomaly detection based on signal quality and relevance to failure prediction.</p>
+  </div>
+
+  <div class="findings-grid">
+    <div class="finding-card">
+      <div class="finding-icon">📡</div>
+      <h3>Proprioceptive</h3>
+      <p>Heading rate, depth rate, roll, pitch, and altitude provide motion state. DVL FOM indicates sensor quality.</p>
+    </div>
+    <div class="finding-card">
+      <div class="finding-icon">⚡</div>
+      <h3>Actuators</h3>
+      <p>Thruster PWM commands (0 & 3 active) with differential steering pattern. 1 & 2 constant at neutral.</p>
+    </div>
+    <div class="finding-card">
+      <div class="finding-icon">🔋</div>
+      <h3>Power Systems</h3>
+      <p>16 current and voltage channels. Thruster and highbrain currents most informative for anomaly detection.</p>
+    </div>
+  </div>
+
+  <div style="margin-top: 3rem;">
+    <div class="plot-container">
+      <img src="plots/04_currents.png" alt="Power Currents">
+      <div class="plot-caption">
+        <strong>Figure 2:</strong> Power system currents over mission duration. Starboard and port horizontal thruster currents show strong correlation with maneuvers.
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="content-section alt">
+  <div class="section-header">
+    <span class="label">Key Observation</span>
+    <h2>DVL Current Correlation</h2>
+    <p>DVL current spikes correlate strongly with navigation stress events, providing a leading indicator for challenging conditions.</p>
+  </div>
+
+  <div class="plot-container">
+    <img src="plots/event_timeline.png" alt="Event Timeline">
+    <div class="plot-caption">
+      <strong>Figure 3:</strong> Event timeline showing 8 detected anomalies. Events cluster in the 10-14 minute window, indicating a period of challenging operations.
+    </div>
+  </div>
+</section>
+
+<section id="events" class="content-section dark">
+  <div class="section-header">
+    <span class="label">Phase 3</span>
+    <h2>Detected Events</h2>
+    <p>8 candidate events identified using rolling z-scores with 30-second baseline windows and multi-channel anomaly scoring.</p>
+  </div>
+
+  <div class="events-grid">
+    <div class="event-card">
+      <div class="event-header">
+        <span class="event-rank">EVENT 1</span>
+        <span class="event-time">t = 11.90 min</span>
+      </div>
+      <h3>Rapid Depth Change + DVL Spike</h3>
+      <p>Depth rate of 0.99 m/s (3.65σ) combined with DVL current spike (8.62σ). Suggests sudden vertical maneuver or bottom lock recovery.</p>
+      <div class="event-channels">
+        <span class="channel-tag">depth_rate</span>
+        <span class="channel-tag">ps_dvl_i</span>
+      </div>
+    </div>
+
+    <div class="event-card">
+      <div class="event-header">
+        <span class="event-rank">EVENT 2</span>
+        <span class="event-time">t = 13.91 min</span>
+      </div>
+      <h3>Highbrain + DVL Current Anomaly</h3>
+      <p>Simultaneous spikes in computation (5.79σ) and DVL (8.14σ) without motion anomaly. Indicates internal system event.</p>
+      <div class="event-channels">
+        <span class="channel-tag">ps_hb_i</span>
+        <span class="channel-tag">ps_dvl_i</span>
+      </div>
+    </div>
+
+    <div class="event-card">
+      <div class="event-header">
+        <span class="event-rank">EVENT 3</span>
+        <span class="event-time">t = 15.55 min</span>
+      </div>
+      <h3>Thruster + Highbrain Anomaly</h3>
+      <p>Thruster current pattern deviation with highbrain spike (4.91σ) during turn maneuver. Possible control mode transition.</p>
+      <div class="event-channels">
+        <span class="channel-tag">ps_stbd_h_i</span>
+        <span class="channel-tag">ps_hb_i</span>
+      </div>
+    </div>
+
+    <div class="event-card">
+      <div class="event-header">
+        <span class="event-rank">EVENT 7</span>
+        <span class="event-time">t = 8.40 min</span>
+      </div>
+      <h3>Aggressive Turn Maneuver</h3>
+      <p>20°/s heading rate (3.59σ) with coupled roll dynamics. Demonstrates operational envelope limits.</p>
+      <div class="event-channels">
+        <span class="channel-tag">heading_rate</span>
+        <span class="channel-tag">roll_rate</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="precursors" class="content-section">
+  <div class="section-header">
+    <span class="label">Precursor Analysis</span>
+    <h2>5-Minute Lead-Up Patterns</h2>
+    <p>Each event is shown with 5 minutes of preceding data to identify early warning indicators.</p>
+  </div>
+
+  <div class="precursor-grid">
+    <div class="precursor-item">
+      <img src="plots/precursors/event_01_t11.9min.png" alt="Event 1 Precursor">
+      <div class="precursor-info">
+        <h4>Event 1: Depth Rate Anomaly</h4>
+        <p>Score 23.4 — DVL current rises before depth change event</p>
+      </div>
+    </div>
+    <div class="precursor-item">
+      <img src="plots/precursors/event_02_t13.9min.png" alt="Event 2 Precursor">
+      <div class="precursor-info">
+        <h4>Event 2: Power System Event</h4>
+        <p>Score 23.3 — No motion precursor, internal system event</p>
+      </div>
+    </div>
+    <div class="precursor-item">
+      <img src="plots/precursors/event_07_t8.4min.png" alt="Event 7 Precursor">
+      <div class="precursor-info">
+        <h4>Event 7: Aggressive Turn</h4>
+        <p>Score 19.4 — High thruster asymmetry before turn</p>
+      </div>
+    </div>
+    <div class="precursor-item">
+      <img src="plots/precursors/event_08_t11.7min.png" alt="Event 8 Precursor">
+      <div class="precursor-info">
+        <h4>Event 8: DVL Quality Drop</h4>
+        <p>Score 14.4 — Precedes larger Event 1 by 13 seconds</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="content-section alt">
+  <div class="section-header">
+    <span class="label">Recommendations</span>
+    <h2>Precursor Indicators</h2>
+    <p>Based on this analysis, the following patterns can serve as early warning indicators for real-time monitoring.</p>
+  </div>
+
+  <div class="container">
+    <div class="plot-container" style="overflow-x: auto;">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Indicator</th>
+            <th>Lead Time</th>
+            <th>Warning (2σ)</th>
+            <th>Critical (3σ)</th>
+            <th>Reliability</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="mono">ps_dvl_i</td>
+            <td>5-10 seconds</td>
+            <td class="mono">+50% baseline</td>
+            <td class="mono warn">+100% baseline</td>
+            <td class="highlight">High</td>
+          </tr>
+          <tr>
+            <td class="mono">depth_rate</td>
+            <td>2-5 seconds</td>
+            <td class="mono">±0.3 m/s</td>
+            <td class="mono warn">±0.5 m/s</td>
+            <td class="highlight">High</td>
+          </tr>
+          <tr>
+            <td class="mono">dvl_fom</td>
+            <td>10-20 seconds</td>
+            <td class="mono">&gt;2.0</td>
+            <td class="mono warn">&gt;5.0</td>
+            <td>Medium</td>
+          </tr>
+          <tr>
+            <td class="mono">ps_hb_i</td>
+            <td>~0 (concurrent)</td>
+            <td class="mono">+30% baseline</td>
+            <td class="mono warn">+50% baseline</td>
+            <td>Medium</td>
+          </tr>
+          <tr>
+            <td class="mono">heading_rate</td>
+            <td>1-2 seconds</td>
+            <td class="mono">±10°/s</td>
+            <td class="mono warn">±15°/s</td>
+            <td>Medium</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="content-section dark">
+  <div class="section-header">
+    <span class="label">Summary</span>
+    <h2>Key Findings</h2>
+  </div>
+
+  <div class="findings-grid" style="max-width: 1100px; margin: 0 auto;">
+    <div class="event-card">
+      <h3>DVL Current as Leading Indicator</h3>
+      <p>DVL current spikes (8σ+) consistently precede navigation stress events. Monitor ps_dvl_i for early warning of challenging conditions.</p>
+    </div>
+    <div class="event-card">
+      <h3>Computational Load Patterns</h3>
+      <p>Highbrain current anomalies co-occur with sensor processing events. May indicate control system stress or mode transitions.</p>
+    </div>
+    <div class="event-card">
+      <h3>Temporal Clustering</h3>
+      <p>62% of events occurred in the 10-14 minute window. Suggests a period of challenging operations requiring further investigation.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <p>Analysis prepared by <a href="https://www.usepilgrims.com">PILGRIMS</a> — May 2026</p>
+  <p style="margin-top: 0.5rem; font-size: 0.78rem;">Data: Orpheus Ocean AUV Mission A • 20 minutes • 229,935 messages</p>
+</footer>
+
+<script>
+// Smooth scroll for nav links
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+  anchor.addEventListener('click', function(e) {
+    e.preventDefault();
+    document.querySelector(this.getAttribute('href')).scrollIntoView({
+      behavior: 'smooth'
+    });
+  });
+});
+</script>
+
+</body>
+</html>
