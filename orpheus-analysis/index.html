@@ -674,6 +674,141 @@
   </div>
 </section>
 
+<div class="section-divider"></div>
+
+<section class="content-section" style="background: var(--accent-light);">
+  <div class="section-header">
+    <span class="label">Data Status</span>
+    <h2>Current Data is Nominal</h2>
+    <p>All mission data analyzed represents normal vehicle operation. No labeled failures, warnings, or error states are present in the dataset.</p>
+  </div>
+
+  <div class="container">
+    <div class="plot-container" style="overflow-x: auto;">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th>Observation</th>
+            <th>Implication</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="highlight">NOMINAL</td>
+            <td>All PDU states constant (armed=1, systems enabled)</td>
+            <td>Vehicle operated without triggering any fault states</td>
+          </tr>
+          <tr>
+            <td class="highlight">NOMINAL</td>
+            <td>/rosout topic not recorded</td>
+            <td>No ROS error/warning messages available for analysis</td>
+          </tr>
+          <tr>
+            <td class="highlight">NOMINAL</td>
+            <td>No operator-flagged failure events in logs</td>
+            <td>Cannot validate detected anomalies against ground truth</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div style="margin-top: 2.5rem;">
+    <div class="section-header">
+      <h2>What This Analysis Demonstrates</h2>
+    </div>
+    <div class="findings-grid">
+      <div class="finding-card">
+        <h3>Stress Signature Detection</h3>
+        <p>We can identify operational stress points in nominal data — moments where sensors and actuators are working harder than baseline.</p>
+      </div>
+      <div class="finding-card">
+        <h3>Leading Indicator Discovery</h3>
+        <p>DVL current, highbrain load, and depth rate changes show 5-20 second lead times before stress events — potential early warnings.</p>
+      </div>
+      <div class="finding-card">
+        <h3>Unsupervised Anomaly Scoring</h3>
+        <p>Multi-channel z-score analysis can flag unusual behavior without requiring labeled examples — works on any new mission data.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<section class="content-section">
+  <div class="section-header">
+    <span class="label">Path to Prediction</span>
+    <h2>What Labeled Failure Data Enables</h2>
+    <p>To move from anomaly detection to true failure prediction, we need examples where things went wrong.</p>
+  </div>
+
+  <div class="container">
+    <div class="plot-container" style="overflow-x: auto;">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Data Needed</th>
+            <th>What It Enables</th>
+            <th>Prediction Capability</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>/rosout topic recording</td>
+            <td>Capture ROS errors and warnings as they occur</td>
+            <td class="warn">Basic failure timestamps</td>
+          </tr>
+          <tr>
+            <td>Mission with thruster fault</td>
+            <td>Train model to recognize pre-fault current signatures</td>
+            <td class="highlight">Predict thruster failures 5-30s ahead</td>
+          </tr>
+          <tr>
+            <td>Mission with DVL dropout</td>
+            <td>Validate FOM as leading indicator, tune thresholds</td>
+            <td class="highlight">Predict navigation loss 10-20s ahead</td>
+          </tr>
+          <tr>
+            <td>Mission with power anomaly</td>
+            <td>Correlate highbrain spikes with actual system faults</td>
+            <td class="highlight">Predict computational overload</td>
+          </tr>
+          <tr>
+            <td>Operator incident logs</td>
+            <td>Ground truth labels for detected anomalies</td>
+            <td class="highlight">Validated precision/recall metrics</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div style="margin-top: 2.5rem;">
+    <div class="section-header">
+      <h2>Proposed Next Steps</h2>
+    </div>
+    <div class="findings-grid">
+      <div class="finding-card">
+        <div class="finding-icon">1</div>
+        <h3>Enable /rosout Recording</h3>
+        <p>Add /rosout to the rosbag recording configuration. This captures ROS error and warning messages as the first level of failure labeling.</p>
+      </div>
+      <div class="finding-card">
+        <div class="finding-icon">2</div>
+        <h3>Collect Failure Examples</h3>
+        <p>Share any missions where something went wrong — even partial logs. A single failure example allows us to validate and tune our precursor detection.</p>
+      </div>
+      <div class="finding-card">
+        <div class="finding-icon">3</div>
+        <h3>Deploy Real-Time Monitoring</h3>
+        <p>Implement the threshold table above for live monitoring. Log when alerts fire vs. when actual issues occur to build labeled training data.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
 <footer>
   <p>Analysis prepared by <a href="https://www.usepilgrims.com">PILGRIMS</a> — May 2026</p>
   <p style="margin-top: 0.5rem;">Data: Orpheus Ocean AUV Mission A • 20 minutes • 229,935 messages</p>
