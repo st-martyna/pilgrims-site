@@ -307,6 +307,7 @@
     <li><a href="#layer1">LAYER 1</a></li>
     <li><a href="#layer2">LAYER 2</a></li>
     <li><a href="#results">RESULTS</a></li>
+    <li><a href="#robustness">ROBUSTNESS</a></li>
   </ul>
 </nav>
 
@@ -606,6 +607,59 @@
   <div class="highlight-box" style="margin-top: 2rem; max-width: 1100px; margin-left: auto; margin-right: auto;">
     <h4>Why Statistical Methods Missed This</h4>
     <p>Individual channel values weren't extreme — thruster at 2200 is within normal range, pitch excursions were under 20°, altitude of 0.6m is valid. But the <strong>relationship</strong> between commands and responses was anomalous. The learned model detected this because it knows: when thrusters command hard, attitude should stabilize — not oscillate 3.6× more than normal.</p>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<section class="content-section" id="robustness">
+  <div class="section-header">
+    <span class="label">Robustness</span>
+    <h2>Sensor Dropout Ablation</h2>
+    <p>PILGRIMS maintains anomaly detection even when sensors fail. The learned model captures cross-channel correlations — if DVL drops out, attitude and thruster response can still reveal anomalies.</p>
+  </div>
+
+  <div class="container">
+    <div class="plot-container">
+      <img src="plots/sensor_dropout_key.png" alt="Sensor dropout key finding" style="width: 100%; max-width: 900px; margin: 0 auto; display: block;">
+    </div>
+  </div>
+
+  <div class="findings-grid" style="margin-top: 2rem;">
+    <div class="finding-card">
+      <div class="finding-icon" style="background: #2ecc71;">✓</div>
+      <h3>Full Sensors</h3>
+      <p>64% detection rate with SNR 3.4. Strong statistical significance (Cohen's d > 2).</p>
+    </div>
+    <div class="finding-card">
+      <div class="finding-icon" style="background: #f39c12;">✓</div>
+      <h3>DVL Dropout (27%)</h3>
+      <p>64% detection rate maintained. Navigation sensor loss doesn't break detection.</p>
+    </div>
+    <div class="finding-card">
+      <div class="finding-icon" style="background: #e74c3c;">✓</div>
+      <h3>DVL + IMU (64%)</h3>
+      <p>59% detection rate. Even with majority sensor loss, anomalies remain detectable.</p>
+    </div>
+    <div class="finding-card">
+      <div class="finding-icon" style="background: #9b59b6;">✗</div>
+      <h3>Only Heading (91%)</h3>
+      <p>0% detection. Graceful degradation — failure occurs at extreme sensor loss only.</p>
+    </div>
+  </div>
+
+  <div class="container" style="margin-top: 2rem;">
+    <div class="plot-container">
+      <img src="plots/sensor_dropout_timeseries.png" alt="Anomaly detection preserved under sensor failure" style="width: 100%; max-width: 1000px; margin: 0 auto; display: block;">
+    </div>
+    <p style="text-align: center; margin-top: 1rem; font-size: 0.85rem; color: var(--text-secondary);">
+      Surprise signal remains elevated in the anomaly window (red shading) across sensor configurations until extreme dropout.
+    </p>
+  </div>
+
+  <div class="highlight-box" style="margin-top: 2rem; max-width: 1100px; margin-left: auto; margin-right: auto;">
+    <h4>Why This Matters</h4>
+    <p>Real autonomous systems experience sensor failures. DVL dropouts are common in underwater vehicles. PILGRIMS doesn't just detect anomalies — it maintains detection capability even when the vehicle is already partially degraded. This is the difference between <strong>learned correlations</strong> and simple threshold monitoring.</p>
   </div>
 </section>
 
