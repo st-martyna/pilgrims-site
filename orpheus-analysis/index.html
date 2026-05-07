@@ -614,37 +614,43 @@
 
 <section class="content-section" id="robustness">
   <div class="section-header">
-    <span class="label">Representation Learning</span>
-    <h2>Coherent Representations Under Partial Observation</h2>
-    <p>The learned latent space maintains structural coherence when sensors fail. This is not correlation — it is a stable geometry that preserves anomaly separability regardless of input configuration.</p>
+    <span class="label">Deployment</span>
+    <h2>PILGRIMS for Real-Time Operations</h2>
+    <p>Four results demonstrating deployment readiness: learned state representation, real-time detection, graceful degradation, and coherence under sensor failure.</p>
   </div>
 
   <div class="container">
-    <div class="plot-container" style="margin-bottom: 2.5rem;">
-      <img src="plots/fig1_coherence.png" alt="Representation coherence under sensor dropout" style="width: 100%; max-width: 1000px; margin: 0 auto; display: block;">
-      <p style="text-align: left; margin-top: 1rem; font-size: 0.85rem; color: var(--text-secondary); max-width: 1000px; margin-left: auto; margin-right: auto;">
-        <strong>Figure 1.</strong> (A) Latent space trajectories under different sensor configurations. Anomaly windows (red) cluster separately from normal operation (blue) even when 64% of sensors are masked. Confidence ellipses (2σ) show representation stability. (B) Masked training produces representations that remain coherent above the 0.8 threshold even at 64% sensor dropout.
+    <!-- Figure 1: Learned State Space -->
+    <div class="plot-container" style="margin-bottom: 3rem;">
+      <img src="plots/01_learned_state_space.png" alt="Learned state representation" style="width: 100%; max-width: 500px; margin: 0 auto; display: block;">
+      <p style="text-align: left; margin-top: 1rem; font-size: 0.85rem; color: var(--text-secondary); max-width: 800px; margin-left: auto; margin-right: auto;">
+        <strong>1. Learned State Representation.</strong> PILGRIMS learns an invariant state space from telemetry. Normal operations (blue) cluster separately from anomalous states (orange). Confidence ellipses (2σ) show tight clustering. The separation distance d quantifies detection margin.
       </p>
     </div>
 
-    <div class="plot-container" style="margin-bottom: 2.5rem;">
-      <img src="plots/fig2_separability.png" alt="Anomaly separability in latent space" style="width: 100%; max-width: 1000px; margin: 0 auto; display: block;">
-      <p style="text-align: left; margin-top: 1rem; font-size: 0.85rem; color: var(--text-secondary); max-width: 1000px; margin-left: auto; margin-right: auto;">
-        <strong>Figure 2.</strong> (A) LDA projections showing class separation between normal and anomaly states. Distributions remain distinguishable across sensor configurations. (B) Discriminability (d′) with 95% bootstrap confidence intervals. Detection sensitivity exceeds d′=1 threshold even at 64% sensor dropout.
+    <!-- Figure 2: Real-Time Detection -->
+    <div class="plot-container" style="margin-bottom: 3rem;">
+      <img src="plots/02_realtime_detection.png" alt="Real-time anomaly detection" style="width: 100%; max-width: 700px; margin: 0 auto; display: block;">
+      <p style="text-align: left; margin-top: 1rem; font-size: 0.85rem; color: var(--text-secondary); max-width: 800px; margin-left: auto; margin-right: auto;">
+        <strong>2. Real-Time Detection.</strong> Prediction surprise (model expectation vs reality) over mission time. When the vehicle enters an anomalous state, surprise exceeds the 3σ threshold. Detection occurs within seconds of state change.
       </p>
     </div>
 
+    <!-- Figure 3: Graceful Degradation -->
+    <div class="plot-container" style="margin-bottom: 3rem;">
+      <img src="plots/03_graceful_degradation.png" alt="Detection sensitivity under sensor failure" style="width: 100%; max-width: 500px; margin: 0 auto; display: block;">
+      <p style="text-align: left; margin-top: 1rem; font-size: 0.85rem; color: var(--text-secondary); max-width: 800px; margin-left: auto; margin-right: auto;">
+        <strong>3. Graceful Degradation.</strong> Discriminability (d′) measures detection sensitivity. With DVL failed (27% sensor loss), detection remains strong. Even at 64% loss (DVL + IMU), d′ exceeds the detectability threshold. Catastrophic failure only at 91% loss.
+      </p>
+    </div>
+
+    <!-- Figure 4: Deployment Coherence -->
     <div class="plot-container">
-      <img src="plots/fig3_geometry.png" alt="Representational similarity matrix" style="width: 100%; max-width: 600px; margin: 0 auto; display: block;">
-      <p style="text-align: left; margin-top: 1rem; font-size: 0.85rem; color: var(--text-secondary); max-width: 1000px; margin-left: auto; margin-right: auto;">
-        <strong>Figure 3.</strong> Representational similarity analysis. Diagonal blocks show same-config Normal/Anomaly separation (high contrast = good detection). Off-diagonal similarity between same operational states under different sensor configs demonstrates structural coherence — the representation captures the underlying state, not the input configuration.
+      <img src="plots/04_deployment_coherence.png" alt="Representation coherence for deployment" style="width: 100%; max-width: 800px; margin: 0 auto; display: block;">
+      <p style="text-align: left; margin-top: 1rem; font-size: 0.85rem; color: var(--text-secondary); max-width: 800px; margin-left: auto; margin-right: auto;">
+        <strong>4. Deployment Coherence.</strong> Left: Representation similarity across sensor configurations (all >0.95). Right: Stability remains above the 0.8 coherence threshold until extreme degradation. The learned representation captures vehicle state, not sensor-specific features.
       </p>
     </div>
-  </div>
-
-  <div class="highlight-box" style="margin-top: 2.5rem; max-width: 1100px; margin-left: auto; margin-right: auto;">
-    <h4>Why Coherence Matters</h4>
-    <p>Correlation-based methods fail when sensors drop out because they depend on specific input channels. A <strong>coherent representation</strong> captures the underlying vehicle state — when DVL fails, the remaining sensors (IMU, thrusters, heading) still project to the same region of latent space. This is learned structure, not statistical coincidence.</p>
   </div>
 </section>
 
