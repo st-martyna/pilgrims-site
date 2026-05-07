@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Orpheus Ocean — AUV Mission Analysis</title>
-<meta name="description" content="Retrospective failure prediction analysis for Orpheus Ocean AUV mission data.">
+<title>Orpheus Ocean — Multi-Layer Failure Prediction</title>
+<meta name="description" content="PILGRIMS multi-layer failure prediction system for autonomous underwater vehicles.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
@@ -145,7 +145,7 @@
   .section-header p {
     margin-top: 1rem; font-weight: 400;
     color: var(--text-secondary);
-    max-width: 600px; margin-left: auto; margin-right: auto;
+    max-width: 700px; margin-left: auto; margin-right: auto;
     font-size: 0.85rem; line-height: 1.75;
   }
 
@@ -175,65 +175,6 @@
     letter-spacing: 0.02em;
   }
   .plot-caption strong { color: var(--text); font-weight: 500; }
-
-  /* Event Cards */
-  .events-grid {
-    display: grid; grid-template-columns: repeat(2, 1fr);
-    gap: 1.25rem; max-width: 1100px; margin: 0 auto;
-  }
-
-  .event-card {
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 1.75rem;
-    background: var(--bg);
-    transition: all 0.3s ease;
-  }
-  .event-card:hover {
-    border-color: var(--accent);
-  }
-
-  .event-header {
-    display: flex; justify-content: space-between;
-    align-items: flex-start; margin-bottom: 0.85rem;
-  }
-
-  .event-rank {
-    font-size: 0.65rem;
-    letter-spacing: 0.12em; color: var(--accent);
-    background: var(--accent-light);
-    padding: 0.25rem 0.5rem; border-radius: 3px;
-  }
-
-  .event-time {
-    font-size: 0.72rem;
-    color: var(--text-secondary);
-  }
-
-  .event-card h3 {
-    font-size: 0.95rem;
-    font-weight: 500; color: var(--text);
-    margin-bottom: 0.5rem;
-  }
-
-  .event-card p {
-    font-size: 0.8rem; font-weight: 400;
-    color: var(--text-secondary); line-height: 1.7;
-  }
-
-  .event-channels {
-    margin-top: 1rem; padding-top: 1rem;
-    border-top: 1px solid var(--border);
-    display: flex; gap: 0.4rem; flex-wrap: wrap;
-  }
-
-  .channel-tag {
-    font-size: 0.65rem;
-    padding: 0.2rem 0.45rem; border-radius: 3px;
-    background: rgba(196, 101, 58, 0.12);
-    color: var(--accent-warm);
-    letter-spacing: 0.03em;
-  }
 
   /* Findings Grid */
   .findings-grid {
@@ -269,6 +210,28 @@
     color: var(--text-secondary); line-height: 1.7;
   }
 
+  /* Two Column Layout */
+  .two-column {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 2rem; max-width: 1100px; margin: 0 auto;
+    align-items: start;
+  }
+
+  .column-content h3 {
+    font-size: 1rem; font-weight: 500; margin-bottom: 1rem;
+    color: var(--accent);
+  }
+
+  .column-content p {
+    font-size: 0.85rem; color: var(--text-secondary);
+    line-height: 1.8; margin-bottom: 1rem;
+  }
+
+  .column-content ul {
+    font-size: 0.85rem; color: var(--text-secondary);
+    line-height: 1.8; padding-left: 1.5rem;
+  }
+
   /* Data Table */
   .data-table {
     width: 100%; border-collapse: collapse;
@@ -289,35 +252,25 @@
   }
   .data-table tr:hover td { background: var(--accent-light); }
   .data-table .highlight { color: var(--accent); font-weight: 500; }
-  .data-table .warn { color: var(--accent-warm); }
+  .data-table .warn { color: var(--accent-warm); font-weight: 500; }
 
-  /* Precursor Grid */
-  .precursor-grid {
-    display: grid; grid-template-columns: repeat(2, 1fr);
-    gap: 1.5rem; max-width: 1100px; margin: 0 auto;
+  /* Highlight Box */
+  .highlight-box {
+    background: var(--accent-light);
+    border-left: 4px solid var(--accent);
+    padding: 1.5rem;
+    border-radius: 0 6px 6px 0;
+    margin: 2rem 0;
   }
-  .precursor-item {
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    overflow: hidden;
-    background: var(--white);
+
+  .highlight-box h4 {
+    font-size: 0.9rem; font-weight: 500;
+    color: var(--accent); margin-bottom: 0.5rem;
   }
-  .precursor-item:hover {
-    border-color: var(--accent);
-  }
-  .precursor-item img {
-    width: 100%; height: auto; display: block;
-  }
-  .precursor-info {
-    padding: 1rem 1.25rem;
-    border-top: 1px solid var(--border);
-  }
-  .precursor-info h4 {
-    font-size: 0.85rem;
-    font-weight: 500; margin-bottom: 0.3rem;
-  }
-  .precursor-info p {
-    font-size: 0.75rem; color: var(--text-secondary);
+
+  .highlight-box p {
+    font-size: 0.85rem; color: var(--text);
+    line-height: 1.7;
   }
 
   /* Footer */
@@ -336,9 +289,8 @@
   /* Responsive */
   @media (max-width: 900px) {
     .stats-row { grid-template-columns: repeat(2, 1fr); }
-    .events-grid { grid-template-columns: 1fr; }
     .findings-grid { grid-template-columns: 1fr; }
-    .precursor-grid { grid-template-columns: 1fr; }
+    .two-column { grid-template-columns: 1fr; }
     nav { padding: 1rem 1.5rem; }
     section { padding: 0 1.5rem; }
     .content-section { padding: 3.5rem 1.5rem; }
@@ -351,10 +303,10 @@
 <nav>
   <a href="https://www.usepilgrims.com" class="nav-logo">PILGRIMS</a>
   <ul class="nav-links">
-    <li><a href="#overview">OVERVIEW</a></li>
-    <li><a href="#channels">CHANNELS</a></li>
-    <li><a href="#events">EVENTS</a></li>
-    <li><a href="#precursors">PRECURSORS</a></li>
+    <li><a href="#approach">APPROACH</a></li>
+    <li><a href="#layer1">LAYER 1</a></li>
+    <li><a href="#layer2">LAYER 2</a></li>
+    <li><a href="#results">RESULTS</a></li>
   </ul>
 </nav>
 
@@ -362,9 +314,9 @@
   <div class="container">
     <div class="hero-content">
       <div class="hero-label">Client Analysis Report</div>
-      <h1>Orpheus Ocean <em>AUV Mission</em> Retrospective Analysis</h1>
+      <h1>Multi-Layer <em>Failure Prediction</em> for Autonomous Underwater Vehicles</h1>
       <p class="hero-sub">
-        Unsupervised failure prediction analysis of multi-modal sensor data from autonomous underwater vehicle missions. Identifying anomalous events and precursor patterns without labeled failure data.
+        A two-layer anomaly detection system that combines statistical monitoring with learned dynamics prediction. Catches both obvious sensor spikes and subtle control anomalies that single-method approaches miss.
       </p>
       <div class="hero-meta">
         <div class="meta-item">
@@ -376,12 +328,12 @@
           <span class="meta-value">230K</span>
         </div>
         <div class="meta-item">
-          <span class="meta-label">Channels</span>
-          <span class="meta-value">14</span>
+          <span class="meta-label">Detection Layers</span>
+          <span class="meta-value">2</span>
         </div>
         <div class="meta-item">
           <span class="meta-label">Events Detected</span>
-          <span class="meta-value">8</span>
+          <span class="meta-value">10</span>
         </div>
       </div>
     </div>
@@ -393,284 +345,267 @@
 <div class="stats-strip">
   <div class="stats-row">
     <div class="stat">
-      <h4>50 Hz</h4>
-      <p>IMU & Heading Rate</p>
+      <h4>8</h4>
+      <p>Statistical Events</p>
     </div>
     <div class="stat">
-      <h4>10 Hz</h4>
-      <p>DVL & Thrusters</p>
+      <h4>3</h4>
+      <p>Dynamics Events</p>
     </div>
     <div class="stat">
-      <h4>2 Hz</h4>
-      <p>Power Systems</p>
+      <h4>10</h4>
+      <p>Unique Anomalies</p>
     </div>
     <div class="stat">
-      <h4>3.0σ</h4>
-      <p>Anomaly Threshold</p>
+      <h4>100%</h4>
+      <p>Nominal Data</p>
     </div>
   </div>
 </div>
 
 <div class="section-divider"></div>
 
-<section id="overview" class="content-section">
+<section id="approach" class="content-section">
   <div class="section-header">
-    <span class="label">Phase 1 & 2</span>
-    <h2>Mission Overview</h2>
-    <p>Multi-modal time series extracted from ROS2 bag files, resampled to 10 Hz common time grid, and analyzed for cross-channel patterns.</p>
+    <span class="label">The Approach</span>
+    <h2>Why Two Layers?</h2>
+    <p>Single-method anomaly detection has blind spots. Statistical methods catch sensor spikes but miss behavioral anomalies. Learned models catch dynamics deviations but lack interpretability. We combine both.</p>
   </div>
 
-  <div class="plot-container">
-    <img src="plots/00_overview.png" alt="Mission Overview">
-    <div class="plot-caption">
-      <strong>Figure 1:</strong> Complete 20-minute mission showing heading, depth, speed, attitude, thruster commands, currents, DVL quality, and altitude.
+  <div class="findings-grid">
+    <div class="finding-card">
+      <div class="finding-icon">1</div>
+      <h3>Layer 1: Statistical Monitoring</h3>
+      <p>Rolling z-scores across 14 channels detect when individual sensors deviate from baseline. Real-time, interpretable, no training required.</p>
+    </div>
+    <div class="finding-card">
+      <div class="finding-icon">2</div>
+      <h3>Layer 2: Learned World Model</h3>
+      <p>JEPA-style neural network learns how sensor readings should evolve given thruster commands. Detects when dynamics don't match expectations.</p>
+    </div>
+    <div class="finding-card">
+      <div class="finding-icon">+</div>
+      <h3>Complementary Coverage</h3>
+      <p>Together: 10 unique events detected. Layer 1 alone: 8 events. Layer 2 alone: 3 events. Only 1 event detected by both — they catch different failure modes.</p>
+    </div>
+  </div>
+
+  <div style="margin-top: 3rem;">
+    <div class="plot-container">
+      <img src="plots/detection_comparison.png" alt="Detection Comparison">
+      <div class="plot-caption">
+        <strong>Figure 1:</strong> Normalized anomaly scores from both layers over the 20-minute mission. Statistical monitoring (teal) catches power/DVL spikes at 10-14 min. Learned model (orange) catches a control saturation event at 16-17 min that statistical methods missed.
+      </div>
     </div>
   </div>
 </section>
 
 <div class="section-divider"></div>
 
-<section id="channels" class="content-section">
+<section id="layer1" class="content-section">
   <div class="section-header">
-    <span class="label">Data Quality</span>
-    <h2>Channel Assessment</h2>
-    <p>Of 76 extracted channels, 14 were selected for anomaly detection based on signal quality and relevance to failure prediction.</p>
+    <span class="label">Layer 1</span>
+    <h2>Statistical Anomaly Detection</h2>
+    <p>Real-time monitoring using rolling z-scores. When multiple channels simultaneously exceed 3σ thresholds, flag an event.</p>
   </div>
 
-  <div class="findings-grid">
-    <div class="finding-card">
-      <div class="finding-icon">📡</div>
-      <h3>Proprioceptive</h3>
-      <p>Heading rate, depth rate, roll, pitch, and altitude provide motion state. DVL FOM indicates sensor quality.</p>
+  <div class="two-column">
+    <div class="column-content">
+      <h3>How It Works</h3>
+      <p>For each of 14 monitored channels, compute a rolling z-score using a 30-second baseline window:</p>
+      <p style="font-family: monospace; background: var(--accent-light); padding: 0.5rem; border-radius: 4px;">
+        z = (x - μ_baseline) / σ_baseline
+      </p>
+      <p>Sum the absolute z-scores across all channels. When the total exceeds 15 and at least 2 channels are individually anomalous (|z| > 3), flag an event.</p>
+
+      <h3 style="margin-top: 1.5rem;">Channels Monitored</h3>
+      <ul>
+        <li>Motion rates: heading, depth, roll, pitch</li>
+        <li>Attitude: roll_deg, pitch_deg, altitude_m</li>
+        <li>Sensor quality: dvl_fom</li>
+        <li>Actuators: thr_0, thr_3</li>
+        <li>Power: ps_stbd_h_i, ps_port_h_i, ps_hb_i, ps_dvl_i</li>
+      </ul>
     </div>
-    <div class="finding-card">
-      <div class="finding-icon">⚡</div>
-      <h3>Actuators</h3>
-      <p>Thruster PWM commands (0 & 3 active) with differential steering pattern. 1 & 2 constant at neutral.</p>
+    <div>
+      <div class="plot-container">
+        <img src="plots/event_timeline.png" alt="Statistical Events">
+        <div class="plot-caption">
+          <strong>Figure 2:</strong> 8 events detected by statistical monitoring. Events cluster at 10-14 min during a period of challenging operations.
+        </div>
+      </div>
     </div>
-    <div class="finding-card">
-      <div class="finding-icon">🔋</div>
-      <h3>Power Systems</h3>
-      <p>16 current and voltage channels. Thruster and highbrain currents most informative for anomaly detection.</p>
+  </div>
+
+  <div class="highlight-box" style="margin-top: 2rem; max-width: 1100px; margin-left: auto; margin-right: auto;">
+    <h4>Key Finding: DVL Current as Leading Indicator</h4>
+    <p>DVL current (ps_dvl_i) spikes to 8σ+ consistently 5-10 seconds before navigation stress events. This channel alone could serve as an early warning for challenging conditions.</p>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<section id="layer2" class="content-section">
+  <div class="section-header">
+    <span class="label">Layer 2</span>
+    <h2>Learned Dynamics Model</h2>
+    <p>A JEPA-style neural network that learns to predict future sensor states given past observations and commanded actions. High prediction error = anomaly.</p>
+  </div>
+
+  <div class="two-column">
+    <div class="column-content">
+      <h3>Architecture</h3>
+      <p>The model encodes past observations and future actions into latent vectors, then predicts what the future latent state should be:</p>
+      <p style="font-family: monospace; background: var(--accent-light); padding: 0.75rem; border-radius: 4px; font-size: 0.8rem; line-height: 1.6;">
+        past_obs → [GRU] → z_context<br>
+        actions  → [GRU] → a_embed<br>
+        [z_context, a_embed] → [MLP] → z_pred<br>
+        <br>
+        surprise = MSE(z_pred, z_target)
+      </p>
+
+      <h3 style="margin-top: 1.5rem;">Why This Catches Different Anomalies</h3>
+      <p>Statistical methods ask: "Is this reading unusual?"</p>
+      <p>The learned model asks: "Given what we commanded, is this response expected?"</p>
+      <p>If thrusters fire hard and nothing happens — that's anomalous even if individual readings are in-range.</p>
+    </div>
+    <div>
+      <div class="plot-container">
+        <img src="plots/lewm_surprise_10s.png" alt="LeWM Surprise">
+        <div class="plot-caption">
+          <strong>Figure 3:</strong> Learned model surprise score over time. Sharp spike at 16-17 min indicates dynamics that don't match what the model learned from nominal operation.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<section id="results" class="content-section">
+  <div class="section-header">
+    <span class="label">Combined Results</span>
+    <h2>Multi-Layer Detection Summary</h2>
+    <p>The unified view shows how both layers contribute unique detections. Neither layer alone would catch all anomalies.</p>
+  </div>
+
+  <div class="plot-container">
+    <img src="plots/unified_detection.png" alt="Unified Detection">
+    <div class="plot-caption">
+      <strong>Figure 4:</strong> Complete detection timeline. Top: mission telemetry. Middle: Layer 1 (statistical) and Layer 2 (learned) scores. Bottom: event summary showing 10 unique anomalies detected.
+    </div>
+  </div>
+
+  <div style="margin-top: 3rem;">
+    <div class="container">
+      <div class="plot-container" style="overflow-x: auto;">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Time</th>
+              <th>Layer 1 (Statistical)</th>
+              <th>Layer 2 (Learned)</th>
+              <th>Primary Signature</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>4.4 min</td>
+              <td class="highlight">21.9σ</td>
+              <td>—</td>
+              <td>Pitch dynamics + Highbrain spike</td>
+            </tr>
+            <tr>
+              <td>8.4 min</td>
+              <td class="highlight">19.4σ</td>
+              <td>—</td>
+              <td>Aggressive turn maneuver (20°/s)</td>
+            </tr>
+            <tr>
+              <td>10.9 min</td>
+              <td class="highlight">20.3σ</td>
+              <td>—</td>
+              <td>Depth change + DVL current spike</td>
+            </tr>
+            <tr>
+              <td>11.7 min</td>
+              <td class="highlight">14.4σ</td>
+              <td>—</td>
+              <td>DVL quality drop (precursor)</td>
+            </tr>
+            <tr>
+              <td>11.9 min</td>
+              <td class="highlight">23.4σ</td>
+              <td>—</td>
+              <td>Rapid depth change + DVL spike</td>
+            </tr>
+            <tr>
+              <td>12.9 min</td>
+              <td class="highlight">20.9σ</td>
+              <td>—</td>
+              <td>Rapid ascent + DVL spike</td>
+            </tr>
+            <tr>
+              <td>13.9 min</td>
+              <td class="highlight">23.3σ</td>
+              <td>—</td>
+              <td>Highbrain + DVL current anomaly</td>
+            </tr>
+            <tr>
+              <td>15.5 min</td>
+              <td class="highlight">23.1σ</td>
+              <td class="warn">1.38</td>
+              <td>Thruster + Highbrain anomaly (both layers)</td>
+            </tr>
+            <tr>
+              <td>15.8-17.6 min</td>
+              <td>—</td>
+              <td class="warn">2.10 (89 windows)</td>
+              <td>Control saturation (Layer 2 unique)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<section class="content-section">
+  <div class="section-header">
+    <span class="label">Case Study</span>
+    <h2>Control Saturation Event</h2>
+    <p>The learned model detected an extended anomaly at 15.8-17.6 min that statistical methods missed entirely. Investigation reveals a potential control authority issue.</p>
+  </div>
+
+  <div class="plot-container">
+    <img src="plots/control_saturation.png" alt="Control Saturation">
+    <div class="plot-caption">
+      <strong>Figure 5:</strong> Comparison of normal operation (5-8 min) vs. the anomalous window (15.8-17.6 min). Note: thruster thr_3 stuck at maximum, pitch variability 3.6× higher, altitude much lower.
     </div>
   </div>
 
   <div style="margin-top: 2.5rem;">
-    <div class="plot-container">
-      <img src="plots/04_currents.png" alt="Power Currents">
-      <div class="plot-caption">
-        <strong>Figure 2:</strong> Power system currents over mission duration. Starboard and port horizontal thruster currents correlate with maneuvers.
+    <div class="findings-grid">
+      <div class="finding-card">
+        <h3>Thruster Saturation</h3>
+        <p>thr_3 held constant at maximum (2200 PWM) for nearly 2 minutes. Normal operation shows continuous variation. Possible actuator limit or control loop issue.</p>
+      </div>
+      <div class="finding-card">
+        <h3>Attitude Instability</h3>
+        <p>Pitch variability 3.6× higher than normal. With one thruster maxed out, the vehicle may have limited control authority to maintain stable attitude.</p>
+      </div>
+      <div class="finding-card">
+        <h3>Near-Bottom Operation</h3>
+        <p>Altitude dropped to 0.6m (vs 2.0m typical). Operating close to the seafloor while experiencing control issues — a potential risk scenario.</p>
       </div>
     </div>
   </div>
-</section>
 
-<div class="section-divider"></div>
-
-<section class="content-section">
-  <div class="section-header">
-    <span class="label">Key Observation</span>
-    <h2>DVL Current Correlation</h2>
-    <p>DVL current spikes correlate strongly with navigation stress events, providing a leading indicator for challenging conditions.</p>
-  </div>
-
-  <div class="plot-container">
-    <img src="plots/event_timeline.png" alt="Event Timeline">
-    <div class="plot-caption">
-      <strong>Figure 3:</strong> Event timeline showing 8 detected anomalies. Events cluster in the 10-14 minute window.
-    </div>
-  </div>
-</section>
-
-<div class="section-divider"></div>
-
-<section id="events" class="content-section">
-  <div class="section-header">
-    <span class="label">Phase 3</span>
-    <h2>Detected Events</h2>
-    <p>8 candidate events identified using rolling z-scores with 30-second baseline windows and multi-channel anomaly scoring.</p>
-  </div>
-
-  <div class="events-grid">
-    <div class="event-card">
-      <div class="event-header">
-        <span class="event-rank">EVENT 1</span>
-        <span class="event-time">t = 11.90 min</span>
-      </div>
-      <h3>Rapid Depth Change + DVL Spike</h3>
-      <p>Depth rate of 0.99 m/s (3.65σ) combined with DVL current spike (8.62σ). Suggests sudden vertical maneuver or bottom lock recovery.</p>
-      <div class="event-channels">
-        <span class="channel-tag">depth_rate</span>
-        <span class="channel-tag">ps_dvl_i</span>
-      </div>
-    </div>
-
-    <div class="event-card">
-      <div class="event-header">
-        <span class="event-rank">EVENT 2</span>
-        <span class="event-time">t = 13.91 min</span>
-      </div>
-      <h3>Highbrain + DVL Current Anomaly</h3>
-      <p>Simultaneous spikes in computation (5.79σ) and DVL (8.14σ) without motion anomaly. Indicates internal system event.</p>
-      <div class="event-channels">
-        <span class="channel-tag">ps_hb_i</span>
-        <span class="channel-tag">ps_dvl_i</span>
-      </div>
-    </div>
-
-    <div class="event-card">
-      <div class="event-header">
-        <span class="event-rank">EVENT 3</span>
-        <span class="event-time">t = 15.55 min</span>
-      </div>
-      <h3>Thruster + Highbrain Anomaly</h3>
-      <p>Thruster current pattern deviation with highbrain spike (4.91σ) during turn maneuver. Possible control mode transition.</p>
-      <div class="event-channels">
-        <span class="channel-tag">ps_stbd_h_i</span>
-        <span class="channel-tag">ps_hb_i</span>
-      </div>
-    </div>
-
-    <div class="event-card">
-      <div class="event-header">
-        <span class="event-rank">EVENT 7</span>
-        <span class="event-time">t = 8.40 min</span>
-      </div>
-      <h3>Aggressive Turn Maneuver</h3>
-      <p>20°/s heading rate (3.59σ) with coupled roll dynamics. Demonstrates operational envelope limits.</p>
-      <div class="event-channels">
-        <span class="channel-tag">heading_rate</span>
-        <span class="channel-tag">roll_rate</span>
-      </div>
-    </div>
-  </div>
-</section>
-
-<div class="section-divider"></div>
-
-<section id="precursors" class="content-section">
-  <div class="section-header">
-    <span class="label">Precursor Analysis</span>
-    <h2>5-Minute Lead-Up Patterns</h2>
-    <p>Each event is shown with 5 minutes of preceding data to identify early warning indicators.</p>
-  </div>
-
-  <div class="precursor-grid">
-    <div class="precursor-item">
-      <img src="plots/precursors/event_01_t11.9min.png" alt="Event 1 Precursor">
-      <div class="precursor-info">
-        <h4>Event 1: Depth Rate Anomaly</h4>
-        <p>Score 23.4 — DVL current rises before depth change event</p>
-      </div>
-    </div>
-    <div class="precursor-item">
-      <img src="plots/precursors/event_02_t13.9min.png" alt="Event 2 Precursor">
-      <div class="precursor-info">
-        <h4>Event 2: Power System Event</h4>
-        <p>Score 23.3 — No motion precursor, internal system event</p>
-      </div>
-    </div>
-    <div class="precursor-item">
-      <img src="plots/precursors/event_07_t8.4min.png" alt="Event 7 Precursor">
-      <div class="precursor-info">
-        <h4>Event 7: Aggressive Turn</h4>
-        <p>Score 19.4 — High thruster asymmetry before turn</p>
-      </div>
-    </div>
-    <div class="precursor-item">
-      <img src="plots/precursors/event_08_t11.7min.png" alt="Event 8 Precursor">
-      <div class="precursor-info">
-        <h4>Event 8: DVL Quality Drop</h4>
-        <p>Score 14.4 — Precedes larger Event 1 by 13 seconds</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<div class="section-divider"></div>
-
-<section class="content-section">
-  <div class="section-header">
-    <span class="label">Recommendations</span>
-    <h2>Precursor Indicators</h2>
-    <p>Based on this analysis, the following patterns can serve as early warning indicators for real-time monitoring.</p>
-  </div>
-
-  <div class="container">
-    <div class="plot-container" style="overflow-x: auto;">
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th>Indicator</th>
-            <th>Lead Time</th>
-            <th>Warning (2σ)</th>
-            <th>Critical (3σ)</th>
-            <th>Reliability</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>ps_dvl_i</td>
-            <td>5-10 seconds</td>
-            <td>+50% baseline</td>
-            <td class="warn">+100% baseline</td>
-            <td class="highlight">High</td>
-          </tr>
-          <tr>
-            <td>depth_rate</td>
-            <td>2-5 seconds</td>
-            <td>±0.3 m/s</td>
-            <td class="warn">±0.5 m/s</td>
-            <td class="highlight">High</td>
-          </tr>
-          <tr>
-            <td>dvl_fom</td>
-            <td>10-20 seconds</td>
-            <td>&gt;2.0</td>
-            <td class="warn">&gt;5.0</td>
-            <td>Medium</td>
-          </tr>
-          <tr>
-            <td>ps_hb_i</td>
-            <td>~0 (concurrent)</td>
-            <td>+30% baseline</td>
-            <td class="warn">+50% baseline</td>
-            <td>Medium</td>
-          </tr>
-          <tr>
-            <td>heading_rate</td>
-            <td>1-2 seconds</td>
-            <td>±10°/s</td>
-            <td class="warn">±15°/s</td>
-            <td>Medium</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-</section>
-
-<div class="section-divider"></div>
-
-<section class="content-section">
-  <div class="section-header">
-    <span class="label">Summary</span>
-    <h2>Key Findings</h2>
-  </div>
-
-  <div class="findings-grid">
-    <div class="finding-card">
-      <h3>DVL Current as Leading Indicator</h3>
-      <p>DVL current spikes (8σ+) consistently precede navigation stress events. Monitor ps_dvl_i for early warning of challenging conditions.</p>
-    </div>
-    <div class="finding-card">
-      <h3>Computational Load Patterns</h3>
-      <p>Highbrain current anomalies co-occur with sensor processing events. May indicate control system stress or mode transitions.</p>
-    </div>
-    <div class="finding-card">
-      <h3>Temporal Clustering</h3>
-      <p>62% of events occurred in the 10-14 minute window. Suggests a period of challenging operations requiring further investigation.</p>
-    </div>
+  <div class="highlight-box" style="margin-top: 2rem; max-width: 1100px; margin-left: auto; margin-right: auto;">
+    <h4>Why Statistical Methods Missed This</h4>
+    <p>Individual channel values weren't extreme — thruster at 2200 is within normal range, pitch excursions were under 20°, altitude of 0.6m is valid. But the <strong>relationship</strong> between commands and responses was anomalous. The learned model detected this because it knows: when thrusters command hard, attitude should stabilize — not oscillate 3.6× more than normal.</p>
   </div>
 </section>
 
@@ -680,7 +615,7 @@
   <div class="section-header">
     <span class="label">Data Status</span>
     <h2>Current Data is Nominal</h2>
-    <p>All mission data analyzed represents normal vehicle operation. No labeled failures, warnings, or error states are present in the dataset.</p>
+    <p>All mission data analyzed represents normal vehicle operation. No labeled failures, warnings, or error states are present — the events detected are operational stress points, not confirmed failures.</p>
   </div>
 
   <div class="container">
@@ -688,26 +623,26 @@
       <table class="data-table">
         <thead>
           <tr>
-            <th>Status</th>
-            <th>Observation</th>
-            <th>Implication</th>
+            <th>What We Demonstrated</th>
+            <th>What Labeled Failure Data Enables</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td class="highlight">NOMINAL</td>
-            <td>All PDU states constant (armed=1, systems enabled)</td>
-            <td>Vehicle operated without triggering any fault states</td>
+            <td>Detect stress signatures in nominal data</td>
+            <td>Validate if detected events precede real failures</td>
           </tr>
           <tr>
-            <td class="highlight">NOMINAL</td>
-            <td>/rosout topic not recorded</td>
-            <td>No ROS error/warning messages available for analysis</td>
+            <td>Identify leading indicators (DVL current, dynamics surprise)</td>
+            <td>Measure actual lead time before failures</td>
           </tr>
           <tr>
-            <td class="highlight">NOMINAL</td>
-            <td>No operator-flagged failure events in logs</td>
-            <td>Cannot validate detected anomalies against ground truth</td>
+            <td>Two complementary detection layers</td>
+            <td>Tune thresholds for precision/recall tradeoff</td>
+          </tr>
+          <tr>
+            <td>Unsupervised anomaly scoring</td>
+            <td>Train supervised classifiers for specific failure modes</td>
           </tr>
         </tbody>
       </table>
@@ -716,94 +651,23 @@
 
   <div style="margin-top: 2.5rem;">
     <div class="section-header">
-      <h2>What This Analysis Demonstrates</h2>
-    </div>
-    <div class="findings-grid">
-      <div class="finding-card">
-        <h3>Stress Signature Detection</h3>
-        <p>We can identify operational stress points in nominal data — moments where sensors and actuators are working harder than baseline.</p>
-      </div>
-      <div class="finding-card">
-        <h3>Leading Indicator Discovery</h3>
-        <p>DVL current, highbrain load, and depth rate changes show 5-20 second lead times before stress events — potential early warnings.</p>
-      </div>
-      <div class="finding-card">
-        <h3>Unsupervised Anomaly Scoring</h3>
-        <p>Multi-channel z-score analysis can flag unusual behavior without requiring labeled examples — works on any new mission data.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<div class="section-divider"></div>
-
-<section class="content-section">
-  <div class="section-header">
-    <span class="label">Path to Prediction</span>
-    <h2>What Labeled Failure Data Enables</h2>
-    <p>To move from anomaly detection to true failure prediction, we need examples where things went wrong.</p>
-  </div>
-
-  <div class="container">
-    <div class="plot-container" style="overflow-x: auto;">
-      <table class="data-table">
-        <thead>
-          <tr>
-            <th>Data Needed</th>
-            <th>What It Enables</th>
-            <th>Prediction Capability</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>/rosout topic recording</td>
-            <td>Capture ROS errors and warnings as they occur</td>
-            <td class="warn">Basic failure timestamps</td>
-          </tr>
-          <tr>
-            <td>Mission with thruster fault</td>
-            <td>Train model to recognize pre-fault current signatures</td>
-            <td class="highlight">Predict thruster failures 5-30s ahead</td>
-          </tr>
-          <tr>
-            <td>Mission with DVL dropout</td>
-            <td>Validate FOM as leading indicator, tune thresholds</td>
-            <td class="highlight">Predict navigation loss 10-20s ahead</td>
-          </tr>
-          <tr>
-            <td>Mission with power anomaly</td>
-            <td>Correlate highbrain spikes with actual system faults</td>
-            <td class="highlight">Predict computational overload</td>
-          </tr>
-          <tr>
-            <td>Operator incident logs</td>
-            <td>Ground truth labels for detected anomalies</td>
-            <td class="highlight">Validated precision/recall metrics</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-
-  <div style="margin-top: 2.5rem;">
-    <div class="section-header">
-      <h2>Proposed Next Steps</h2>
+      <h2>Recommended Next Steps</h2>
     </div>
     <div class="findings-grid">
       <div class="finding-card">
         <div class="finding-icon">1</div>
         <h3>Enable /rosout Recording</h3>
-        <p>Add /rosout to the rosbag recording configuration. This captures ROS error and warning messages as the first level of failure labeling.</p>
+        <p>Add /rosout to rosbag configuration. This captures ROS error and warning messages as the first level of failure labeling.</p>
       </div>
       <div class="finding-card">
         <div class="finding-icon">2</div>
         <h3>Collect Failure Examples</h3>
-        <p>Share any missions where something went wrong — even partial logs. A single failure example allows us to validate and tune our precursor detection.</p>
+        <p>Share any missions where something went wrong — even partial logs. A single failure example allows validation and tuning of detection thresholds.</p>
       </div>
       <div class="finding-card">
         <div class="finding-icon">3</div>
         <h3>Deploy Real-Time Monitoring</h3>
-        <p>Implement the threshold table above for live monitoring. Log when alerts fire vs. when actual issues occur to build labeled training data.</p>
+        <p>Implement the statistical layer for live monitoring. Log when alerts fire vs. when actual issues occur to build labeled training data.</p>
       </div>
     </div>
   </div>
@@ -811,7 +675,7 @@
 
 <footer>
   <p>Analysis prepared by <a href="https://www.usepilgrims.com">PILGRIMS</a> — May 2026</p>
-  <p style="margin-top: 0.5rem;">Data: Orpheus Ocean AUV Mission A • 20 minutes • 229,935 messages</p>
+  <p style="margin-top: 0.5rem;">Data: Orpheus Ocean AUV Mission A • 20 minutes • 229,935 messages • 2-layer detection</p>
 </footer>
 
 <script>
