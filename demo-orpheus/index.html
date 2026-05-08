@@ -215,6 +215,30 @@ main {
 .flow-data .s { color: #0d6efd; }
 
 /* KB Sidebar */
+.kb-item {
+  background: var(--bg);
+  border-radius: 4px;
+  padding: 10px;
+  margin-bottom: 8px;
+  border-left: 3px solid var(--border);
+}
+.kb-item.active { border-left-color: var(--accent); }
+.kb-item-id {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+.kb-item-name {
+  font-size: 12px;
+  color: var(--text);
+  margin: 2px 0;
+}
+.kb-item-action {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  color: var(--accent);
+}
 .kb-sidebar {
   background: var(--bg-card);
   border-left: 1px solid var(--border);
@@ -495,43 +519,27 @@ footer {
   </div>
 
   <aside class="kb-sidebar">
-    <div class="section-title">PILGRIMS Knowledge Base</div>
-    <div class="kb-stats">
-      <div class="kb-stat"><div class="kb-stat-value">3</div><div class="kb-stat-label">Patterns</div></div>
-      <div class="kb-stat"><div id="kbConfidence" class="kb-stat-value" style="color:var(--text-muted)">--</div><div class="kb-stat-label">Confidence</div></div>
+    <div class="section-title">Failure Fingerprints</div>
+    <div class="kb-item" id="kb-thr">
+      <div class="kb-item-id">orp-thr-001</div>
+      <div class="kb-item-name">Port Thruster Degradation</div>
+      <div class="kb-item-action">→ ThrusterFailover</div>
     </div>
-
-    <div class="section-title">Failure Fingerprints <span style="font-size:10px;color:var(--text-muted);font-weight:400">(cascade)</span></div>
-    <div class="kb-pattern" id="kb-thr">
-      <div class="kb-pattern-header">
-        <span class="kb-pattern-id">orp-thr-001</span>
-        <span class="kb-pattern-conf" id="kb-thr-conf">--</span>
-      </div>
-      <div class="kb-pattern-name">Port Thruster Degradation</div>
-      <div class="kb-pattern-signature">ps_port_h_i &lt; 0.5A &amp; ps_stbd_h_i &gt; 1.5A</div>
-      <div class="kb-pattern-action">→ <code>ThrusterFailover</code></div>
+    <div class="kb-item" id="kb-sat">
+      <div class="kb-item-id">orp-sat-002</div>
+      <div class="kb-item-name">Control Saturation</div>
+      <div class="kb-item-action">→ ReduceVelocity</div>
     </div>
-    <div class="kb-pattern" id="kb-sat">
-      <div class="kb-pattern-header">
-        <span class="kb-pattern-id">orp-sat-002</span>
-        <span class="kb-pattern-conf" id="kb-sat-conf">--</span>
-      </div>
-      <div class="kb-pattern-name">Control Saturation</div>
-      <div class="kb-pattern-signature">data_3 = 2200 (max PWM) sustained</div>
-      <div class="kb-pattern-action">→ <code>ReduceVelocity</code></div>
+    <div class="kb-item" id="kb-hdg">
+      <div class="kb-item-id">orp-hdg-003</div>
+      <div class="kb-item-name">Heading Authority Loss</div>
+      <div class="kb-item-action">→ AttitudeHold</div>
     </div>
-    <div class="kb-pattern" id="kb-hdg">
-      <div class="kb-pattern-header">
-        <span class="kb-pattern-id">orp-hdg-003</span>
-        <span class="kb-pattern-conf" id="kb-hdg-conf">--</span>
-      </div>
-      <div class="kb-pattern-name">Heading Authority Loss</div>
-      <div class="kb-pattern-signature">|heading − target| &gt; 30° sustained</div>
-      <div class="kb-pattern-action">→ <code>AttitudeHold</code></div>
-    </div>
-
-    <div class="section-title" style="margin-top:12px">Session Activity</div>
-    <div class="kb-new" id="kbLearning"><span class="kb-new-count">0</span>patterns detected</div>
+    <div id="kbConfidence" style="display:none"></div>
+    <div id="kb-thr-conf" style="display:none"></div>
+    <div id="kb-sat-conf" style="display:none"></div>
+    <div id="kb-hdg-conf" style="display:none"></div>
+    <div id="kbLearning" style="display:none"></div>
   </aside>
 </main>
 
@@ -830,8 +838,7 @@ function renderPilgrimsOutput(ds, kbResult, t) {
   } else {
     const fpLines = fingerprints.map(f => 
       `    {"id":"${f.id}","conf":${(f.conf/100).toFixed(2)},"action":"${f.action}"}`
-    ).join(',
-');
+    ).join(',\n');
     jsonStr = `{
   "p": <span class="${stateClass}">${ds.toFixed(3)}</span>,
   "state": "<span class="${stateClass}">${stateText}</span>",
