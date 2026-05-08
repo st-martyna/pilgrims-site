@@ -1152,7 +1152,7 @@ function step(){
   if(alertAt!==null&&tick>=alertAt+ACTION_DELAY&&actionAt===null)actionAt=tick;
   history.push(ds);
   // clock updated in animate()
-  document.getElementById('tlLabel').textContent=fmt(tick);
+  // tlLabel updated in animate()
   document.getElementById('depthVal').textContent=Math.round(v.data||0);
   // tlFill updated in animate()
   if(tick>=FAULT){document.getElementById('tlMarker').style.display='block';document.getElementById('tlMarker').style.left=(FAULT/TICKS*100)+'%';}
@@ -1196,10 +1196,12 @@ function animate(currentTime) {
   // speed multiplier makes it faster
   const targetTick = playStartTick + Math.floor((elapsedMs * speed) / 2400);
   
-  // Update clock display smoothly (interpolated mission time)
+  // Update displays smoothly (interpolated mission time)
   const smoothTick = playStartTick + (elapsedMs * speed) / 2400;
   const missionSeconds = smoothTick * 2.4;
-  document.getElementById('clock').textContent = 'T+' + formatTime(missionSeconds);
+  const timeStr = formatTime(missionSeconds);
+  document.getElementById('clock').textContent = 'T+' + timeStr;
+  document.getElementById('tlLabel').textContent = timeStr;
   document.getElementById('tlFill').style.width = (smoothTick / TICKS * 100) + '%';
   
   // Only run step() when we cross a tick boundary
