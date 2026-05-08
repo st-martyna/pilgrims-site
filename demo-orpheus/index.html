@@ -508,15 +508,16 @@ function getPred(v){
 }
 
 function getRes(t){
-  const f=fp(t);
-  let r=1; if(actionAt!==null) r=Math.max(0,1-Math.pow((t-actionAt)/60,0.7));
+  // KEY INSIGHT: All individual sensor residuals stay LOW (status = NOMINAL)
+  // The telemetry looks perfectly normal to traditional monitoring
+  // But PILGRIMS sees patterns in the latent space that precede failures
   return {
-    heading:Math.max(0,f*0.02*r+Math.abs(nr(0.005))),
-    roll:Math.max(0,f*0.03*r+Math.abs(nr(0.008))),
-    pitch:Math.max(0,f*0.025*r+Math.abs(nr(0.006))),
-    dvlvx:Math.max(0,f*0.015*r+Math.abs(nr(0.003))),
-    dvlvz:Math.max(0,f*0.012*r+Math.abs(nr(0.002))),
-    depth:Math.max(0,Math.abs(nr(0.01)))
+    heading:Math.max(0,0.02+Math.abs(nr(0.015))),
+    roll:Math.max(0,0.025+Math.abs(nr(0.018))),
+    pitch:Math.max(0,0.02+Math.abs(nr(0.015))),
+    dvlvx:Math.max(0,0.01+Math.abs(nr(0.008))),
+    dvlvz:Math.max(0,0.01+Math.abs(nr(0.008))),
+    depth:Math.max(0,0.01+Math.abs(nr(0.008)))
   };
 }
 
