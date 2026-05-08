@@ -837,35 +837,33 @@ ${fpLines}
     <pre class="ros2-json">${jsonStr}</pre>
   </div>`;
 
-  // Supervisor: show how it interprets the action
+  // AUV interprets the action (implementation is AUV-specific)
   html += `<div class="ros2-section">
     <div class="ros2-header">
       <span class="ros2-sub">SUB</span>
-      <span class="ros2-node">orpheus_supervisor</span>
+      <span class="ros2-node">AUV control system</span>
     </div>`;
 
   if (actionAt !== null) {
-    const elapsedSec = Math.round((tick - actionAt) * 1200 / TICKS);
     html += `<div class="ros2-action executing">
-      <div class="ros2-action-header">✓ ${primary.action}</div>
-      <pre class="ros2-cmd">/lowbrain/cmd ← { mode: "recovery", pwm_port: 0.4 }</pre>
+      <div class="ros2-action-header">✓ Executing: ${primary.action}</div>
+      <div class="ros2-action-note">AUV maps action ID to recovery procedure</div>
     </div>`;
   } else if (ds > ALERT_TH && alertAt !== null) {
     const countdownSec = Math.round(Math.max(0, ACTION_DELAY - (tick - alertAt)) * 1200 / TICKS);
     html += `<div class="ros2-action pending">
-      <div class="ros2-action-header">⏱ ${primary.action} in ${countdownSec}s</div>
-      <pre class="ros2-cmd">BehaviorTree.tick("${primary.action}")</pre>
+      <div class="ros2-action-header">⏱ Action recommended: ${primary.action}</div>
+      <div class="ros2-action-note">conf=${(primary.conf/100).toFixed(2)} · ttf=${ttf}s</div>
     </div>`;
   } else if (fingerprints.length > 0) {
     html += `<div class="ros2-action monitoring">
-      <div class="ros2-action-header">◉ ${fingerprints.length} fingerprint${fingerprints.length > 1 ? 's' : ''}</div>
-      <pre class="ros2-cmd">if msg.fingerprints[0].conf > 0.8:
-  BehaviorTree.tick(msg.fingerprints[0].action)</pre>
+      <div class="ros2-action-header">◉ ${fingerprints.length} fingerprint${fingerprints.length > 1 ? 's' : ''} detected</div>
+      <div class="ros2-action-note">Recommended: ${primary.action}</div>
     </div>`;
   } else {
     html += `<div class="ros2-action idle">
       <div class="ros2-action-header">○ Nominal</div>
-      <pre class="ros2-cmd">pass  <span class="ros2-comment"># no action needed</span></pre>
+      <div class="ros2-action-note">No action recommended</div>
     </div>`;
   }
 
