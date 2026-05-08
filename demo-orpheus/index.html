@@ -508,16 +508,16 @@ function getPred(v){
 }
 
 function getRes(t){
-  // KEY INSIGHT: All individual sensor residuals stay LOW (status = NOMINAL)
-  // The telemetry looks perfectly normal to traditional monitoring
-  // But PILGRIMS sees patterns in the latent space that precede failures
+  // PILGRIMS latent space residuals - these CAN escalate even when raw sensors look fine
+  // This is the coherence signal: prediction error in the learned representation
+  const f = fp(t);  // failure pattern: 0 before fault, ramps up after
   return {
-    heading:Math.max(0,0.02+Math.abs(nr(0.015))),
-    roll:Math.max(0,0.025+Math.abs(nr(0.018))),
-    pitch:Math.max(0,0.02+Math.abs(nr(0.015))),
-    dvlvx:Math.max(0,0.01+Math.abs(nr(0.008))),
-    dvlvz:Math.max(0,0.01+Math.abs(nr(0.008))),
-    depth:Math.max(0,0.01+Math.abs(nr(0.008)))
+    heading:Math.max(0, 0.02 + f*0.18 + Math.abs(nr(0.015))),
+    roll:Math.max(0, 0.025 + f*0.25 + Math.abs(nr(0.018))),
+    pitch:Math.max(0, 0.02 + f*0.20 + Math.abs(nr(0.015))),
+    dvlvx:Math.max(0, 0.01 + f*0.12 + Math.abs(nr(0.008))),
+    dvlvz:Math.max(0, 0.01 + f*0.10 + Math.abs(nr(0.008))),
+    depth:Math.max(0, 0.01 + f*0.08 + Math.abs(nr(0.008)))
   };
 }
 
@@ -549,8 +549,12 @@ function statusText(sig){ return sig>2.5?'CRIT':sig>1.8?'WARN':sig>1.2?'ELEV':'N
 
 function renderTelemetry(v,res){
   document.getElementById('telemBody').innerHTML=SIGNALS.map(s=>{
-    const sig=res[s.k]/s.sigma;
-    return`<tr><td>${s.label}</td><td>${v[s.k]}${s.unit}</td><td><span class="status-pill ${statusLabel(sig)}">${statusText(sig)}</span></td><td>${sig.toFixed(2)}σ</td></tr>`;
+    const sig=res[s.k]/s.sigma;  // PILGRIMS latent residual
+    // STATUS always NOMINAL - raw sensors are within spec
+    // But Ri (PILGRIMS residual) can turn RED when coherence breaks down
+    const riColor = sig > 1.5 ? '#dc3545' : sig > 1.0 ? '#fd7e14' : 'var(--text-muted)';
+    const riWeight = sig > 1.5 ? 'font-weight:600' : '';
+    return`<tr><td>${s.label}</td><td>${v[s.k]}${s.unit}</td><td><span class="status-pill nominal">NOM</span></td><td style="color:${riColor};${riWeight}">${sig.toFixed(2)}σ</td></tr>`;
   }).join('');
 }
 
@@ -586,12 +590,14 @@ function renderModel(v,pred,res,ds){
 function renderResiduals(res){
   document.getElementById('residualList').innerHTML=SIGNALS.map(s=>{
     const sig=res[s.k]/s.sigma;
-    const pct=Math.min(100,sig/4*100);
-    const col=statusLabel(sig)==='nominal'?'var(--success)':statusLabel(sig)==='elevated'?'#ffc107':statusLabel(sig)==='warning'?'#fd7e14':'#dc3545';
+    const pct=Math.min(100,sig/3*100);
+    // PILGRIMS residual coloring: green when low, orange/red when coherence breaks down
+    const col = sig > 1.5 ? '#dc3545' : sig > 1.0 ? '#fd7e14' : 'var(--success)';
+    const textCol = sig > 1.5 ? '#dc3545' : sig > 1.0 ? '#fd7e14' : 'var(--text-muted)';
     return`<div style="display:flex;align-items:center;gap:6px;padding:3px 0;font-size:12px;">
       <span style="font-family:'IBM Plex Mono';width:100px;flex-shrink:0;white-space:nowrap;color:var(--text-secondary)">${s.label}</span>
       <div style="flex:1;min-width:0;height:5px;background:var(--border-light);border-radius:2px;overflow:hidden"><div style="width:${pct}%;height:100%;background:${col};border-radius:2px"></div></div>
-      <span style="font-family:'IBM Plex Mono';width:32px;flex-shrink:0;text-align:right;color:var(--text-muted)">${sig.toFixed(1)}</span>
+      <span style="font-family:'IBM Plex Mono';width:32px;flex-shrink:0;text-align:right;color:${textCol}">${sig.toFixed(1)}</span>
     </div>`;
   }).join('');
 }
