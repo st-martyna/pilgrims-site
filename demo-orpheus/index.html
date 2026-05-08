@@ -782,17 +782,32 @@ function renderPilgrimsOutput(ds, kbResult, t) {
     stateText = 'ELEVATED';
   }
 
-  // Build array of ALL detected fingerprints, sorted by confidence
+  // Build array of ALL detected fingerprints with implementation params
   let fingerprints = [];
   if (fp) {
     if (fp.thr.matched || fp.thr.active) {
-      fingerprints.push({ id: 'orp-thr-001', conf: fp.thr.conf, action: 'ThrusterFailover' });
+      fingerprints.push({ 
+        id: 'orp-thr-001', 
+        conf: fp.thr.conf, 
+        action: 'ThrusterFailover',
+        params: { port_pwm: 0.4, stbd_pwm: 0.7 }
+      });
     }
     if (fp.sat.matched || fp.sat.active) {
-      fingerprints.push({ id: 'orp-sat-002', conf: fp.sat.conf, action: 'ReduceVelocity' });
+      fingerprints.push({ 
+        id: 'orp-sat-002', 
+        conf: fp.sat.conf, 
+        action: 'ReduceVelocity',
+        params: { max_vel: 0.3 }
+      });
     }
     if (fp.hdg.matched || fp.hdg.active) {
-      fingerprints.push({ id: 'orp-hdg-003', conf: fp.hdg.conf, action: 'AttitudeHold' });
+      fingerprints.push({ 
+        id: 'orp-hdg-003', 
+        conf: fp.hdg.conf, 
+        action: 'AttitudeHold',
+        params: { hold_heading: true, target_hdg: 165 }
+      });
     }
     fingerprints.sort((a, b) => b.conf - a.conf);
   }
@@ -845,20 +860,23 @@ ${fpLines}
     </div>`;
 
   if (actionAt !== null) {
+    const paramsStr = Object.entries(primary.params).map(([k,v]) => `${k}=${v}`).join(', ');
     html += `<div class="ros2-action executing">
-      <div class="ros2-action-header">✓ Executing: ${primary.action}</div>
-      <div class="ros2-action-note">AUV maps action ID to recovery procedure</div>
+      <div class="ros2-action-header">✓ ${primary.action}</div>
+      <div class="ros2-action-note">${paramsStr}</div>
     </div>`;
   } else if (ds > ALERT_TH && alertAt !== null) {
     const countdownSec = Math.round(Math.max(0, ACTION_DELAY - (tick - alertAt)) * 1200 / TICKS);
+    const paramsStr = Object.entries(primary.params).map(([k,v]) => `${k}=${v}`).join(', ');
     html += `<div class="ros2-action pending">
-      <div class="ros2-action-header">⏱ Action recommended: ${primary.action}</div>
-      <div class="ros2-action-note">conf=${(primary.conf/100).toFixed(2)} · ttf=${ttf}s</div>
+      <div class="ros2-action-header">⏱ ${primary.action} in ${countdownSec}s</div>
+      <div class="ros2-action-note">${paramsStr}</div>
     </div>`;
   } else if (fingerprints.length > 0) {
+    const paramsStr = Object.entries(primary.params).map(([k,v]) => `${k}=${v}`).join(', ');
     html += `<div class="ros2-action monitoring">
-      <div class="ros2-action-header">◉ ${fingerprints.length} fingerprint${fingerprints.length > 1 ? 's' : ''} detected</div>
-      <div class="ros2-action-note">Recommended: ${primary.action}</div>
+      <div class="ros2-action-header">◉ ${primary.action}</div>
+      <div class="ros2-action-note">${paramsStr}</div>
     </div>`;
   } else {
     html += `<div class="ros2-action idle">
