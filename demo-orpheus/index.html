@@ -1184,12 +1184,10 @@ function animate(currentTime) {
   if (lastFrameTime === 0) lastFrameTime = currentTime;
   const deltaMs = currentTime - lastFrameTime;
   
-  // At 1x speed: 1200 seconds of mission = 1200 seconds real time
-  // TICKS=500, so each tick = 2.4 seconds
-  // deltaMs * speed / 2400 = ticks to advance
-  const ticksToAdvance = (deltaMs * speed) / 2400;
+  // Base timing: 500 ticks over 120 seconds at 1x = 240ms per tick
+  const msPerTick = 240 / speed;
   
-  if (ticksToAdvance >= 1) {
+  if (deltaMs >= msPerTick) {
     lastFrameTime = currentTime;
     step();
   }
