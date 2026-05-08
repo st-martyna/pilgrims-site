@@ -1151,10 +1151,10 @@ function step(){
   if(ds>ALERT_TH&&alertAt===null)alertAt=tick;
   if(alertAt!==null&&tick>=alertAt+ACTION_DELAY&&actionAt===null)actionAt=tick;
   history.push(ds);
-  document.getElementById('clock').textContent='T+'+fmt(tick);
+  // clock updated in animate()
   document.getElementById('tlLabel').textContent=fmt(tick);
   document.getElementById('depthVal').textContent=Math.round(v.data||0);
-  document.getElementById('tlFill').style.width=(tick/TICKS*100)+'%';
+  // tlFill updated in animate()
   if(tick>=FAULT){document.getElementById('tlMarker').style.display='block';document.getElementById('tlMarker').style.left=(FAULT/TICKS*100)+'%';}
   renderTelemetry(v,res);renderResiduals(res);renderHero(ds,sz);renderStatus(ds);renderChart();
   const kbResult=renderKB(ds,tick,v);renderPilgrimsOutput(ds,kbResult,tick);renderSaturation(tick);renderEarlySignal(tick,ds,res);updateTrack(pos(tick),ds);
@@ -1178,17 +1178,32 @@ function resetState(){
 let lastFrameTime = 0;
 let animationId = null;
 
+let playStartTime = 0;
+let playStartTick = 0;
+
 function animate(currentTime) {
   if (!playing) return;
   
-  if (lastFrameTime === 0) lastFrameTime = currentTime;
-  const deltaMs = currentTime - lastFrameTime;
+  if (playStartTime === 0) {
+    playStartTime = currentTime;
+    playStartTick = tick;
+  }
   
-  // Base timing: 500 ticks over 120 seconds at 1x = 240ms per tick
-  const msPerTick = 240 / speed;
+  // Real elapsed time since play started
+  const elapsedMs = currentTime - playStartTime;
   
-  if (deltaMs >= msPerTick) {
-    lastFrameTime = currentTime;
+  // At 1x: 2400ms real time = 1 tick (2.4 mission seconds)
+  // speed multiplier makes it faster
+  const targetTick = playStartTick + Math.floor((elapsedMs * speed) / 2400);
+  
+  // Update clock display smoothly (interpolated mission time)
+  const smoothTick = playStartTick + (elapsedMs * speed) / 2400;
+  const missionSeconds = smoothTick * 2.4;
+  document.getElementById('clock').textContent = 'T+' + formatTime(missionSeconds);
+  document.getElementById('tlFill').style.width = (smoothTick / TICKS * 100) + '%';
+  
+  // Only run step() when we cross a tick boundary
+  while (tick < targetTick && tick < TICKS) {
     step();
   }
   
@@ -1197,10 +1212,16 @@ function animate(currentTime) {
   }
 }
 
+function formatTime(seconds) {
+  const m = Math.floor(seconds / 60);
+  const s = Math.floor(seconds % 60);
+  return String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+}
+
 function togglePlay(){
   if(tick>=TICKS) resetState();
   playing=true;
-  lastFrameTime = 0;
+  playStartTime = 0;
   if (animationId) cancelAnimationFrame(animationId);
   animationId = requestAnimationFrame(animate);
   setButtonStates(true,true);
