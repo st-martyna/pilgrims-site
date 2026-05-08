@@ -485,10 +485,10 @@ footer {
 
       <div class="card">
         <div class="card-header">
-          <span class="card-title">PILGRIMS Output</span>
-          <span id="pilgrimsOutputMeta" class="card-meta">/pilgrims/fault_prediction</span>
+          <span class="card-title">PILGRIMS → Orpheus</span>
+          <span id="pilgrimsOutputMeta" class="card-meta">ROS2 DDS</span>
         </div>
-        <div class="card-body" style="padding: 8px 10px;">
+        <div class="card-body" style="padding: 0;">
           <div id="pilgrimsOutput" class="pilgrims-output"></div>
         </div>
       </div>
@@ -769,7 +769,7 @@ function renderPilgrimsOutput(ds, kbResult, t) {
   const matchCount = kbResult ? kbResult.matchCount : 0;
   const activeCount = kbResult ? kbResult.activeCount : 0;
 
-  // Determine state and styling
+  // Determine state
   let stateClass = 'nominal';
   let stateText = 'NOMINAL';
   if (actionAt !== null) {
@@ -786,7 +786,7 @@ function renderPilgrimsOutput(ds, kbResult, t) {
     stateText = 'ELEVATED';
   }
 
-  // Get primary fingerprint
+  // Get primary fingerprint and action
   let fingerprintId = 'none';
   let confidence = 0;
   let recommendedAction = 'none';
@@ -799,36 +799,71 @@ function renderPilgrimsOutput(ds, kbResult, t) {
     else if (fp.hdg.active) { fingerprintId = 'orp-hdg-003'; confidence = fp.hdg.conf; recommendedAction = 'AttitudeHold'; }
   }
 
-  // Calculate lead time (time until projected failure based on P trend)
-  let leadTime = '--';
+  // Calculate time to projected failure (how early PILGRIMS predicts)
+  let ttf = '--';
   if (driftAt !== null && actionAt === null) {
     const projectedTicks = Math.max(0, TICKS - tick);
-    leadTime = Math.round(projectedTicks * 1200 / TICKS) + 's';
+    ttf = Math.round(projectedTicks * 1200 / TICKS);
   }
 
-  // Build the message display
-  let html = `
-    <div class="msg-line"><span class="msg-key">p_failure:</span><span class="msg-val ${stateClass}">${ds.toFixed(3)}</span></div>
-    <div class="msg-line"><span class="msg-key">state:</span><span class="msg-val ${stateClass}">${stateText}</span></div>
-    <div class="msg-divider"></div>
-    <div class="msg-line"><span class="msg-key">fingerprint:</span><span class="msg-val">${fingerprintId}</span></div>
-    <div class="msg-line"><span class="msg-key">confidence:</span><span class="msg-val">${confidence > 0 ? confidence + '%' : '--'}</span></div>
-    <div class="msg-line"><span class="msg-key">cascade:</span><span class="msg-val">${matchCount > 1 ? matchCount + ' patterns' : '--'}</span></div>
-    <div class="msg-divider"></div>
-    <div class="msg-line"><span class="msg-key">action:</span><span class="msg-val ${recommendedAction !== 'none' ? 'action' : ''}">${recommendedAction}</span></div>
-    <div class="msg-line"><span class="msg-key">lead_time:</span><span class="msg-val">${leadTime}</span></div>
-  `;
+  // Build the panel with clear sections
+  let html = '';
+  
+  // Section 1: PILGRIMS publishes to ROS2 topic
+  html += `<div class="ros2-section">
+    <div class="ros2-header">
+      <span class="ros2-pub">PUB</span>
+      <code class="ros2-topic">/pilgrims/fault_prediction</code>
+    </div>
+    <div class="ros2-msg">
+      <div class="ros2-type">pilgrims_msgs/FaultPrediction</div>
+      <pre class="ros2-data">{
+  p_failure: <span class="${stateClass}">${ds.toFixed(3)}</span>
+  state: "<span class="${stateClass}">${stateText}</span>"
+  fingerprint_id: "${fingerprintId}"
+  confidence: ${confidence > 0 ? (confidence/100).toFixed(2) : '0.00'}
+  recommended_action: "${recommendedAction}"
+  time_to_failure: ${ttf !== '--' ? ttf : 'null'}  <span class="ros2-comment"># seconds until projected fault</span>
+}</pre>
+    </div>
+  </div>`;
 
-  // Show action trigger status
-  if (alertAt !== null && actionAt === null) {
-    const countdown = Math.max(0, ACTION_DELAY - (tick - alertAt));
-    const countdownSec = Math.round(countdown * 1200 / TICKS);
-    html += `<div class="action-trigger">⏱ ACTION IN ${countdownSec}s</div>`;
-  } else if (actionAt !== null) {
+  // Section 2: Orpheus supervisor subscribes
+  html += `<div class="ros2-section">
+    <div class="ros2-header">
+      <span class="ros2-sub">SUB</span>
+      <code class="ros2-topic">/pilgrims/fault_prediction</code>
+      <span class="ros2-node">→ orpheus_supervisor</span>
+    </div>`;
+
+  // Show what the supervisor does with the message
+  if (actionAt !== null) {
     const elapsed = tick - actionAt;
     const elapsedSec = Math.round(elapsed * 1200 / TICKS);
-    html += `<div class="action-trigger active">✓ EXECUTING (${elapsedSec}s)</div>`;
+    html += `<div class="ros2-action executing">
+      <div class="ros2-action-header">✓ BehaviorTree::${recommendedAction}</div>
+      <div class="ros2-action-detail">Executing recovery (${elapsedSec}s elapsed)</div>
+    </div>`;
+  } else if (ds > ALERT_TH && alertAt !== null) {
+    const countdown = Math.max(0, ACTION_DELAY - (tick - alertAt));
+    const countdownSec = Math.round(countdown * 1200 / TICKS);
+    html += `<div class="ros2-action pending">
+      <div class="ros2-action-header">⏱ Triggering: ${recommendedAction}</div>
+      <div class="ros2-action-detail">p_failure > 0.82 → action in ${countdownSec}s</div>
+    </div>`;
+  } else if (ds > PATTERN_TH) {
+    html += `<div class="ros2-action monitoring">
+      <div class="ros2-action-header">◉ Monitoring fingerprint</div>
+      <div class="ros2-action-detail">p_failure > 0.44 → preparing ${recommendedAction}</div>
+    </div>`;
+  } else {
+    html += `<div class="ros2-action idle">
+      <div class="ros2-action-header">○ Idle</div>
+      <div class="ros2-action-detail">No action required</div>
+    </div>`;
   }
+
+  html += `</div>`;
 
   el.innerHTML = html;
 }
