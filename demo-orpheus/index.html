@@ -794,73 +794,78 @@ function renderPilgrimsOutput(ds, kbResult, t) {
     if (fp.hdg.matched || fp.hdg.active) {
       fingerprints.push({ id: 'orp-hdg-003', conf: fp.hdg.conf, action: 'AttitudeHold' });
     }
-    // Sort by confidence descending
     fingerprints.sort((a, b) => b.conf - a.conf);
   }
 
   // Time to projected failure
-  let ttf = 'null';
-  if (driftAt !== null && actionAt === null) {
-    ttf = Math.round(Math.max(0, TICKS - tick) * 1200 / TICKS);
-  }
+  let ttf = fingerprints.length > 0 && actionAt === null ? 
+    Math.round(Math.max(0, TICKS - tick) * 1200 / TICKS) : null;
 
-  // Build fingerprints array string for display
-  let fpArrayStr = '[]';
-  if (fingerprints.length > 0) {
-    fpArrayStr = '[\n' + fingerprints.map(f => 
-      `    { id: "${f.id}", conf: ${(f.conf/100).toFixed(2)}, action: "${f.action}" }`
-    ).join(',\n') + '\n  ]';
-  }
+  // Primary action
+  const primary = fingerprints.length > 0 ? fingerprints[0] : null;
 
-  // Primary action is from highest confidence fingerprint
-  const primaryAction = fingerprints.length > 0 ? fingerprints[0].action : 'none';
+  // Build JSON string for display
+  let jsonStr;
+  if (fingerprints.length === 0) {
+    jsonStr = `{
+  "p": <span class="${stateClass}">${ds.toFixed(3)}</span>,
+  "state": "<span class="${stateClass}">${stateText}</span>",
+  "fingerprints": []
+}`;
+  } else {
+    const fpLines = fingerprints.map(f => 
+      `    {"id":"${f.id}","conf":${(f.conf/100).toFixed(2)},"action":"${f.action}"}`
+    ).join(',
+');
+    jsonStr = `{
+  "p": <span class="${stateClass}">${ds.toFixed(3)}</span>,
+  "state": "<span class="${stateClass}">${stateText}</span>",
+  "ttf": ${ttf},
+  "fingerprints": [
+${fpLines}
+  ]
+}`;
+  }
 
   // Build the panel
   let html = `<div class="ros2-section">
     <div class="ros2-header">
       <span class="ros2-pub">PUB</span>
       <code class="ros2-topic">/pilgrims/fault_prediction</code>
+      <span class="ros2-msgtype">std_msgs/String</span>
     </div>
-    <div class="ros2-msg">
-      <div class="ros2-type">pilgrims_msgs/FaultPrediction</div>
-      <pre class="ros2-data">{
-  p_failure: <span class="${stateClass}">${ds.toFixed(3)}</span>
-  state: "<span class="${stateClass}">${stateText}</span>"
-  time_to_failure: ${ttf}
-  fingerprints: ${fpArrayStr}
-}</pre>
-    </div>
+    <pre class="ros2-json">${jsonStr}</pre>
   </div>`;
 
-  // Supervisor section
+  // Supervisor: show how it interprets the action
   html += `<div class="ros2-section">
     <div class="ros2-header">
       <span class="ros2-sub">SUB</span>
-      <code class="ros2-topic">/pilgrims/fault_prediction</code>
-      <span class="ros2-node">→ orpheus_supervisor</span>
+      <span class="ros2-node">orpheus_supervisor</span>
     </div>`;
 
   if (actionAt !== null) {
     const elapsedSec = Math.round((tick - actionAt) * 1200 / TICKS);
     html += `<div class="ros2-action executing">
-      <div class="ros2-action-header">✓ Executing: ${primaryAction}</div>
-      <div class="ros2-action-detail">${elapsedSec}s elapsed</div>
+      <div class="ros2-action-header">✓ ${primary.action}</div>
+      <pre class="ros2-cmd">/lowbrain/cmd ← { mode: "recovery", pwm_port: 0.4 }</pre>
     </div>`;
   } else if (ds > ALERT_TH && alertAt !== null) {
     const countdownSec = Math.round(Math.max(0, ACTION_DELAY - (tick - alertAt)) * 1200 / TICKS);
     html += `<div class="ros2-action pending">
-      <div class="ros2-action-header">⏱ Triggering: ${primaryAction}</div>
-      <div class="ros2-action-detail">in ${countdownSec}s</div>
+      <div class="ros2-action-header">⏱ ${primary.action} in ${countdownSec}s</div>
+      <pre class="ros2-cmd">BehaviorTree.tick("${primary.action}")</pre>
     </div>`;
   } else if (fingerprints.length > 0) {
     html += `<div class="ros2-action monitoring">
-      <div class="ros2-action-header">◉ ${fingerprints.length} fingerprint${fingerprints.length > 1 ? 's' : ''} detected</div>
-      <div class="ros2-action-detail">Preparing: ${primaryAction}</div>
+      <div class="ros2-action-header">◉ ${fingerprints.length} fingerprint${fingerprints.length > 1 ? 's' : ''}</div>
+      <pre class="ros2-cmd">if msg.fingerprints[0].conf > 0.8:
+  BehaviorTree.tick(msg.fingerprints[0].action)</pre>
     </div>`;
   } else {
     html += `<div class="ros2-action idle">
       <div class="ros2-action-header">○ Nominal</div>
-      <div class="ros2-action-detail">No fingerprints detected</div>
+      <pre class="ros2-cmd">pass  <span class="ros2-comment"># no action needed</span></pre>
     </div>`;
   }
 
