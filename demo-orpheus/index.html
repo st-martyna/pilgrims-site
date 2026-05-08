@@ -546,7 +546,7 @@ footer {
 <footer>
   <button id="playBtn" class="btn" onclick="togglePlay()" title="Play" style="font-size:15px">&#9654;</button>
   <button id="pauseBtn" class="btn" onclick="togglePause()" title="Pause" disabled style="font-size:19px">&#9646;&#9646;</button>
-  <button class="btn" onclick="toggleSpeed()"><span id="speedLabel">5</span>×</button>
+  <button class="btn" onclick="toggleSpeed()"><span id="speedLabel">1x</span></button>
   <div class="timeline">
     <div class="timeline-bar" id="timelineBar">
       <div class="timeline-track">
@@ -564,7 +564,7 @@ footer {
 
 <script>
 const TICKS=500, FAULT=80, DRIFT_TH=0.10, PATTERN_TH=0.44, ALERT_TH=0.82, ACTION_DELAY=28;
-let tick=0, playing=false, speed=5, interval=null;
+let tick=0, playing=false, speed=1;
 let driftAt=null, alertAt=null, actionAt=null;
 const history=[];
 
@@ -1175,23 +1175,49 @@ function resetState(){
   document.getElementById('tlFill').style.width='0';
 }
 
+let lastFrameTime = 0;
+let animationId = null;
+
+function animate(currentTime) {
+  if (!playing) return;
+  
+  if (lastFrameTime === 0) lastFrameTime = currentTime;
+  const deltaMs = currentTime - lastFrameTime;
+  
+  // At 1x speed: 1200 seconds of mission = 1200 seconds real time
+  // TICKS=500, so each tick = 2.4 seconds
+  // deltaMs * speed / 2400 = ticks to advance
+  const ticksToAdvance = (deltaMs * speed) / 2400;
+  
+  if (ticksToAdvance >= 1) {
+    lastFrameTime = currentTime;
+    step();
+  }
+  
+  if (tick < TICKS && playing) {
+    animationId = requestAnimationFrame(animate);
+  }
+}
+
 function togglePlay(){
   if(tick>=TICKS) resetState();
   playing=true;
-  clearInterval(interval);
-  interval=setInterval(step,Math.round(2400/speed));
+  lastFrameTime = 0;
+  if (animationId) cancelAnimationFrame(animationId);
+  animationId = requestAnimationFrame(animate);
   setButtonStates(true,true);
 }
 
 function togglePause(){
   if(!playing)return;
   playing=false;
-  clearInterval(interval);
+  if (animationId) cancelAnimationFrame(animationId);
   setButtonStates(false,true);
 }
 
 function stopPlayback(){
-  playing=false;clearInterval(interval);
+  playing=false;
+  if (animationId) cancelAnimationFrame(animationId);
   resetState();
   const v0=getVals(0),r0=getRes(0),pred0=getPred(v0);
   renderTelemetry(v0,r0);renderResiduals(r0);renderHero(0.02,getSurpriseZ(0));
@@ -1199,7 +1225,11 @@ function stopPlayback(){
   setButtonStates(false,false);
 }
 
-function toggleSpeed(){const sp=[1,5,10,20];speed=sp[(sp.indexOf(speed)+1)%sp.length];document.getElementById('speedLabel').textContent=speed;if(playing){clearInterval(interval);interval=setInterval(step,Math.round(2400/speed));}}
+function toggleSpeed(){
+  const sp=[1,5,10,20];
+  speed=sp[(sp.indexOf(speed)+1)%sp.length];
+  document.getElementById('speedLabel').textContent=speed+'x';
+}
 
 function seekTo(clientX){
   const bar=document.getElementById('timelineBar');
