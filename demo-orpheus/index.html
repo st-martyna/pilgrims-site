@@ -482,26 +482,28 @@ let lastPred = {heading:145.2,roll:0.3,pitch:-1.2,dvlvx:0.8,dvlvz:-0.1,depth:12.
 function getVals(t){
   const f=fp(t), m=t/TICKS;
   let r=1; if(actionAt!==null) r=Math.max(0,1-Math.pow((t-actionAt)/60,0.7));
-  // Calculate depth from track position (y-coordinate maps to 0-100m)
+  // Calculate depth from track position
   const p=pos(t);
-  const depthFromTrack=Math.max(0,Math.min(100,((p.y-60)/60)*100));
+  const depthFromTrack=Math.max(0,Math.min(25,12.5+((p.y-60)/30)*5));
   return {
-    port:+(42+f*30*r+nr(1)).toFixed(1),
-    stbd:+(42+f*2*r+nr(0.5)).toFixed(1),
-    depth:+depthFromTrack.toFixed(1),
-    voltage:+(47-f*0.5*r-m*0.3+nr(0.05)).toFixed(2),
-    heading:+(0.5+f*6*r+nr(0.2)).toFixed(1)
+    heading:+(145.2+f*1.5*r+nr(0.5)).toFixed(1),
+    roll:+(0.3+f*2.0*r+nr(0.3)).toFixed(1),
+    pitch:+(-1.2+f*1.5*r+nr(0.2)).toFixed(1),
+    dvlvx:+(0.8+f*0.3*r+nr(0.05)).toFixed(2),
+    dvlvz:+(-0.1+f*0.15*r+nr(0.02)).toFixed(2),
+    depth:+depthFromTrack.toFixed(1)
   };
 }
 
 function getPred(v){
   // Simple prediction: slightly lagged/smoothed version
   return {
-    port:+(lastPred.port*0.9+v.port*0.1-nr(0.3)).toFixed(1),
-    stbd:+(lastPred.stbd*0.9+v.stbd*0.1-nr(0.2)).toFixed(1),
-    depth:+(lastPred.depth*0.9+v.depth*0.1).toFixed(1),
-    voltage:+(lastPred.voltage*0.95+v.voltage*0.05).toFixed(2),
-    heading:+(lastPred.heading*0.85+v.heading*0.15-nr(0.1)).toFixed(1)
+    heading:+(lastPred.heading*0.92+v.heading*0.08+nr(0.2)).toFixed(1),
+    roll:+(lastPred.roll*0.90+v.roll*0.10+nr(0.1)).toFixed(1),
+    pitch:+(lastPred.pitch*0.90+v.pitch*0.10+nr(0.08)).toFixed(1),
+    dvlvx:+(lastPred.dvlvx*0.88+v.dvlvx*0.12+nr(0.02)).toFixed(2),
+    dvlvz:+(lastPred.dvlvz*0.88+v.dvlvz*0.12+nr(0.01)).toFixed(2),
+    depth:+(lastPred.depth*0.9+v.depth*0.1).toFixed(1)
   };
 }
 
@@ -509,11 +511,12 @@ function getRes(t){
   const f=fp(t);
   let r=1; if(actionAt!==null) r=Math.max(0,1-Math.pow((t-actionAt)/60,0.7));
   return {
-    port:Math.max(0,f*0.40*r+Math.abs(nr(0.01))),
-    stbd:Math.max(0,f*0.08*r+Math.abs(nr(0.008))),
-    depth:Math.max(0,Math.abs(nr(0.01))),
-    voltage:Math.max(0,Math.abs(nr(0.006))),
-    heading:Math.max(0,f*0.35*r+Math.abs(nr(0.01)))
+    heading:Math.max(0,f*0.02*r+Math.abs(nr(0.005))),
+    roll:Math.max(0,f*0.03*r+Math.abs(nr(0.008))),
+    pitch:Math.max(0,f*0.025*r+Math.abs(nr(0.006))),
+    dvlvx:Math.max(0,f*0.015*r+Math.abs(nr(0.003))),
+    dvlvz:Math.max(0,f*0.012*r+Math.abs(nr(0.002))),
+    depth:Math.max(0,Math.abs(nr(0.01)))
   };
 }
 
@@ -564,13 +567,13 @@ function renderModel(v,pred,res,ds){
   document.getElementById('modelPredictContent').innerHTML=
     `ŷ<sub>hdg</sub> <span class="op">=</span> <span class="pred">${pred.heading}°</span><br>`+
     `ŷ<sub>roll</sub> <span class="op">=</span> <span class="pred">${pred.roll}°</span><br>`+
-    `ŷ<sub>hdg</sub> <span class="op">=</span> <span class="pred">${pred.heading}°</span>`;
+    `ŷ<sub>pitch</sub> <span class="op">=</span> <span class="pred">${pred.pitch}°</span>`;
 
-  const rPort=(res.heading/SIGNALS[0].sigma).toFixed(2);
   const rHdg=(res.heading/SIGNALS[0].sigma).toFixed(2);
+  const rRoll=(res.roll/SIGNALS[1].sigma).toFixed(2);
   document.getElementById('modelResidualContent').innerHTML=
-    `r<sub>hdg</sub> <span class="op">=</span> |${v.heading} − ${pred.heading}| / ${SIGNALS[0].sigma} <span class="op">=</span> <span class="res">${rPort}σ</span><br>`+
-    `r<sub>hdg</sub> <span class="op">=</span> |${v.heading} − ${pred.heading}| / ${SIGNALS[0].sigma} <span class="op">=</span> <span class="res">${rHdg}σ</span>`;
+    `r<sub>hdg</sub> <span class="op">=</span> |${v.heading} − ${pred.heading}| / ${SIGNALS[0].sigma} <span class="op">=</span> <span class="res">${rHdg}σ</span><br>`+
+    `r<sub>roll</sub> <span class="op">=</span> |${v.roll} − ${pred.roll}| / ${SIGNALS[1].sigma} <span class="op">=</span> <span class="res">${rRoll}σ</span>`;
 
   let wsum=0;
   SIGNALS.forEach(s=>{const r=res[s.k]/s.sigma;wsum+=s.w*r*r;});
