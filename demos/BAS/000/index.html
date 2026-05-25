@@ -399,44 +399,33 @@ main {
 footer {
   display: flex; align-items: center; gap: 10px; padding: 8px 20px;
   background: var(--bg-card); border-top: 1px solid var(--border);
-  position: relative; z-index: 100; pointer-events: auto;
 }
 .btn {
   font-family: inherit; font-size: 13px; font-weight: 500;
   padding: 5px 12px; border: 1px solid var(--border); border-radius: 4px;
   background: var(--bg-card); color: var(--text); cursor: pointer;
   width: 44px; height: 34px; display: inline-flex; align-items: center; justify-content: center;
-  pointer-events: auto; position: relative; z-index: 1;
 }
-.btn:disabled { opacity: 0.5; cursor: not-allowed; }
 .btn:hover { background: var(--bg); }
 .btn-primary { background: var(--text); border-color: var(--text); color: white; }
 .timeline { flex: 1; margin: 0 12px; }
 .timeline-bar {
   height: 16px; display: flex; align-items: center;
   cursor: pointer; position: relative; margin-bottom: 2px; user-select: none;
-  pointer-events: auto; z-index: 1; background: transparent;
-}
-.timeline-bar::before {
-  content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-  z-index: 0;
 }
 .timeline-track {
   position: absolute; left: 0; right: 0; height: 4px;
   background: var(--border-light); border-radius: 2px; transition: height 0.1s;
-  pointer-events: none !important;
 }
-.timeline-track * { pointer-events: none !important; }
-.timeline-fill { height: 100%; background: var(--text); border-radius: 2px; position: relative; pointer-events: none; }
+.timeline-fill { height: 100%; background: var(--text); border-radius: 2px; position: relative; }
 .timeline-thumb {
   position: absolute; right: -5px; top: 50%; transform: translateY(-50%);
   width: 10px; height: 10px; border-radius: 50%;
   background: var(--text); opacity: 0; transition: opacity 0.15s;
-  pointer-events: none;
 }
 .timeline-bar:hover .timeline-thumb, .timeline-bar.dragging .timeline-thumb { opacity: 1; }
 .timeline-bar:hover .timeline-track, .timeline-bar.dragging .timeline-track { height: 5px; }
-.timeline-marker { position: absolute; top: 50%; transform: translateY(-50%); width: 2px; height: 10px; background: #dc3545; border-radius: 1px; pointer-events: none; }
+.timeline-marker { position: absolute; top: 50%; transform: translateY(-50%); width: 2px; height: 10px; background: #dc3545; border-radius: 1px; }
 .timeline-labels { display: flex; justify-content: space-between; font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--text-muted); }
 </style>
 </head>
@@ -555,12 +544,12 @@ footer {
 </main>
 
 <footer>
-  <button type="button" id="playBtn" class="btn" onclick="window.togglePlay()" title="Play" style="font-size:15px;touch-action:manipulation">&#9654;</button>
-  <button type="button" id="pauseBtn" class="btn" onclick="window.togglePause()" title="Pause" disabled style="font-size:19px;touch-action:manipulation">&#9646;&#9646;</button>
-  <button type="button" class="btn" onclick="window.toggleSpeed()" style="touch-action:manipulation"><span id="speedLabel">1x</span></button>
+  <button id="playBtn" class="btn" onclick="togglePlay()" title="Play" style="font-size:15px">&#9654;</button>
+  <button id="pauseBtn" class="btn" onclick="togglePause()" title="Pause" disabled style="font-size:19px">&#9646;&#9646;</button>
+  <button class="btn" onclick="toggleSpeed()"><span id="speedLabel">1x</span></button>
   <div class="timeline">
-    <div class="timeline-bar" id="timelineBar" onmousedown="window.seekTo(event.clientX);event.preventDefault();" ontouchstart="window.seekTo(event.touches[0].clientX);event.preventDefault();">
-      <div class="timeline-track" style="pointer-events:none;">
+    <div class="timeline-bar" id="timelineBar">
+      <div class="timeline-track">
         <div id="tlFill" class="timeline-fill" style="width:0">
           <div class="timeline-thumb"></div>
         </div>
@@ -1231,21 +1220,21 @@ function formatTime(seconds) {
   return String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
 }
 
-window.togglePlay = function(){
+function togglePlay(){
   if(tick>=TICKS) resetState();
   playing=true;
   playStartTime = 0;
   if (animationId) cancelAnimationFrame(animationId);
   animationId = requestAnimationFrame(animate);
   setButtonStates(true,true);
-};
+}
 
-window.togglePause = function(){
+function togglePause(){
   if(!playing)return;
   playing=false;
   if (animationId) cancelAnimationFrame(animationId);
   setButtonStates(false,true);
-};
+}
 
 function stopPlayback(){
   playing=false;
@@ -1257,13 +1246,13 @@ function stopPlayback(){
   setButtonStates(false,false);
 }
 
-window.toggleSpeed = function(){
+function toggleSpeed(){
   const sp=[1,5,10,20];
   speed=sp[(sp.indexOf(speed)+1)%sp.length];
   document.getElementById('speedLabel').textContent=speed+'x';
-};
+}
 
-window.seekTo = function(clientX){
+function seekTo(clientX){
   const bar=document.getElementById('timelineBar');
   const r=bar.getBoundingClientRect();
   tick=Math.floor(Math.max(0,Math.min(1,(clientX-r.left)/r.width))*TICKS);
@@ -1272,16 +1261,16 @@ window.seekTo = function(clientX){
   for(let i=0;i<tick;i++){const rs=rawScore(i),ds=dispScore(rs,i);history.push(ds);if(ds>DRIFT_TH&&driftAt===null)driftAt=i;if(ds>ALERT_TH&&alertAt===null)alertAt=i;if(alertAt!==null&&i>=alertAt+ACTION_DELAY&&actionAt===null)actionAt=i;if(i%4===0){const p=pos(i);pts+=` ${p.x},${p.y}`;}}
   line.setAttribute('points',pts);chartInit=false;step();if(!playing)tick--;
   setButtonStates(playing, tick>0);
-};
+}
 
 (function(){
   const bar=document.getElementById('timelineBar');
   let dragging=false;
-  bar.addEventListener('mousedown',e=>{dragging=true;bar.classList.add('dragging');window.seekTo(e.clientX);e.preventDefault();});
-  document.addEventListener('mousemove',e=>{if(dragging)window.seekTo(e.clientX);});
+  bar.addEventListener('mousedown',e=>{dragging=true;bar.classList.add('dragging');seekTo(e.clientX);e.preventDefault();});
+  document.addEventListener('mousemove',e=>{if(dragging)seekTo(e.clientX);});
   document.addEventListener('mouseup',()=>{if(dragging){dragging=false;bar.classList.remove('dragging');}});
-  bar.addEventListener('touchstart',e=>{dragging=true;bar.classList.add('dragging');window.seekTo(e.touches[0].clientX);e.preventDefault();},{passive:false});
-  document.addEventListener('touchmove',e=>{if(dragging)window.seekTo(e.touches[0].clientX);},{passive:true});
+  bar.addEventListener('touchstart',e=>{dragging=true;bar.classList.add('dragging');seekTo(e.touches[0].clientX);e.preventDefault();},{passive:false});
+  document.addEventListener('touchmove',e=>{if(dragging)seekTo(e.touches[0].clientX);},{passive:true});
   document.addEventListener('touchend',()=>{if(dragging){dragging=false;bar.classList.remove('dragging');}});
 })();
 
