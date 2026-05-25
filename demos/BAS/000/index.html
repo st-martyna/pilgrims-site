@@ -408,24 +408,12 @@ footer {
 }
 .btn:hover { background: var(--bg); }
 .btn-primary { background: var(--text); border-color: var(--text); color: white; }
-.timeline { flex: 1; margin: 0 12px; }
-.timeline-bar {
-  height: 16px; display: flex; align-items: center;
-  cursor: pointer; position: relative; margin-bottom: 2px; user-select: none;
-}
-.timeline-track {
-  position: absolute; left: 0; right: 0; height: 4px;
-  background: var(--border-light); border-radius: 2px; transition: height 0.1s;
-}
-.timeline-fill { height: 100%; background: var(--text); border-radius: 2px; position: relative; }
-.timeline-thumb {
-  position: absolute; right: -5px; top: 50%; transform: translateY(-50%);
-  width: 10px; height: 10px; border-radius: 50%;
-  background: var(--text); opacity: 0; transition: opacity 0.15s;
-}
-.timeline-bar:hover .timeline-thumb, .timeline-bar.dragging .timeline-thumb { opacity: 1; }
-.timeline-bar:hover .timeline-track, .timeline-bar.dragging .timeline-track { height: 5px; }
-.timeline-marker { position: absolute; top: 50%; transform: translateY(-50%); width: 2px; height: 10px; background: #dc3545; border-radius: 1px; }
+.timeline { flex: 1; margin: 0 12px; display: flex; flex-direction: column; gap: 4px; }
+#timelineRange { width: 100%; }
+#timelineRange::-webkit-slider-thumb { -webkit-appearance: none; width: 16px; height: 16px; background: var(--text); border-radius: 50%; cursor: pointer; }
+#timelineRange::-moz-range-thumb { width: 16px; height: 16px; background: var(--text); border-radius: 50%; cursor: pointer; border: none; }
+#timelineRange::-webkit-slider-runnable-track { height: 6px; background: linear-gradient(to right, var(--text) 0%, var(--text) var(--progress, 0%), var(--border-light) var(--progress, 0%), var(--border-light) 100%); border-radius: 3px; }
+#timelineRange::-moz-range-track { height: 6px; background: var(--border-light); border-radius: 3px; }
 .timeline-labels { display: flex; justify-content: space-between; font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--text-muted); }
 </style>
 </head>
@@ -548,14 +536,7 @@ footer {
   <button id="pauseBtn" class="btn" onclick="togglePause()" title="Pause" disabled style="font-size:19px">&#9646;&#9646;</button>
   <button class="btn" onclick="toggleSpeed()"><span id="speedLabel">1x</span></button>
   <div class="timeline">
-    <div class="timeline-bar" id="timelineBar">
-      <div class="timeline-track">
-        <div id="tlFill" class="timeline-fill" style="width:0">
-          <div class="timeline-thumb"></div>
-        </div>
-      </div>
-      <div id="tlMarker" class="timeline-marker" style="display:none"></div>
-    </div>
+    <input type="range" id="timelineRange" min="0" max="500" value="0" style="flex:1;cursor:pointer;height:20px;-webkit-appearance:none;background:var(--border-light);border-radius:4px;outline:none;" oninput="seekToTick(this.value)" onchange="seekToTick(this.value)">
     <div class="timeline-labels"><span>00:00</span><span id="tlLabel" style="font-weight:500;color:var(--text-secondary)"></span><span>20:00</span></div>
   </div>
 </footer>
@@ -1154,7 +1135,7 @@ function step(){
   // clock updated in animate()
   // tlLabel updated in animate()
   document.getElementById('depthVal').textContent=Math.round(v.data||0);
-  // tlFill updated in animate()
+  // timeline range updated in animate()
   if(tick>=FAULT){document.getElementById('tlMarker').style.display='block';document.getElementById('tlMarker').style.left=(FAULT/TICKS*100)+'%';}
   renderTelemetry(v,res);renderResiduals(res);renderHero(ds,sz);renderStatus(ds);renderChart();
   const kbResult=renderKB(ds,tick,v);renderPilgrimsOutput(ds,kbResult,tick);renderSaturation(tick);renderEarlySignal(tick,ds,res);updateTrack(pos(tick),ds);
@@ -1169,10 +1150,9 @@ function setButtonStates(isPlaying, hasTick){
 function resetState(){
   tick=0;history.length=0;driftAt=alertAt=actionAt=null;
   document.getElementById('trackLine').setAttribute('points','15,15');
-  document.getElementById('tlMarker').style.display='none';
   document.getElementById('tlLabel').textContent='';
   chartInit=false;lastPred={heading:145.2,roll:0.3,pitch:-1.2,dvlvx:0.8,dvlvz:-0.1,depth:12.5};
-  document.getElementById('tlFill').style.width='0';
+  document.getElementById('timelineRange').value=0;
 }
 
 let lastFrameTime = 0;
@@ -1202,7 +1182,7 @@ function animate(currentTime) {
   const timeStr = formatTime(missionSeconds);
   document.getElementById('clock').textContent = 'T+' + timeStr;
   document.getElementById('tlLabel').textContent = timeStr;
-  document.getElementById('tlFill').style.width = (smoothTick / TICKS * 100) + '%';
+  document.getElementById('timelineRange').value = Math.floor(smoothTick);
   
   // Only run step() when we cross a tick boundary
   while (tick < targetTick && tick < TICKS) {
@@ -1252,27 +1232,14 @@ function toggleSpeed(){
   document.getElementById('speedLabel').textContent=speed+'x';
 }
 
-function seekTo(clientX){
-  const bar=document.getElementById('timelineBar');
-  const r=bar.getBoundingClientRect();
-  tick=Math.floor(Math.max(0,Math.min(1,(clientX-r.left)/r.width))*TICKS);
+function seekToTick(newTick){
+  tick=parseInt(newTick);
   history.length=0;driftAt=alertAt=actionAt=null;lastPred={heading:145.2,roll:0.3,pitch:-1.2,dvlvx:0.8,dvlvz:-0.1,depth:12.5};
   const line=document.getElementById('trackLine');let pts='15,15';
   for(let i=0;i<tick;i++){const rs=rawScore(i),ds=dispScore(rs,i);history.push(ds);if(ds>DRIFT_TH&&driftAt===null)driftAt=i;if(ds>ALERT_TH&&alertAt===null)alertAt=i;if(alertAt!==null&&i>=alertAt+ACTION_DELAY&&actionAt===null)actionAt=i;if(i%4===0){const p=pos(i);pts+=` ${p.x},${p.y}`;}}
   line.setAttribute('points',pts);chartInit=false;step();if(!playing)tick--;
   setButtonStates(playing, tick>0);
 }
-
-(function(){
-  const bar=document.getElementById('timelineBar');
-  let dragging=false;
-  bar.addEventListener('mousedown',e=>{dragging=true;bar.classList.add('dragging');seekTo(e.clientX);e.preventDefault();});
-  document.addEventListener('mousemove',e=>{if(dragging)seekTo(e.clientX);});
-  document.addEventListener('mouseup',()=>{if(dragging){dragging=false;bar.classList.remove('dragging');}});
-  bar.addEventListener('touchstart',e=>{dragging=true;bar.classList.add('dragging');seekTo(e.touches[0].clientX);e.preventDefault();},{passive:false});
-  document.addEventListener('touchmove',e=>{if(dragging)seekTo(e.touches[0].clientX);},{passive:true});
-  document.addEventListener('touchend',()=>{if(dragging){dragging=false;bar.classList.remove('dragging');}});
-})();
 
 initTrack();
 const v0=getVals(0),r0=getRes(0),pred0=getPred(v0);
