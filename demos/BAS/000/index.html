@@ -1266,9 +1266,14 @@ function seekTo(clientX){
   setButtonStates(playing, tick>0);
 }
 
+// Timeline drag handling
 (function(){
   const bar=document.getElementById('timelineBar');
-  if(!bar){console.error('timelineBar not found!');return;}
+  if(!bar){
+    console.error('timelineBar not found!');
+    document.body.insertAdjacentHTML('beforeend','<div style="position:fixed;bottom:60px;left:10px;background:red;color:white;padding:5px;z-index:9999">ERROR: timelineBar not found</div>');
+    return;
+  }
   let dragging=false;
   function startDrag(clientX){
     dragging=true;
@@ -1281,13 +1286,16 @@ function seekTo(clientX){
       bar.classList.remove('dragging');
     }
   }
-  bar.addEventListener('mousedown',function(e){startDrag(e.clientX);e.preventDefault();},false);
-  document.addEventListener('mousemove',function(e){if(dragging)seekTo(e.clientX);},false);
+  bar.addEventListener('mousedown',function(e){startDrag(e.clientX);e.preventDefault();e.stopPropagation();},false);
+  document.addEventListener('mousemove',function(e){if(dragging){seekTo(e.clientX);e.preventDefault();}},false);
   document.addEventListener('mouseup',endDrag,false);
-  bar.addEventListener('touchstart',function(e){startDrag(e.touches[0].clientX);e.preventDefault();},{passive:false,capture:false});
-  document.addEventListener('touchmove',function(e){if(dragging)seekTo(e.touches[0].clientX);},{passive:true});
+  bar.addEventListener('touchstart',function(e){startDrag(e.touches[0].clientX);e.preventDefault();e.stopPropagation();},{passive:false,capture:false});
+  document.addEventListener('touchmove',function(e){if(dragging){seekTo(e.touches[0].clientX);e.preventDefault();}},{passive:false});
   document.addEventListener('touchend',endDrag,false);
   bar.style.cursor='pointer';
+  // Visual confirmation that event handlers are attached
+  bar.style.backgroundColor='rgba(0,128,0,0.1)';
+  setTimeout(function(){bar.style.backgroundColor='';},500);
 })();
 
 // Explicitly attach button handlers
