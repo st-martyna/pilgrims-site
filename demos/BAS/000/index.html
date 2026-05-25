@@ -549,11 +549,11 @@ footer {
 </main>
 
 <footer>
-  <button id="playBtn" class="btn" onclick="togglePlay()" title="Play" style="font-size:15px">&#9654;</button>
-  <button id="pauseBtn" class="btn" onclick="togglePause()" title="Pause" disabled style="font-size:19px">&#9646;&#9646;</button>
-  <button class="btn" onclick="toggleSpeed()"><span id="speedLabel">1x</span></button>
+  <button type="button" id="playBtn" class="btn" onclick="window.togglePlay()" title="Play" style="font-size:15px;touch-action:manipulation">&#9654;</button>
+  <button type="button" id="pauseBtn" class="btn" onclick="window.togglePause()" title="Pause" disabled style="font-size:19px;touch-action:manipulation">&#9646;&#9646;</button>
+  <button type="button" class="btn" onclick="window.toggleSpeed()" style="touch-action:manipulation"><span id="speedLabel">1x</span></button>
   <div class="timeline">
-    <div class="timeline-bar" id="timelineBar" onmousedown="seekTo(event.clientX);event.preventDefault();">
+    <div class="timeline-bar" id="timelineBar" onmousedown="window.seekTo(event.clientX);event.preventDefault();" ontouchstart="window.seekTo(event.touches[0].clientX);event.preventDefault();">
       <div class="timeline-track" style="pointer-events:none;">
         <div id="tlFill" class="timeline-fill" style="width:0">
           <div class="timeline-thumb"></div>
@@ -1225,22 +1225,21 @@ function formatTime(seconds) {
   return String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
 }
 
-function togglePlay(){
-  console.log('togglePlay called');
+window.togglePlay = function(){
   if(tick>=TICKS) resetState();
   playing=true;
   playStartTime = 0;
   if (animationId) cancelAnimationFrame(animationId);
   animationId = requestAnimationFrame(animate);
   setButtonStates(true,true);
-}
+};
 
-function togglePause(){
+window.togglePause = function(){
   if(!playing)return;
   playing=false;
   if (animationId) cancelAnimationFrame(animationId);
   setButtonStates(false,true);
-}
+};
 
 function stopPlayback(){
   playing=false;
@@ -1252,13 +1251,13 @@ function stopPlayback(){
   setButtonStates(false,false);
 }
 
-function toggleSpeed(){
+window.toggleSpeed = function(){
   const sp=[1,5,10,20];
   speed=sp[(sp.indexOf(speed)+1)%sp.length];
   document.getElementById('speedLabel').textContent=speed+'x';
-}
+};
 
-function seekTo(clientX){
+window.seekTo = function(clientX){
   const bar=document.getElementById('timelineBar');
   const r=bar.getBoundingClientRect();
   tick=Math.floor(Math.max(0,Math.min(1,(clientX-r.left)/r.width))*TICKS);
@@ -1267,18 +1266,16 @@ function seekTo(clientX){
   for(let i=0;i<tick;i++){const rs=rawScore(i),ds=dispScore(rs,i);history.push(ds);if(ds>DRIFT_TH&&driftAt===null)driftAt=i;if(ds>ALERT_TH&&alertAt===null)alertAt=i;if(alertAt!==null&&i>=alertAt+ACTION_DELAY&&actionAt===null)actionAt=i;if(i%4===0){const p=pos(i);pts+=` ${p.x},${p.y}`;}}
   line.setAttribute('points',pts);chartInit=false;step();if(!playing)tick--;
   setButtonStates(playing, tick>0);
-}
+};
 
 (function(){
-  console.log('Setting up timeline event listeners');
   const bar=document.getElementById('timelineBar');
-  console.log('timelineBar element:', bar);
   let dragging=false;
-  bar.addEventListener('mousedown',e=>{console.log('timeline mousedown');dragging=true;bar.classList.add('dragging');seekTo(e.clientX);e.preventDefault();});
-  document.addEventListener('mousemove',e=>{if(dragging)seekTo(e.clientX);});
+  bar.addEventListener('mousedown',e=>{dragging=true;bar.classList.add('dragging');window.seekTo(e.clientX);e.preventDefault();});
+  document.addEventListener('mousemove',e=>{if(dragging)window.seekTo(e.clientX);});
   document.addEventListener('mouseup',()=>{if(dragging){dragging=false;bar.classList.remove('dragging');}});
-  bar.addEventListener('touchstart',e=>{dragging=true;bar.classList.add('dragging');seekTo(e.touches[0].clientX);e.preventDefault();},{passive:false});
-  document.addEventListener('touchmove',e=>{if(dragging)seekTo(e.touches[0].clientX);},{passive:true});
+  bar.addEventListener('touchstart',e=>{dragging=true;bar.classList.add('dragging');window.seekTo(e.touches[0].clientX);e.preventDefault();},{passive:false});
+  document.addEventListener('touchmove',e=>{if(dragging)window.seekTo(e.touches[0].clientX);},{passive:true});
   document.addEventListener('touchend',()=>{if(dragging){dragging=false;bar.classList.remove('dragging');}});
 })();
 
