@@ -1226,6 +1226,7 @@ function formatTime(seconds) {
 }
 
 function togglePlay(){
+  console.log('togglePlay called');
   if(tick>=TICKS) resetState();
   playing=true;
   playStartTime = 0;
@@ -1269,9 +1270,11 @@ function seekTo(clientX){
 }
 
 (function(){
+  console.log('Setting up timeline event listeners');
   const bar=document.getElementById('timelineBar');
+  console.log('timelineBar element:', bar);
   let dragging=false;
-  bar.addEventListener('mousedown',e=>{dragging=true;bar.classList.add('dragging');seekTo(e.clientX);e.preventDefault();});
+  bar.addEventListener('mousedown',e=>{console.log('timeline mousedown');dragging=true;bar.classList.add('dragging');seekTo(e.clientX);e.preventDefault();});
   document.addEventListener('mousemove',e=>{if(dragging)seekTo(e.clientX);});
   document.addEventListener('mouseup',()=>{if(dragging){dragging=false;bar.classList.remove('dragging');}});
   bar.addEventListener('touchstart',e=>{dragging=true;bar.classList.add('dragging');seekTo(e.touches[0].clientX);e.preventDefault();},{passive:false});
