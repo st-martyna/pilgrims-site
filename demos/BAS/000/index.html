@@ -406,8 +406,10 @@ footer {
   background: var(--bg-card); color: var(--text); cursor: pointer;
   width: 44px; height: 34px; display: inline-flex; align-items: center; justify-content: center;
 }
-.btn:hover { background: var(--bg); }
+.btn:hover:not(:disabled) { background: var(--bg); }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; pointer-events: none; }
 .btn-primary { background: var(--text); border-color: var(--text); color: white; }
+footer { position: relative; z-index: 100; }
 .timeline { flex: 1; margin: 0 12px; }
 .timeline-bar {
   height: 16px; display: flex; align-items: center;
